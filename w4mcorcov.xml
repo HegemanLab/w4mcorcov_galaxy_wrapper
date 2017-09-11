@@ -1,0 +1,181 @@
+<tool id="w4mcorcov" name="PLS-DA Contrasts" version="0.98.1">
+
+  <description>PLS-DA Contrasts of Univariate Results</description>
+  
+  <requirements>
+    <requirement type="package">r-batch</requirement>
+    <requirement type="package">bioconductor-ropls</requirement>
+  </requirements>
+  
+  <stdio>
+    <exit_code range="1:" level="fatal" />
+  </stdio>
+
+  <command><![CDATA[
+  Rscript $__tool_directory__/w4mcorcov_wrapper.R
+  
+  dataMatrix_in "$dataMatrix_in"
+  sampleMetadata_in "$sampleMetadata_in"
+  variableMetadata_in "$variableMetadata_in"
+  tesC "$tesC"
+  facC "$facC"
+  levCSV '$levCSV'
+  contrast_grid '$contrast_grid'
+  contrast_details '$contrast_details'
+  contrast_corcov '$contrast_corcov'
+  variableMetadata_out '$variableMetadata_out'
+  ]]></command>
+
+  <inputs>
+    <param name="dataMatrix_in" label="Data matrix file" type="data" format="tabular" help="variable x sample, decimal: '.', missing: NA, mode: numerical, sep: tabular" />
+    <param name="sampleMetadata_in" label="Sample metadata file" type="data" format="tabular" help="sample x metadata, decimal: '.', missing: NA, mode: character and numerical, sep: tabular" />
+    <param name="variableMetadata_in" label="Variable metadata file (from Univariate)" type="data" format="tabular" help="variable x metadata, decimal: '.', missing: NA, mode: character and numerical, sep: tabular" />
+    <param name="tesC" label="Test" type="select" help="Name of the statistical test - a component of column names in variable metadata table">
+      <option value="ttest">ttest (qualitative, 2 levels)</option>
+      <option value="wilcoxon">Wilcoxon test (qualitative, 2 levels)</option>      
+      <option value="anova">Analysis of variance (qualitative, more than 2 levels)</option>
+      <option value="kruskal">Kruskal-Wallis rank test (qualitative, more than 2 levels)</option>
+      <option value="pearson">Pearson correlation test (quantitative)</option>
+      <option value="spearman">Spearman correlation rank test (quantitative)</option>
+    </param>
+    <param name="facC" label="Factor of interest" type="text" help="Name of the column of the sample metadata table corresponding to the qualitative or quantitative variable"/>
+    <param name="levCSV" label="Levels of interest" type="text" value = "REQUIRED - AT LEAST TWO COMMA-SEPARATED VALUES" help="comma-separated levels (or comma-less regular expressions to match levels) to consider in analysis; must match at least two levels">
+      <sanitizer>
+        <valid initial="string.letters">
+          <add preset="string.digits"/>
+          <add value="&bsol;"  /> <!-- whack, waka, backslash -->
+          <add value="&Hat;"   /> <!-- hat, caret -->
+          <add value="&dollar;"/> <!-- dollar, dollar-sign -->
+          <add value="&comma;" /> <!-- comma -->
+          <add value="&semi;"  /> <!-- semi, semicolon -->
+          <add value="&colon;" /> <!-- colon -->
+          <add value="&period;"/> <!-- dot, period -->
+          <add value="&vert;"  /> <!-- pipe -->
+          <add value="&quest;" /> <!-- what, question mark -->
+          <add value="&ast;"   /> <!-- splat, asterisk -->
+          <add value="&plus;"  /> <!-- plus -->
+          <add value="&lpar;"  /> <!-- left-paren -->
+          <add value="&rpar;"  /> <!-- right-paren -->
+          <add value="&lsqb;"  /> <!-- l-squib, left-squre-bracket -->
+          <add value="&rsqb;"  /> <!-- r-squib, right-squre-bracket -->
+          <add value="&lcub;"  /> <!-- l-cube, left-curly-bracket -->
+          <add value="&rcub;"  /> <!-- r-cube, right-curly-bracket -->
+        </valid>        
+      </sanitizer>
+    </param>
+    <param name="matchingC" label="Level-name matching" type="select" help="How to specify levels generically">
+      <option value="none"  selected="true">do no generic matching (default)</option>
+      <option value="wildcard">use wild-cards for matching level-names</option>
+      <option value="regex">use regular expressions for matching level-names</option>
+    </param>
+  </inputs>
+
+  <outputs>
+    <data name="contrast_grid" label="${tool.name}_${variableMetadata_in.name}_grid" format="pdf" />
+    <data name="contrast_details" label="${tool.name}_${variableMetadata_in.name}_details" format="pdf" />
+    <data name="contrast_corcov" label="${tool.name}_${variableMetadata_in.name}_corcov" format="pdf" />
+    <data name="variableMetadata_out" label="${tool.name}_${variableMetadata_in.name}_corcov" format="pdf" />
+  </outputs>
+
+  <tests>
+  </tests>
+  <help><![CDATA[
+
+**Author**	Arthur Eschenlauer (University of Minnesota, esch0041@umn.edu)
+
+--------------------------------------------------------------------------
+
+
+
+**Tool updates**
+
+See the **NEWS** section at the bottom of this page
+
+---------------------------------------------------
+
+==========================================
+Run PLS-DA Contrasts of Univariate Results
+==========================================
+
+-----------
+Description
+-----------
+
+The W4M Univarite tool (Thévenot *et al.*, 2015) writes the results of family-wise corrected pairwise significance tests to variableMetadata.
+For instance, a column of variableMetadata might be labeled 'cluster_kruskal_k1.k2_sig' and have values '1' and '0', where '1' means that there is significant evidence against the hypothesis that samples from sampleMetadata whose 'cluster' column contains 'k1' or 'k2' have the same mean intensity for a given feature.
+
+PLS-DA Contrasts produces graphics and data for PLS-DA contrasts of feature-intensities between significantly-different pairs of factor-levels.
+
+-----------------
+Workflow Position
+-----------------
+
+- Upstream tool category: Univariate (Statistical Analysis)
+- Downstream tool categories: Statistical Analysis
+
+----------
+Motivation
+----------
+
+OPLS-DA, generally, and the SIMCA S-plot (Wiklund, 2008), in particular, are employed (e.g. in Sun_2016) to identify features that are potiential biomarkers, i.e. features that are potentially useful to discriminate to which of two classes a sample should be assigned.  Workflow4Metabolomics (W4M) version (Giacomoni_2014, Guitton_2017) does not (as of release 3.0) include a tool for making an S-plot (or equivalent).
+
+The SIMCA S-plot is a trademarked plot computed from mean-centered, pareto-scaled data.  This plot presents the correlation of the first score vector from an OPLS-DA model with the samples used to produce that model versus the covariance of the scores with the samples.  For OPLS-DA, the first score vector represents the variation among the samples that is explained by the contrasting factor.
+
+The principal aims of this tool are:
+
+- To compute multiple contrasts with OPLS-DA and the covariance vs. correlation plot.
+- To visualize multiple contrasts compactly yet informatively.
+- To write the results to data files for use in further multivariate analysis or visualization.
+
+-----------
+Input files
+-----------
+
++---------------------------+------------+
+| File                      |   Format   |
++===========================+============+
+|     Data matrix           |   tabular  |
++---------------------------+------------+
+|     Sample metadata       |   tabular  |
++---------------------------+------------+
+|     Variable metadata     |   tabular  |
++---------------------------+------------+
+
+
+----------
+Parameters
+----------
+
+Data matrix file
+	| variable x sample **dataMatrix** (tabular separated values) file of the numeric data matrix, with . as decimal, and NA for missing values; the table must not contain metadata apart from row and column names; the row and column names must be identical to the rownames of the sample and variable metadata, respectively (see below)
+	|
+
+Sample metadata file
+	| sample x metadata **sampleMetadata** (tabular separated values) file of the numeric and/or character sample metadata, with . as decimal and NA for missing values
+	|
+
+Variable metadata file
+	| variable x metadata **variableMetadata** (tabular separated values) file of the numeric and/or character variable metadata, with . as decimal and NA for missing values
+	|
+
+Column that names the sample (default = '``sampleMetadata``')
+	| name of the column in sample metadata that has the name of the sample
+	|
+
+  ]]></help>
+  <citations>
+    <!-- Giacomoni_2014 W4M 2.5 -->
+    <citation type="doi">10.1093/bioinformatics/btu813</citation>
+    <!-- Guitton_2017 W4M 3.0 -->
+    <citation type="doi">10.1016/j.biocel.2017.07.002</citation>
+    <!-- Sun_2016 Urinary Biomarkers for adolescent idiopathic scoliosis -->
+    <citation type="doi">10.1038/srep22274</citation>
+    <!-- Th_venot_2015 Urinary metabolome statistics -->
+    <citation type="doi">10.1021/acs.jproteome.5b00354</citation>
+    <!-- Wiklund_2008 OPLS PLS-DA and S-plot -->
+    <citation type="doi">10.1021/ac0713510</citation>
+  </citations>
+  <!--
+     vim:noet:sw=4:ts=4
+-->
+</tool>

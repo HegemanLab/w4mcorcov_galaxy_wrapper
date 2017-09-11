@@ -108,6 +108,8 @@
   <tests>
   </tests>
   <help><![CDATA[
+.. |eacute| unicode:: U+000E9 .. LATIN SMALL LETTER E WITH ACUTE - see http://docutils.sourceforge.net/docutils/parsers/rst/include/isolat1.txt or /usr/share/docutils/parsers/rst/include/isolat1.txt
+.. |trade| unicode:: U+2122 .. trademark sign - see http://docutils.sourceforge.net/docutils/parsers/rst/include/isonum.txt or /usr/share/docutils/parsers/rst/include/isonum.txt
 
 **Author** Arthur Eschenlauer (University of Minnesota, esch0041@umn.edu)
 
@@ -129,7 +131,7 @@ Run PLS-DA Contrasts of Univariate Results
 Description
 -----------
 
-The W4M Univarite tool (Thévenot *et al.*, 2015) writes the results of family-wise corrected pairwise significance tests to variableMetadata.
+The W4M Univarite tool (Th\ |eacute|\ venot *et al.*, 2015) writes the results of family-wise corrected pairwise significance tests to variableMetadata.
 For instance, a column of variableMetadata might be labeled 'cluster_kruskal_k1.k2_sig' and have values '1' and '0', where '1' means that there is significant evidence against the hypothesis that samples from sampleMetadata whose 'cluster' column contains 'k1' or 'k2' have the same mean intensity for a given feature.
 
 PLS-DA Contrasts produces graphics and data for PLS-DA contrasts of feature-intensities between significantly-different pairs of factor-levels.
@@ -145,9 +147,9 @@ Workflow Position
 Motivation
 ----------
 
-OPLS-DA, generally, and the SIMCA\ |trade| S-PLOT\ |trade| (Wiklund, 2008), in particular, are employed (e.g. in Sun_2016) to identify features that are potiential biomarkers, i.e. features that are potentially useful to discriminate to which of two classes a sample should be assigned.  Workflow4Metabolomics (W4M) version (Giacomoni_2014, Guitton_2017) does not (as of release 3.0) include a tool for making an S-PLOT (or equivalent).
+OPLS-DA, generally, and the SIMCA\ |trade| S-PLOT\ |trade| (Wiklund *et al.*, 2008), in particular, are employed (e.g. in Sun *et al.*, 2016) to identify features that are potiential biomarkers, i.e. features that are potentially useful to discriminate to which of two classes a sample should be assigned.  Workflow4Metabolomics (W4M) version (Giacomoni *et al.*, 2014, Guitton *et al.*, 2017) does not (as of release 3.0) include a tool for making an S-PLOT\ |trade| (or equivalent).
 
-The S-PLOT\ |trade| is computed from mean-centered, pareto-scaled data.  This plot presents the correlation of the first score vector from an OPLS-DA model with the samples used to produce that model versus the covariance of the scores with the samples.  For OPLS-DA, the first score vector represents the variation among the samples that is explained by the contrasting factor.
+The S-PLOT\ |trade| is computed from mean-centered, pareto-scaled data.  This plot presents the correlation of the first score vector from an OPLS-DA model with the sample-variables used to produce that model versus the covariance of the scores with the sample-variables.  For OPLS-DA, the first score vector represents the variation among the sample-variables that is explained by the contrasting factor.
 
 The principal aims of this tool are:
 
@@ -189,59 +191,61 @@ Output files
 Parameters
 ----------
 
-Data matrix file
+[IN] Data matrix file
 	| variable x sample **dataMatrix** (tabular separated values) file of the numeric data matrix, with . as decimal, and NA for missing values; the table must not contain metadata apart from row and column names; the row and column names must be identical to the rownames of the sample and variable metadata, respectively (see below)
 	|
 
-Sample metadata file
+[IN] Sample metadata file
 	| sample x metadata **sampleMetadata** (tabular separated values) file of the numeric and/or character sample metadata, with . as decimal and NA for missing values
 	|
 
-Variable metadata file
+[IN] Variable metadata file
 	| variable x metadata **variableMetadata** (tabular separated values) file of the numeric and/or character variable metadata, with . as decimal and NA for missing values
 	|
 
-Test
+[IN] Test
 	| Name of the statistical test - a component of column names in variable metadata table
 	| May be one of 'ttest', 'gwilcoxon, anova, kruskal, pearson, spearman'
 	|
 
-Factor of interest
+[IN] Factor of interest
 	| Name of the column of the sample metadata table corresponding to the qualitative or quantitative variable
 	|
 
-Levels of interest
+[IN] Levels of interest
 	| comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions
 	|
 
-Level-name matching
+[IN] Level-name matching
 	| How to specify levels generically - wild cards, regular expressions, or none (no generic matching)
 	|
 
-Contrast-grid output PDF
+[OUT] Contrast-grid output PDF
 	| An output file displaying on a single figure, for each pair of selected level-names, the OPLS-DA scores plot and the correlation-vs.-covariance plot (a work-alike for the SIMCA\ |trade| S-PLOT\ |trade|) 
 	|
 
-Contrast-detail output PDF
+[OUT] Contrast-detail output PDF
 	| An output file having, for each pair of selected level-names, the PCA score-plot for the first two scores, the OPLS-DA score-plot for the first two scores, and the OPLS-DA correlation-vs.-covariance plot (a work-alike for the S-PLOT\ |trade|)
 	|
 
-Contrast Correlation-Covarinace data TABULAR
+[OUT] Contrast Correlation-Covarinace data TABULAR
 	| A tab-separated values file having the following columns
-	|   - feature ID
-	|   - level-name 1
-	|   - level-name 2
-	|   - correlation (from Supplement to Wiklund 2008, doi:10.1021/ac0713510)
-	|   - covariance (from Supplement to Wiklund 2008, doi:10.1021/ac0713510)
-	|   - variable importance in projection (VIP, from Th\ |eacute|venot 2015, doi:10.1021/acs.jproteome.5b00354)
-	|
 
-Variable metadata TABULAR
+- feature ID
+- level-name 1
+- level-name 2
+- correlation (from Supplement to Wiklund, *op. cit.*)
+- covariance (from Supplement to Wiklund, *op. cit.*)
+- variable importance in projection (VIP, from Th\ |eacute|\ venot, *op. cit.*)
+
+
+[OUT] Variable metadata TABULAR
 	| The VariableMetadata input file with the following columns added for each pair of levels:
-	|   - a ``[factor]_[level'1'].[level'2']_cor`` column for Wiklund 2008 correlation
-	|   - a ``[factor]_[level'1'].[level'2']_cov`` column for Wiklund 2008 covariance
-	|   - a ``[factor]_[level'1'].[level'2']_vip`` column for Th\ |eacute|venot 2015 VIP
-	|
+
+- a ``[factor]_[level'1'].[level'2']_cor`` column for Wiklund (*op. cit.*) correlation
+- a ``[factor]_[level'1'].[level'2']_cov`` column for Wiklund (*op. cit.*) covariance
+- a ``[factor]_[level'1'].[level'2']_vip`` column for Th\ |eacute|\ venot (*op. cit.*) VIP
+
 
 
 ---------------------------------------

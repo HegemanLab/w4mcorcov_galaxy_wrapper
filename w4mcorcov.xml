@@ -74,7 +74,7 @@
   <outputs>
     <!--
       pdf1: contrast grid
-        * with S-plots in the upper triangle
+        * with S-PLOTs in the upper triangle
         * PLS score-plots in the lower triangle
         * with level-labels along the diagonal
     -->
@@ -83,7 +83,7 @@
       pdf2: summaries of each contrasts, clearly labeled by level=pair name
         * first PCA score-plot
         * then PLS score-plot
-        * then PLS S-plot; color in red features with VIP > 1
+        * then PLS S-PLOT; color in red features with VIP > 1
     -->
     <data name="contrast_detail" label="${tool.name}_${variableMetadata_in.name}_detail" format="pdf" />
     <!--
@@ -97,12 +97,10 @@
     -->
     <data name="contrast_corcov" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
     <!--
-      tsv2: add columns to variableMetadata
-        1. This could either complement or replace tsv1.
-        2. For each contrast,
-          * add a `[factor]_[level'1'].[level'2']_cor` column for Wiklund\_2008 correlation
-          * add a `[factor]_[level'1'].[level'2']_cov` column for Wiklund\_2008 covariance
-          * add a `[factor]_[level'1'].[level'2']_vip` column for Wiklund\_2008 VIP
+      tsv2: add columns to variableMetadata. For each contrast,
+        1. add a `[factor]_[level'1'].[level'2']_cor` column for Wiklund\_2008 correlation
+        2. add a `[factor]_[level'1'].[level'2']_cov` column for Wiklund\_2008 covariance
+        3. add a `[factor]_[level'1'].[level'2']_vip` column for Wiklund\_2008 VIP
     -->
     <data name="variableMetadata_out" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
   </outputs>
@@ -147,9 +145,9 @@ Workflow Position
 Motivation
 ----------
 
-OPLS-DA, generally, and the SIMCA S-plot (Wiklund, 2008), in particular, are employed (e.g. in Sun_2016) to identify features that are potiential biomarkers, i.e. features that are potentially useful to discriminate to which of two classes a sample should be assigned.  Workflow4Metabolomics (W4M) version (Giacomoni_2014, Guitton_2017) does not (as of release 3.0) include a tool for making an S-plot (or equivalent).
+OPLS-DA, generally, and the SIMCA\ |trade| S-PLOT\ |trade| (Wiklund, 2008), in particular, are employed (e.g. in Sun_2016) to identify features that are potiential biomarkers, i.e. features that are potentially useful to discriminate to which of two classes a sample should be assigned.  Workflow4Metabolomics (W4M) version (Giacomoni_2014, Guitton_2017) does not (as of release 3.0) include a tool for making an S-PLOT (or equivalent).
 
-The SIMCA S-plot is a trademarked plot computed from mean-centered, pareto-scaled data.  This plot presents the correlation of the first score vector from an OPLS-DA model with the samples used to produce that model versus the covariance of the scores with the samples.  For OPLS-DA, the first score vector represents the variation among the samples that is explained by the contrasting factor.
+The S-PLOT\ |trade| is computed from mean-centered, pareto-scaled data.  This plot presents the correlation of the first score vector from an OPLS-DA model with the samples used to produce that model versus the covariance of the scores with the samples.  For OPLS-DA, the first score vector represents the variation among the samples that is explained by the contrasting factor.
 
 The principal aims of this tool are:
 
@@ -220,6 +218,32 @@ Level-name matching
 	| How to specify levels generically - wild cards, regular expressions, or none (no generic matching)
 	|
 
+Contrast-grid output PDF
+	| An output file displaying on a single figure, for each pair of selected level-names, the OPLS-DA scores plot and the correlation-vs.-covariance plot (a work-alike for the SIMCA\ |trade| S-PLOT\ |trade|) 
+	|
+
+Contrast-detail output PDF
+	| An output file having, for each pair of selected level-names, the PCA score-plot for the first two scores, the OPLS-DA score-plot for the first two scores, and the OPLS-DA correlation-vs.-covariance plot (a work-alike for the S-PLOT\ |trade|)
+	|
+
+Contrast Correlation-Covarinace data TABULAR
+	| A tab-separated values file having the following columns
+	|   - feature ID
+	|   - level-name 1
+	|   - level-name 2
+	|   - correlation (from Supplement to Wiklund 2008, doi:10.1021/ac0713510)
+	|   - covariance (from Supplement to Wiklund 2008, doi:10.1021/ac0713510)
+	|   - variable importance in projection (VIP, from Th\ |eacute|venot 2015, doi:10.1021/acs.jproteome.5b00354)
+	|
+
+Variable metadata TABULAR
+	| The VariableMetadata input file with the following columns added for each pair of levels:
+	|   - a ``[factor]_[level'1'].[level'2']_cor`` column for Wiklund 2008 correlation
+	|   - a ``[factor]_[level'1'].[level'2']_cov`` column for Wiklund 2008 covariance
+	|   - a ``[factor]_[level'1'].[level'2']_vip`` column for Th\ |eacute|venot 2015 VIP
+	|
+
+
 ---------------------------------------
 Wild card patterns to match level-names
 ---------------------------------------
@@ -276,6 +300,12 @@ Second Example: Consider these regular expression patterns as possible matches t
 - '``^[A-Z][A-Z]*[0-9][0-9]$``' - NO MATCH - the name does not end with the pattern '``[A-Z][0-9][0-9]$``', i.e., it ends with four digits, not two.
 - '``^[A-Z][0-9]*$``' - NO MATCH - the pattern specifies that second character and all those that follow, if present, must be digits.
 
+----------
+Trademarks
+----------
+
+SIMCA\ |trade| and S-PLOT\ |trade| are registered trademarks of the Umetrics company.  http://umetrics.com/about-us/trademarks
+
 
   ]]></help>
   <citations>
@@ -287,7 +317,7 @@ Second Example: Consider these regular expression patterns as possible matches t
     <citation type="doi">10.1038/srep22274</citation>
     <!-- Th_venot_2015 Urinary metabolome statistics -->
     <citation type="doi">10.1021/acs.jproteome.5b00354</citation>
-    <!-- Wiklund_2008 OPLS PLS-DA and S-plot -->
+    <!-- Wiklund_2008 OPLS PLS-DA and S-PLOT -->
     <citation type="doi">10.1021/ac0713510</citation>
   </citations>
   <!--

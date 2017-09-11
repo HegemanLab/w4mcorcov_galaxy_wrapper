@@ -20,8 +20,9 @@
   tesC "$tesC"
   facC "$facC"
   levCSV '$levCSV'
+  matchingC '$matchingC'
   contrast_grid '$contrast_grid'
-  contrast_details '$contrast_details'
+  contrast_detail '$contrast_detail'
   contrast_corcov '$contrast_corcov'
   variableMetadata_out '$variableMetadata_out'
   ]]></command>
@@ -39,28 +40,28 @@
       <option value="spearman">Spearman correlation rank test (quantitative)</option>
     </param>
     <param name="facC" label="Factor of interest" type="text" help="Name of the column of the sample metadata table corresponding to the qualitative or quantitative variable"/>
-    <param name="levCSV" label="Levels of interest" type="text" value = "REQUIRED - AT LEAST TWO COMMA-SEPARATED VALUES" help="comma-separated levels (or comma-less regular expressions to match levels) to consider in analysis; must match at least two levels">
+    <param name="levCSV" label="Levels of interest" type="text" value = "REQUIRED - AT LEAST TWO COMMA-SEPARATED VALUES" help="comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions">
       <sanitizer>
         <valid initial="string.letters">
           <add preset="string.digits"/>
-          <add value="&bsol;"  /> <!-- whack, waka, backslash -->
-          <add value="&Hat;"   /> <!-- hat, caret -->
-          <add value="&dollar;"/> <!-- dollar, dollar-sign -->
-          <add value="&comma;" /> <!-- comma -->
-          <add value="&semi;"  /> <!-- semi, semicolon -->
-          <add value="&colon;" /> <!-- colon -->
-          <add value="&period;"/> <!-- dot, period -->
-          <add value="&vert;"  /> <!-- pipe -->
-          <add value="&quest;" /> <!-- what, question mark -->
-          <add value="&ast;"   /> <!-- splat, asterisk -->
-          <add value="&plus;"  /> <!-- plus -->
-          <add value="&lpar;"  /> <!-- left-paren -->
-          <add value="&rpar;"  /> <!-- right-paren -->
-          <add value="&lsqb;"  /> <!-- l-squib, left-squre-bracket -->
-          <add value="&rsqb;"  /> <!-- r-squib, right-squre-bracket -->
-          <add value="&lcub;"  /> <!-- l-cube, left-curly-bracket -->
-          <add value="&rcub;"  /> <!-- r-cube, right-curly-bracket -->
-        </valid>        
+          <add value="&#36;"  /> <!-- $ dollar, dollar-sign -->
+          <add value="&#40;"  /> <!-- ( left-paren -->
+          <add value="&#41;"  /> <!-- ) right-paren -->
+          <add value="&#42;"  /> <!-- * splat, asterisk -->
+          <add value="&#43;"  /> <!-- + plus -->
+          <add value="&#44;"  /> <!-- , comma -->
+          <add value="&#46;"  /> <!-- . dot, period -->
+          <add value="&#58;"  /> <!-- : colon -->
+          <add value="&#59;"  /> <!-- ; semi, semicolon -->
+          <add value="&#63;"  /> <!-- ? what, question mark -->
+          <add value="&#91;"  /> <!-- [ l-squib, left-squre-bracket -->
+          <add value="&#92;"  /> <!-- \ whack, backslash -->
+          <add value="&#93;"  /> <!-- ] r-squib, right-squre-bracket -->
+          <add value="&#94;"  /> <!-- ^ hat, caret -->
+          <add value="&#123;" /> <!-- { l-cube, left-curly-bracket -->
+          <add value="&#124;" /> <!-- | pipe -->
+          <add value="&#125;" /> <!-- } r-cube, right-curly-bracket -->
+        </valid>
       </sanitizer>
     </param>
     <param name="matchingC" label="Level-name matching" type="select" help="How to specify levels generically">
@@ -71,17 +72,46 @@
   </inputs>
 
   <outputs>
+    <!--
+      pdf1: contrast grid
+        * with S-plots in the upper triangle
+        * PLS score-plots in the lower triangle
+        * with level-labels along the diagonal
+    -->
     <data name="contrast_grid" label="${tool.name}_${variableMetadata_in.name}_grid" format="pdf" />
-    <data name="contrast_details" label="${tool.name}_${variableMetadata_in.name}_details" format="pdf" />
-    <data name="contrast_corcov" label="${tool.name}_${variableMetadata_in.name}_corcov" format="pdf" />
-    <data name="variableMetadata_out" label="${tool.name}_${variableMetadata_in.name}_corcov" format="pdf" />
+    <!--
+      pdf2: summaries of each contrasts, clearly labeled by level=pair name
+        * first PCA score-plot
+        * then PLS score-plot
+        * then PLS S-plot; color in red features with VIP > 1
+    -->
+    <data name="contrast_detail" label="${tool.name}_${variableMetadata_in.name}_detail" format="pdf" />
+    <!--
+      tsv1: cor and cov dataframe with colums:
+        1. feature ID
+        2. value1
+        3. value2
+        4. Wiklund\_2008 correlation
+        5. Wiklund\_2008 covariance
+        6. Wiklund\_2008 VIP
+    -->
+    <data name="contrast_corcov" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
+    <!--
+      tsv2: add columns to variableMetadata
+        1. This could either complement or replace tsv1.
+        2. For each contrast,
+          * add a `[factor]_[level'1'].[level'2']_cor` column for Wiklund\_2008 correlation
+          * add a `[factor]_[level'1'].[level'2']_cov` column for Wiklund\_2008 covariance
+          * add a `[factor]_[level'1'].[level'2']_vip` column for Wiklund\_2008 VIP
+    -->
+    <data name="variableMetadata_out" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
   </outputs>
 
   <tests>
   </tests>
   <help><![CDATA[
 
-**Author**	Arthur Eschenlauer (University of Minnesota, esch0041@umn.edu)
+**Author** Arthur Eschenlauer (University of Minnesota, esch0041@umn.edu)
 
 --------------------------------------------------------------------------
 
@@ -131,16 +161,31 @@ The principal aims of this tool are:
 Input files
 -----------
 
-+---------------------------+------------+
-| File                      |   Format   |
-+===========================+============+
-|     Data matrix           |   tabular  |
-+---------------------------+------------+
-|     Sample metadata       |   tabular  |
-+---------------------------+------------+
-|     Variable metadata     |   tabular  |
-+---------------------------+------------+
++----------------------+------------+
+| File                 |   Format   |
++======================+============+
+| Data matrix          |   tabular  |
++----------------------+------------+
+| Sample metadata      |   tabular  |
++----------------------+------------+
+| Variable metadata    |   tabular  |
++----------------------+------------+
 
+------------
+Output files
+------------
+
++----------------------+------------+
+| File                 |   Format   |
++======================+============+
+| Contrast grid        |     pdf    |
++----------------------+------------+
+| Contrast detail      |     pdf    |
++----------------------+------------+
+| Contrast cor and cov |   tabular  |
++----------------------+------------+
+| Variable metadata    |   tabular  |
++----------------------+------------+
 
 ----------
 Parameters
@@ -158,9 +203,79 @@ Variable metadata file
 	| variable x metadata **variableMetadata** (tabular separated values) file of the numeric and/or character variable metadata, with . as decimal and NA for missing values
 	|
 
-Column that names the sample (default = '``sampleMetadata``')
-	| name of the column in sample metadata that has the name of the sample
+Test
+	| Name of the statistical test - a component of column names in variable metadata table
+	| May be one of 'ttest', 'gwilcoxon, anova, kruskal, pearson, spearman'
 	|
+
+Factor of interest
+	| Name of the column of the sample metadata table corresponding to the qualitative or quantitative variable
+	|
+
+Levels of interest
+	| comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions
+	|
+
+Level-name matching
+	| How to specify levels generically - wild cards, regular expressions, or none (no generic matching)
+	|
+
+---------------------------------------
+Wild card patterns to match level-names
+---------------------------------------
+
+"wild card" patterns may be used to select level-names.
+
+- use '``?``' to match a single character
+- use '``*``' to match zero or more characters
+- the entire pattern must match the level name
+
+For example
+
+- '``??.leve*``' matches '``my.level``' but not '``my.own.level``'
+- '``*.level``' matches '``my.level``' and '``my.own.level``'
+- '``*.level``' matches neither '``my.level``' nor '``my.own.level``'
+
+------------------------------------------------
+Regular expression patterns to match level-names
+------------------------------------------------
+
+"regular expression" patterns may be used to select level-names.
+
+POSIX 1003.2 standard regular expressions allow precise pattern-matching and are exhaustively defined at:
+http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html
+
+However, only a few basic building blocks of regular expressions need to be mastered for most cases:
+
+- '``^``' matches the beginning of a level-name
+- '``$``' matches the end of a level-name
+- '``.``' outside of square brackets matches a single character
+- '``*``' matches character specified immediately before zero or more times
+- square brackets specify a set of characters to be matched.
+
+Within square brackets
+
+- '``^``' as the first character specifies that the list of characters are those that should **not** be matched.
+- '``-``' is used to specify ranges of characters
+
+Caveat: The tool wrapper uses the comma ('``,``') to split a list of sample-level names, so **commas may not be used within regular expressions for this tool**
+
+First Example: Consider a field of level-names consisting of '``marq3,marq6,marq9,marq12,front3,front6,front9,front12``'
+
+- The regular expression '``^front[0-9][0-9]*$``' will match the same sample-levels as '``front3,front6,front9,front12``'
+- The regular expression '``^[a-z][a-z]3$``' will match the same sample-levels as '``front3,marq3``'
+- The regular expression '``^[a-z][a-z]12$``' will match the same sample-levels as '``front12,marq12``'
+- The regular expression '``^[a-z][a-z][0-9]$``' will match the same sample-levels as '``front3,front6,front9,marq3,marq6,marq9``'
+
+Second Example: Consider these regular expression patterns as possible matches to a sample-level name '``AB0123``':
+
+- '``^[A-Z][A-Z][0-9][0-9]*$``' - MATCHES '``**^AB0123$**``'
+- '``^[A-Z][A-Z]*[0-9][0-9]*$``' - MATCHES '``**^AB0123$**``'
+- '``^[A-Z][0-9]*``' - MATCHES  '``**^A** B0123$``' - first character is a letter, '``*``' can specify zero characters, and end of line did not need to be matched.
+- '``^[A-Z][A-Z][0-9]``' - MATCHES  '``**^AB0** 123$``' - first two characters are letters aind the third is a digit.
+- '``^[A-Z][A-Z]*[0-9][0-9]$``' - NO MATCH - the name does not end with the pattern '``[A-Z][0-9][0-9]$``', i.e., it ends with four digits, not two.
+- '``^[A-Z][0-9]*$``' - NO MATCH - the pattern specifies that second character and all those that follow, if present, must be digits.
+
 
   ]]></help>
   <citations>

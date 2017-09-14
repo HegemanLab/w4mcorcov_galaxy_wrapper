@@ -107,9 +107,11 @@
 
   <tests>
   </tests>
+  <!-- 
+  .. |reg|    unicode:: U+000AE .. REGISTERED SIGN - see http://docutils.sourceforge.net/docutils/parsers/rst/include/isonum.txt or /usr/share/docutils/parsers/rst/include/isonum.txt
+  -->
   <help><![CDATA[
 .. |eacute| unicode:: U+000E9 .. LATIN SMALL LETTER E WITH ACUTE - see http://docutils.sourceforge.net/docutils/parsers/rst/include/isolat1.txt or /usr/share/docutils/parsers/rst/include/isolat1.txt
-.. |trade| unicode:: U+2122 .. trademark sign - see http://docutils.sourceforge.net/docutils/parsers/rst/include/isonum.txt or /usr/share/docutils/parsers/rst/include/isonum.txt
 
 **Author** Arthur Eschenlauer (University of Minnesota, esch0041@umn.edu)
 
@@ -132,9 +134,9 @@ Description
 -----------
 
 The W4M Univarite tool (Th\ |eacute|\ venot *et al.*, 2015) writes the results of family-wise corrected pairwise significance tests to variableMetadata.
-For instance, a column of variableMetadata might be labeled 'cluster_kruskal_k1.k2_sig' and have values '1' and '0', where '1' means that there is significant evidence against the hypothesis that samples from sampleMetadata whose 'cluster' column contains 'k1' or 'k2' have the same mean intensity for a given feature.
+For instance, suppose that you ran Kruskal-Wallis testing for a column named 'cluster' in sampleMetadata that has values 'k1' and 'k2', among other values; a column of variableMetadata would be labeled 'cluster_kruskal_k1.k2_sig' and would have values '1' and '0', where '1' means that there is significant evidence against the hypothesis that samples from sampleMetadata whose 'cluster' column contains 'k1' or 'k2' have the same mean intensity for a given feature.
 
-PLS-DA Contrasts produces graphics and data for PLS-DA contrasts of feature-intensities between significantly-different pairs of factor-levels.
+The 'PLS-DA Contrasts' tool produces graphics and data for OPLS-DA\ :superscript:`®` contrasts of feature-intensities between significantly different pairs of factor-levels.  For each pair-wise contrast, it omits features that are not significantly different.
 
 -----------------
 Workflow Position
@@ -147,7 +149,7 @@ Workflow Position
 Motivation
 ----------
 
-OPLS-DA\ |trade|, generally, and the SIMCA\ |trade| S-PLOT\ |trade| (Wiklund *et al.*, 2008), in particular, are employed (e.g. in Sun *et al.*, 2016) to identify features that are potiential biomarkers, i.e. features that are potentially useful to discriminate to which of two classes a sample should be assigned.  Workflow4Metabolomics (W4M) version (Giacomoni *et al.*, 2014, Guitton *et al.*, 2017) does not (as of release 3.0) include a tool for making an S-PLOT (or equivalent).
+OPLS-DA\ :superscript:`®`, generally, and the SIMCA\ :superscript:`®` S-PLOT\ :superscript:`®` (Wiklund *et al.*, 2008), in particular, are employed (e.g. in Sun *et al.*, 2016) to identify features that are potiential biomarkers, i.e. features that are potentially useful to discriminate to which of two classes a sample should be assigned.  Workflow4Metabolomics (W4M) version (Giacomoni *et al.*, 2014, Guitton *et al.*, 2017) does not (as of release 3.0) include a tool for making an S-PLOT (or equivalent).
 
 The S-PLOT is computed from mean-centered, pareto-scaled data.  This plot presents the correlation of the first score vector from an OPLS-DA model with the sample-variables used to produce that model versus the covariance of the scores with the sample-variables.  For OPLS-DA, the first score vector represents the variation among the sample-variables that is explained by the contrasting factor.
 
@@ -308,7 +310,7 @@ Second Example: Consider these regular expression patterns as possible matches t
 Trademarks
 ----------
 
-OPLS-DA\ |trade|, SIMCA\ |trade|, and S-PLOT\ |trade| are registered trademarks of the Umetrics company.  http://umetrics.com/about-us/trademarks
+OPLS-DA\ :superscript:`®`, SIMCA\ :superscript:`®`, and S-PLOT\ :superscript:`®` are registered trademarks of the Umetrics company.  http://umetrics.com/about-us/trademarks
 
 
   ]]></help>

@@ -19,6 +19,7 @@
   variableMetadata_in "$variableMetadata_in"
   tesC "$tesC"
   facC "$facC"
+  pairSigFeatOnly "$pairSigFeatOnly"
   levCSV '$levCSV'
   matchingC '$matchingC'
   contrast_grid '$contrast_grid'
@@ -40,6 +41,7 @@
       <option value="spearman">Spearman correlation rank test (quantitative)</option>
     </param>
     <param name="facC" label="Factor of interest" type="text" help="Name of the column of the sample metadata table corresponding to the qualitative or quantitative variable"/>
+    <param name="pairSigFeatOnly" type="boolean" checked="true" truevalue="TRUE" falsevalue="FALSE" label="Retain only pairwise-significant features" help="When true, analyze only features that differ significantly for the pair of levels being contrasted; when false, include any feature that varies significantly across all levels."/>
     <param name="levCSV" label="Levels of interest" type="text" value = "REQUIRED - AT LEAST TWO COMMA-SEPARATED VALUES" help="comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions">
       <sanitizer>
         <valid initial="string.letters">
@@ -83,7 +85,7 @@
       pdf2: summaries of each contrasts, clearly labeled by level=pair name
         * first PCA score-plot
         * then PLS score-plot
-        * then PLS S-PLOT; color in red features with VIP > 1
+        * then PLS S-PLOT; color in red features with VIP > 1; color in grey any non-pairwise-significant features, if these are included
     -->
     <data name="contrast_detail" label="${tool.name}_${variableMetadata_in.name}_detail" format="pdf" />
     <!--
@@ -101,6 +103,7 @@
         1. add a `[factor]_[level'1'].[level'2']_cor` column for Wiklund\_2008 correlation
         2. add a `[factor]_[level'1'].[level'2']_cov` column for Wiklund\_2008 covariance
         3. add a `[factor]_[level'1'].[level'2']_vip` column for Wiklund\_2008 VIP
+        4. add a `[factor]_[level'1'].[level'2']_sig` column for pairwise-significant features if non-pairwise-significant features are retained in the analysis
     -->
     <data name="variableMetadata_out" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
   </outputs>
@@ -111,41 +114,32 @@
   .. |reg|    unicode:: U+000AE .. REGISTERED SIGN - see http://docutils.sourceforge.net/docutils/parsers/rst/include/isonum.txt or /usr/share/docutils/parsers/rst/include/isonum.txt
   -->
   <help><![CDATA[
-.. |eacute| unicode:: U+000E9 .. LATIN SMALL LETTER E WITH ACUTE - see http://docutils.sourceforge.net/docutils/parsers/rst/include/isolat1.txt or /usr/share/docutils/parsers/rst/include/isolat1.txt
 
-**Author** Arthur Eschenlauer (University of Minnesota, esch0041@umn.edu)
+**Run PLS-DA Contrasts of Univariate Results**
+----------------------------------------------
 
---------------------------------------------------------------------------
-
-
+**Author** - Arthur Eschenlauer (University of Minnesota, esch0041@umn.edu)
 
 **Tool updates**
+----------------
 
 See the **NEWS** section at the bottom of this page
 
----------------------------------------------------
 
-==========================================
-Run PLS-DA Contrasts of Univariate Results
-==========================================
-
------------
 Description
 -----------
 
-The W4M Univarite tool (Th\ |eacute|\ venot *et al.*, 2015) writes the results of family-wise corrected pairwise significance tests to variableMetadata.
+The W4M Univarite tool (Thévenot *et al.*, 2015) writes the results of family-wise corrected pairwise significance tests to variableMetadata.
 For instance, suppose that you ran Kruskal-Wallis testing for a column named 'cluster' in sampleMetadata that has values 'k1' and 'k2', among other values; a column of variableMetadata would be labeled 'cluster_kruskal_k1.k2_sig' and would have values '1' and '0', where '1' means that there is significant evidence against the hypothesis that samples from sampleMetadata whose 'cluster' column contains 'k1' or 'k2' have the same mean intensity for a given feature.
 
 The 'PLS-DA Contrasts' tool produces graphics and data for OPLS-DA\ :superscript:`®` contrasts of feature-intensities between significantly different pairs of factor-levels.  For each pair-wise contrast, it omits features that are not significantly different.
 
------------------
 Workflow Position
 -----------------
 
 - Upstream tool category: Univariate (Statistical Analysis)
 - Downstream tool categories: Statistical Analysis
 
-----------
 Motivation
 ----------
 
@@ -159,7 +153,6 @@ The principal aims of this tool are:
 - To visualize multiple contrasts compactly yet informatively.
 - To write the results to data files for use in further multivariate analysis or visualization.
 
------------
 Input files
 -----------
 
@@ -173,7 +166,6 @@ Input files
 | Variable metadata    |   tabular  |
 +----------------------+------------+
 
-------------
 Output files
 ------------
 
@@ -189,7 +181,6 @@ Output files
 | Variable metadata    |   tabular  |
 +----------------------+------------+
 
-----------
 Parameters
 ----------
 
@@ -206,28 +197,33 @@ Parameters
 	|
 
 [IN] Test
-	| Name of the statistical test - a component of column names in variable metadata table
+	| Name of the **statistical test** - a component of column names in variable metadata table
 	| May be one of 'ttest', 'gwilcoxon, anova, kruskal, pearson, spearman'
 	|
 
 [IN] Factor of interest
-	| Name of the column of the sample metadata table corresponding to the qualitative or quantitative variable
+	| Name of the **column of sampleMetadata** corresponding to the qualitative or quantitative variable
+	|
+
+[IN] Retain only pairwise-significant features
+	| When true, for each contrast of two levels, include only features that pass the significance threshold for that contrast.
+	| When false, include all features that pass the significance threshold for a difference across all levels.
 	|
 
 [IN] Levels of interest
-	| comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions
+	| comma-separated **level-names** (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions
 	|
 
 [IN] Level-name matching
-	| How to specify levels generically - wild cards, regular expressions, or none (no generic matching)
+	| How to **specify levels generically** - wild cards, regular expressions, or none (no generic matching)
 	|
 
 [OUT] Contrast-grid output PDF
-	| An output file displaying on a single figure, for each pair of selected level-names, the OPLS-DA scores plot and the correlation-vs.-covariance plot (a work-alike for the SIMCA S-PLOT) 
+	| An output file **displaying on a single figure**, for each pair of selected level-names, **the OPLS-DA scores plot and the correlation-vs.-covariance plot** (a work-alike for the SIMCA S-PLOT) 
 	|
 
 [OUT] Contrast-detail output PDF
-	| An output file having, for each pair of selected level-names, the PCA score-plot for the first two scores, the OPLS-DA score-plot for the first two scores, and the OPLS-DA correlation-vs.-covariance plot (a work-alike for the S-PLOT)
+	| An output file having **several plots for each pair of selected level-names**: the PCA score-plot for the first two scores, the OPLS-DA score-plot for the first two scores, and the OPLS-DA correlation-vs.-covariance plot (a work-alike for the S-PLOT)
 	|
 
 [OUT] Contrast Correlation-Covarinace data TABULAR
@@ -238,7 +234,8 @@ Parameters
 - level-name 2
 - correlation (from Supplement to Wiklund, *op. cit.*)
 - covariance (from Supplement to Wiklund, *op. cit.*)
-- variable importance in projection (VIP, from Th\ |eacute|\ venot, *op. cit.*)
+- variable importance in projection (VIP, from Thévenot, *op. cit.*)
+- (only if non-pairwise-significant features are retained in the analysis) indicator of pairwise-significance of feature 
 
 
 [OUT] Variable metadata TABULAR
@@ -246,11 +243,10 @@ Parameters
 
 - a ``[factor]_[level'1'].[level'2']_cor`` column for Wiklund (*op. cit.*) correlation
 - a ``[factor]_[level'1'].[level'2']_cov`` column for Wiklund (*op. cit.*) covariance
-- a ``[factor]_[level'1'].[level'2']_vip`` column for Th\ |eacute|\ venot (*op. cit.*) VIP
+- a ``[factor]_[level'1'].[level'2']_vip`` column for Thévenot (*op. cit.*) VIP
+- (only if non-pairwise-significant features are retained in the analysis) a ``[factor]_[level'1'].[level'2']_sig`` column indicating pairwise-significant features
 
 
-
----------------------------------------
 Wild card patterns to match level-names
 ---------------------------------------
 
@@ -266,7 +262,6 @@ For example
 - '``*.level``' matches '``my.level``' and '``my.own.level``'
 - '``*.level``' matches neither '``my.level``' nor '``my.own.level``'
 
-------------------------------------------------
 Regular expression patterns to match level-names
 ------------------------------------------------
 
@@ -306,7 +301,6 @@ Second Example: Consider these regular expression patterns as possible matches t
 - '``^[A-Z][A-Z]*[0-9][0-9]$``' - NO MATCH - the name does not end with the pattern '``[A-Z][0-9][0-9]$``', i.e., it ends with four digits, not two.
 - '``^[A-Z][0-9]*$``' - NO MATCH - the pattern specifies that second character and all those that follow, if present, must be digits.
 
-----------
 Trademarks
 ----------
 

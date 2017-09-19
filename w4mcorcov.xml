@@ -32,14 +32,12 @@
     <param name="dataMatrix_in" label="Data matrix file" type="data" format="tabular" help="variable x sample, decimal: '.', missing: NA, mode: numerical, sep: tabular" />
     <param name="sampleMetadata_in" label="Sample metadata file" type="data" format="tabular" help="sample x metadata, decimal: '.', missing: NA, mode: character and numerical, sep: tabular" />
     <param name="variableMetadata_in" label="Variable metadata file (from Univariate)" type="data" format="tabular" help="variable x metadata, decimal: '.', missing: NA, mode: character and numerical, sep: tabular" />
-    <param name="facC" label="Factor of interest" type="text" help="Name of the column of the sample metadata table corresponding to the qualitative or quantitative variable"/>
+    <param name="facC" label="Factor of interest" type="text" help="Name of the column of the sample metadata table corresponding to the qualitative variable used to define the contrasts"/>
     <param name="tesC" label="Univariate Significance-Test" type="select" help="Name of the statistical test of significance of the difference of a features between the contrasted factor-levels - a component of column names in variable metadata table">
       <option value="ttest">ttest - Student's t-test (parametric test, qualitative factor with exactly 2 levels)</option>
       <option value="anova">anova - Analysis of variance (parametric test, qualitative factor with more than 2 levels)</option>
-      <option value="pearson">pearson - Pearson correlation test (parametric test, quantitative factor)</option>
       <option value="wilcoxon">wilcoxon - Wilcoxon rank test (nonparametric test, qualitative factor with exactly 2 levels)</option>      
       <option value="kruskal">kruskal - Kruskal-Wallis rank test (nonparametric test, qualitative factor with more than 2 levels)</option>
-      <option value="spearman">spearman - Spearman correlation rank test (nonparametric test, quantitative factor)</option>
     </param>
     <param name="pairSigFeatOnly" type="boolean" checked="true" truevalue="TRUE" falsevalue="FALSE" label="Retain only pairwise-significant features" help="When true, analyze only features that differ significantly for the pair of levels being contrasted; when false, include any feature that varies significantly across all levels."/>
     <param name="levCSV" label="Levels of interest" type="text" value = "REQUIRED - AT LEAST TWO COMMA-SEPARATED VALUES" help="comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions">

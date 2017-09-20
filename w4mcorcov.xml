@@ -127,21 +127,26 @@ See the **NEWS** section at the bottom of this page
 Description
 -----------
 
-The W4M Univarite tool (Thévenot *et al.*, 2015) writes the results of family-wise corrected pairwise significance tests to variableMetadata.
-For instance, suppose that you ran Kruskal-Wallis testing for a column named 'cluster' in sampleMetadata that has values 'k1' and 'k2', among other values; a column of variableMetadata would be labeled 'cluster_kruskal_k1.k2_sig' and would have values '1' and '0', where '1' means that there is significant evidence against the hypothesis that samples from sampleMetadata whose 'cluster' column contains 'k1' or 'k2' have the same mean intensity for a given feature.
+The purpose of the 'PLS-DA Contrasts' tool is to identify and visualize GC-MS or LC-MS features that are likely biomarkers, i.e., that can be used to discriminate between members of a pair of classes of samples.  It is intended to complement Workflow4Metabolomics (W4M, Giacomoni *et al.*, 2014, Guitton *et al.*, 2017), which provides a suite of tools for preprocessing and statistical analysis of LC-MS, GC-MS, and NMR metabolomics data.
 
-The 'PLS-DA Contrasts' tool produces graphics and data for OPLS-DA\ :superscript:`®` contrasts of feature-intensities between significantly different pairs of factor-levels.  For each pair-wise contrast, it omits features that are not significantly different.
+The W4M 'Univariate' tool (Thévenot *et al.*, 2015) adds the results of family-wise corrected pairwise significance-tests as columns of the **variableMetadata** dataset.
+For instance, suppose that you ran Kruskal-Wallis testing for a column named 'cluster' in sampleMetadata that has values 'k1' and 'k2' and at least one other value.
+
+- A column of variableMetadata would be labeled 'cluster_kruskal_sig' and would have values '1' and '0', where '1' means that if the samples are grouped by cluster, there is little strong evidence against the hypothesis that there is no difference among the mean intensity for the feature for each group.
+- A column of variableMetadata would be labeled 'cluster_kruskal_k1.k2_sig' and would have values '1' and '0', where '1' means that there is significant evidence against the hypothesis that samples from sampleMetadata whose 'cluster' column contains 'k1' or 'k2' have the same mean intensity for a given feature.
+
+The 'PLS-DA Contrasts' tool accepts the output of the W4M 'Univariate' tool and produces graphics and data for OPLS-DA\ :superscript:`®` contrasts of feature-intensities between significantly different pairs of factor-levels.  It omits features that are not significantly different either for each pair-wise contrast or across all samples.
 
 Workflow Position
 -----------------
 
-- Upstream tool category: Univariate (Statistical Analysis)
+- Upstream tool: Univariate (category: Statistical Analysis)
 - Downstream tool categories: Statistical Analysis
 
 Motivation
 ----------
 
-OPLS-DA\ :superscript:`®`, generally, and the SIMCA\ :superscript:`®` S-PLOT\ :superscript:`®` (Wiklund *et al.*, 2008), in particular, are employed (e.g. in Sun *et al.*, 2016) to identify features that are potiential biomarkers, i.e. features that are potentially useful to discriminate to which of two classes a sample should be assigned.  Workflow4Metabolomics (W4M) version (Giacomoni *et al.*, 2014, Guitton *et al.*, 2017) does not (as of release 3.0) include a tool for making an S-PLOT (or equivalent).
+OPLS-DA\ :superscript:`®`, generally, and the SIMCA\ :superscript:`®` S-PLOT\ :superscript:`®` (Wiklund *et al.*, 2008), in particular, are employed (e.g. in Sun *et al.*, 2016) to identify features that are potiential biomarkers, i.e. features that are potentially useful to discriminate to which of two classes a sample should be assigned.  W4M does not (as of release 3.0) include a tool for making the equivalent of an S-PLOT.
 
 The S-PLOT is computed from mean-centered, pareto-scaled data.  This plot presents the correlation of the first score vector from an OPLS-DA model with the sample-variables used to produce that model versus the covariance of the scores with the sample-variables.  For OPLS-DA, the first score vector represents the variation among the sample-variables that is explained by the contrasting factor.
 

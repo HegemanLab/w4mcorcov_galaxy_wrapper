@@ -5,6 +5,7 @@
   <requirements>
     <requirement type="package">r-batch</requirement>
     <requirement type="package">bioconductor-ropls</requirement>
+    <!-- <requirement type="package">r-foreach</requirement> -->
   </requirements>
   
   <stdio>
@@ -13,7 +14,6 @@
 
   <command><![CDATA[
   Rscript $__tool_directory__/w4mcorcov_wrapper.R
-  
   dataMatrix_in "$dataMatrix_in"
   sampleMetadata_in "$sampleMetadata_in"
   variableMetadata_in "$variableMetadata_in"
@@ -32,8 +32,8 @@
     <param name="dataMatrix_in" label="Data matrix file" type="data" format="tabular" help="variable x sample, decimal: '.', missing: NA, mode: numerical, sep: tabular" />
     <param name="sampleMetadata_in" label="Sample metadata file" type="data" format="tabular" help="sample x metadata, decimal: '.', missing: NA, mode: character and numerical, sep: tabular" />
     <param name="variableMetadata_in" label="Variable metadata file (from Univariate)" type="data" format="tabular" help="variable x metadata, decimal: '.', missing: NA, mode: character and numerical, sep: tabular" />
-    <param name="facC" label="Factor of interest" type="text" help="Name of the column of the sample metadata table corresponding to the qualitative variable used to define the contrasts"/>
-    <param name="tesC" label="Univariate Significance-Test" type="select" help="Name of the statistical test of significance of the difference of a features between the contrasted factor-levels - a component of column names in variable metadata table">
+    <param name="facC" label="Factor of interest" type="text" help="Name of the column of the sample metadata table corresponding to the qualitative variable used to define the contrasts - it is a portion of the column names in the variable metadata file"/>
+    <param name="tesC" label="Univariate Significance-Test" type="select" help="Name of the statistical test that was run in Univariate to produce the variable metadata file - it is a portion of the column names in that file">
       <option value="ttest">ttest - Student's t-test (parametric test, qualitative factor with exactly 2 levels)</option>
       <option value="anova">anova - Analysis of variance (parametric test, qualitative factor with more than 2 levels)</option>
       <option value="wilcoxon">wilcoxon - Wilcoxon rank test (nonparametric test, qualitative factor with exactly 2 levels)</option>      
@@ -64,7 +64,7 @@
         </valid>
       </sanitizer>
     </param>
-    <param name="matchingC" label="Level-name matching" type="select" help="How to specify levels generically">
+    <param name="matchingC" label="Level-name matching" type="select" help="how to specify levels generically">
       <option value="none"  selected="true">do no generic matching (default)</option>
       <option value="wildcard">use wild-cards for matching level-names</option>
       <option value="regex">use regular expressions for matching level-names</option>
@@ -87,13 +87,13 @@
     -->
     <data name="contrast_detail" label="${tool.name}_${variableMetadata_in.name}_detail" format="pdf" />
     <!--
-      tsv1: cor and cov dataframe with colums:
+      tsv1: cor and cov table with columns:
         1. feature ID
         2. value1
         3. value2
-        4. Wiklund\_2008 correlation
-        5. Wiklund\_2008 covariance
-        6. Wiklund\_2008 VIP
+        4. Wiklund_2008 correlation
+        5. Wiklund_2008 covariance
+        6. Wiklund_2008 VIP
     -->
     <data name="contrast_corcov" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
     <!--
@@ -137,11 +137,11 @@ For instance, suppose that you ran Kruskal-Wallis testing for a column named 'cl
 
 The 'PLS-DA Contrasts' tool accepts the output of the W4M 'Univariate' tool and produces graphics and data for OPLS-DA\ :superscript:`®` contrasts of feature-intensities between significantly different pairs of factor-levels.  It omits features that are not significantly different either for each pair-wise contrast or across all samples.
 
-Workflow Position
------------------
+W4M Workflow Position
+---------------------
 
-- Upstream tool: Univariate (category: Statistical Analysis)
-- Downstream tool categories: Statistical Analysis
+- Upstream tool: **Univariate** (category: Statistical Analysis)
+- Downstream tool categories: **Statistical Analysis**
 
 Motivation
 ----------
@@ -159,30 +159,30 @@ The principal aims of this tool are:
 Input files
 -----------
 
-+----------------------+------------+
-| File                 |   Format   |
-+======================+============+
-| Data matrix          |   tabular  |
-+----------------------+------------+
-| Sample metadata      |   tabular  |
-+----------------------+------------+
-| Variable metadata    |   tabular  |
-+----------------------+------------+
++----------------------+-----------+
+| File                 |  Format   |
++======================+===========+
+| Data matrix          |  tabular  |
++----------------------+-----------+
+| Sample metadata      |  tabular  |
++----------------------+-----------+
+| Variable metadata    |  tabular  |
++----------------------+-----------+
 
 Output files
 ------------
 
-+----------------------+------------+
-| File                 |   Format   |
-+======================+============+
-| Contrast grid        |     pdf    |
-+----------------------+------------+
-| Contrast detail      |     pdf    |
-+----------------------+------------+
-| Contrast cor and cov |   tabular  |
-+----------------------+------------+
-| Variable metadata    |   tabular  |
-+----------------------+------------+
++----------------------+-----------+
+| File                 |  Format   |
++======================+===========+
+| Contrast grid        |    pdf    |
++----------------------+-----------+
+| Contrast detail      |    pdf    |
++----------------------+-----------+
+| Contrast cor and cov |  tabular  |
++----------------------+-----------+
+| Variable metadata    |  tabular  |
++----------------------+-----------+
 
 Parameters
 ----------

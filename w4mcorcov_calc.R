@@ -74,19 +74,21 @@ corcov_calc <- function(calc_env, failure_action = stop) {
     )
   }
 
-
   # Wiklund_2008 centers and pareto-scales data before OPLS-DA S-plot
+  # center
   cdm <- center_colmeans(calc_env$data_matrix)
+  # pareto-scale
   my_scale <- sqrt(apply(cdm, 2, sd, na.rm=TRUE))
   scdm <- sweep(cdm, 2, my_scale, "/")
 
+  # pattern to match column names like k10_kruskal_k4.k3_sig
   col_pattern <- sprintf('^%s_%s_(.*)[.](.*)_sig$', calc_env$facC, calc_env$tesC)
   vrbl_metadata <- calc_env$vrbl_metadata
   the_colnames <- colnames(vrbl_metadata)
   smpl_metadata <- calc_env$smpl_metadata
   facC <- calc_env$facC
+  # get the facC column from sampleMetadata, dropping to one dimension
   smpl_metadata_facC <- smpl_metadata[,facC]
-  print(smpl_metadata_facC)
   
   # allocate a slot in the environment for the contrast_list, each element of which will be a data.frame with this structure:
   #   - feature ID
@@ -105,29 +107,30 @@ corcov_calc <- function(calc_env, failure_action = stop) {
   )
   # process columns matching the pattern
   for (i in 1:length(col_matches)) {
+    # for each potential match of the pattern
     col_match <- col_matches[[i]]
     if (length(col_match) > 0) {
-      vrbl_metadata_col <- col_match[1]
-      fctr_lvl_1 <- col_match[2]
-      fctr_lvl_2 <- col_match[3]
+      # it's an actual match; extract the pieces, e.g., k10_kruskal_k4.k3_sig
+      vrbl_metadata_col <- col_match[1]               # ^^^^^^^^^^^^^^^^^^^^^  # Column name
+      fctr_lvl_1 <- col_match[2]                      #             ^^         # Factor-level 1
+      fctr_lvl_2 <- col_match[3]                      #                ^^      # Factor-level 2
+      # only process this column if both factors are members of lvlCSV
       is_match <- isLevelSelected(fctr_lvl_1) && isLevelSelected(fctr_lvl_2)
+      # TODO delete next line displaying currently-processed column
       cat(sprintf("%s %s %s %s\n", vrbl_metadata_col, fctr_lvl_1, fctr_lvl_2, is_match))
-      print(facC)
-      print("foo")
-      print("bar")
+      # choose only samples with one of the two factors for this column
       chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
-      print(chosen_samples)
-      print("baz")
-      strF(scdm)
-      my_matrix <- scdm[ 1 == vrbl_metadata[,vrbl_metadata_col], chosen_samples, drop = FALSE ]
-      strF(my_matrix)
+      # transpose matrix because ropls matrix is the transpose of XCMS matrix
+      # extract only the significantly-varying features and the chosen samples
+      # TODO add e.g. k10_kruskal_sig column to test data
+      # TODO honor pairSigFeatOnly == FALSE
+      my_matrix <- t( scdm[ 1 == vrbl_metadata[,vrbl_metadata_col], chosen_samples, drop = FALSE ] )
+      # predictor has exactly two levels
       predictor <- smpl_metadata_facC[chosen_samples]
-      print(predictor)
-      print(   ncol(my_matrix) )
-      print(   nrow(my_matrix) )
-      print( length(predictor) )
-      if (is_match && nrow(my_matrix) > 1) {
-        my_oplsda <- opls(t(my_matrix), predictor, algoC = algoC, predI = 1, orthoI = 1, plotL = TRUE)
+      if (is_match && ncol(my_matrix) > 1 && length(unique(predictor))> 1) {
+        my_oplsda <- opls(my_matrix, predictor, algoC = algoC, predI = 1, orthoI = 1, printL = FALSE, plotL = FALSE)
+      } else {
+        my_oplsda <- NULL
       }
     }
   }

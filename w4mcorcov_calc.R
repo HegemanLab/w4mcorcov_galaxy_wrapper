@@ -57,13 +57,36 @@ corcov_calc <- function(calc_env, failure_action = stop) {
     return ( FALSE )
   }
 
+  # extract the levels from the environment
+  levCSV <- calc_env$levCSV
+  # matchingC: one of { "none", "wildcard", "regex" }
+  matchingC <- calc_env$matchingC
+  # transform wildcard to regex
+  if (matchingC == "wildcard") {
+    levCSV <- gsub("[.]", "[.]", levCSV)
+    levCSV <- utils::glob2rx(levCSV, trim.tail = FALSE)
+  }
+  # function to determine whether level is a member of levCSV
+  isLevelSelected <- function(lvl) {
+    matchFun <- if (matchingC == "regex") grepl else `==`
+    return(
+      0 < sum(sapply(X = strsplit(x = levCSV, split = ",", fixed = TRUE)[[1]], FUN = matchFun, lvl))
+    )
+  }
+
+
   # Wiklund_2008 centers and pareto-scales data before OPLS-DA S-plot
   cdm <- center_colmeans(calc_env$data_matrix)
   my_scale <- sqrt(apply(cdm, 2, sd, na.rm=TRUE))
   scdm <- sweep(cdm, 2, my_scale, "/")
 
   col_pattern <- sprintf('^%s_%s_(.*)[.](.*)_sig$', calc_env$facC, calc_env$tesC)
-  the_colnames <- colnames(calc_env$vrbl_metadata)
+  vrbl_metadata <- calc_env$vrbl_metadata
+  the_colnames <- colnames(vrbl_metadata)
+  smpl_metadata <- calc_env$smpl_metadata
+  facC <- calc_env$facC
+  smpl_metadata_facC <- smpl_metadata[,facC]
+  print(smpl_metadata_facC)
   
   # allocate a slot in the environment for the contrast_list, each element of which will be a data.frame with this structure:
   #   - feature ID
@@ -73,16 +96,39 @@ corcov_calc <- function(calc_env, failure_action = stop) {
   #   - Wiklund_2008 covariance
   #   - Wiklund_2008 VIP
   calc_env$contrast_list <- list()
+  # for each column name, extract the parts of the name matched by 'col_pattern', if any
   col_matches <- lapply(
     X = the_colnames,
     FUN = function(x) {
-      regmatches(x, regexec(col_pattern,x))[[1]]
+      regmatches( x, regexec(col_pattern, x) )[[1]]
     }
   )
+  # process columns matching the pattern
   for (i in 1:length(col_matches)) {
     col_match <- col_matches[[i]]
     if (length(col_match) > 0) {
-      print(col_match)
+      vrbl_metadata_col <- col_match[1]
+      fctr_lvl_1 <- col_match[2]
+      fctr_lvl_2 <- col_match[3]
+      is_match <- isLevelSelected(fctr_lvl_1) && isLevelSelected(fctr_lvl_2)
+      cat(sprintf("%s %s %s %s\n", vrbl_metadata_col, fctr_lvl_1, fctr_lvl_2, is_match))
+      print(facC)
+      print("foo")
+      print("bar")
+      chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
+      print(chosen_samples)
+      print("baz")
+      strF(scdm)
+      my_matrix <- scdm[ 1 == vrbl_metadata[,vrbl_metadata_col], chosen_samples, drop = FALSE ]
+      strF(my_matrix)
+      predictor <- smpl_metadata_facC[chosen_samples]
+      print(predictor)
+      print(   ncol(my_matrix) )
+      print(   nrow(my_matrix) )
+      print( length(predictor) )
+      if (is_match && nrow(my_matrix) > 1) {
+        my_oplsda <- opls(t(my_matrix), predictor, algoC = algoC, predI = 1, orthoI = 1, plotL = TRUE)
+      }
     }
   }
 

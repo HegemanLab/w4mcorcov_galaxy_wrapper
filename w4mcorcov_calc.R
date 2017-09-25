@@ -83,13 +83,15 @@ corcov_calc <- function(calc_env, failure_action = stop) {
 
   # pattern to match column names like k10_kruskal_k4.k3_sig
   col_pattern <- sprintf('^%s_%s_(.*)[.](.*)_sig$', calc_env$facC, calc_env$tesC)
+  intersample_sig_col  <- sprintf('%s_%s_sig', calc_env$facC, calc_env$tesC)
   vrbl_metadata <- calc_env$vrbl_metadata
   the_colnames <- colnames(vrbl_metadata)
   smpl_metadata <- calc_env$smpl_metadata
   facC <- calc_env$facC
   # get the facC column from sampleMetadata, dropping to one dimension
   smpl_metadata_facC <- smpl_metadata[,facC]
-  
+  pairSigFeatOnly <- calc_env$pairSigFeatOnly
+
   # allocate a slot in the environment for the contrast_list, each element of which will be a data.frame with this structure:
   #   - feature ID
   #   - value1
@@ -122,9 +124,9 @@ corcov_calc <- function(calc_env, failure_action = stop) {
       chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
       # transpose matrix because ropls matrix is the transpose of XCMS matrix
       # extract only the significantly-varying features and the chosen samples
-      # TODO add e.g. k10_kruskal_sig column to test data
-      # TODO honor pairSigFeatOnly == FALSE
-      my_matrix <- t( scdm[ 1 == vrbl_metadata[,vrbl_metadata_col], chosen_samples, drop = FALSE ] )
+      col_selector <- if ( pairSigFeatOnly ) intersample_sig_col else vrbl_metadata_col
+      print(sprintf("col_selector %s", col_selector))
+      my_matrix <- t( scdm[ 1 == vrbl_metadata[,col_selector], chosen_samples, drop = FALSE ] )
       # predictor has exactly two levels
       predictor <- smpl_metadata_facC[chosen_samples]
       if (is_match && ncol(my_matrix) > 1 && length(unique(predictor))> 1) {

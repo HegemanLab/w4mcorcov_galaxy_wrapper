@@ -82,9 +82,10 @@ corcov_calc <- function(calc_env, failure_action = stop) {
     )
   }
 
+  # transpose matrix because ropls matrix is the transpose of XCMS matrix
   # Wiklund_2008 centers and pareto-scales data before OPLS-DA S-plot
   # center
-  cdm <- center_colmeans(data_matrix)
+  cdm <- center_colmeans(t(data_matrix))
   # pareto-scale
   my_scale <- sqrt(apply(cdm, 2, sd, na.rm=TRUE))
   scdm <- sweep(cdm, 2, my_scale, "/")
@@ -129,20 +130,78 @@ corcov_calc <- function(calc_env, failure_action = stop) {
       chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
       # transpose matrix because ropls matrix is the transpose of XCMS matrix
       # extract only the significantly-varying features and the chosen samples
-      col_selector <- if ( pairSigFeatOnly ) intersample_sig_col else vrbl_metadata_col
+      col_selector <- if ( pairSigFeatOnly ) {
+        vrbl_metadata_col
+      } else {
+        intersample_sig_col
+      }
       print(sprintf("col_selector %s", col_selector))
-      my_matrix <- t( scdm[ 1 == vrbl_metadata[,col_selector], chosen_samples, drop = FALSE ] )
+      my_matrix <- scdm[ chosen_samples, 1 == vrbl_metadata[,col_selector], drop = FALSE ] 
+      # ropls::strF(my_matrix)
       # predictor has exactly two levels
       predictor <- smpl_metadata_facC[chosen_samples]
       if (is_match && ncol(my_matrix) > 1 && length(unique(predictor))> 1) {
-        my_oplsda <- opls(my_matrix, predictor, algoC = algoC, predI = 1, orthoI = 1, printL = FALSE, plotL = FALSE)
+        my_oplsda <- opls(my_matrix, predictor, algoC = algoC, predI = 1, orthoI = 1, printL = FALSE, plotL = TRUE)
+        my_cor_vs_cov <- cor_vs_cov(my_matrix, my_oplsda)
+        with(
+          my_cor_vs_cov
+        , {
+            plot(y = correlation, x = covariance, type="p")
+          }
+        )
       } else {
         my_oplsda <- NULL
+        cat("NO PLOT\n")
       }
     }
   }
 
   return ( TRUE )
+}
+
+# Calculate data for correlation-versus-covariance plot
+#   Adapted from Wiklund_2008 and https://github.com/HegemanLab/extra_tools/blob/master/generic_PCA.R
+cor_vs_cov <- function(matrix_x, ropls_x) {
+  x_class <- class(ropls_x)
+  if ( !( as.character(x_class) == "opls" ) ) { # || !( attr(class(x_class),"package") == "ropls" ) ) {
+    stop( "cor_vs_cov: Expected ropls_x to be of class ropls::opls but instead it was of class ", as.character(x_class) )
+  }
+  result <- list()
+  # suppLs$algoC - Character: algorithm used - "svd" for singular value decomposition; "nipals" for NIPALS
+  if ( ropls_x@suppLs$algoC == "nipals") {
+    # Equations (1) and (2) from *Supplement to* Wiklund 2008, doi:10.1021/ac0713510
+    mag <- function(one_dimensional) sqrt(sum(one_dimensional * one_dimensional))
+    mag_xi <- sapply(X = 1:ncol(matrix_x), FUN = function(x) mag(matrix_x[,x]))
+    score_matrix <- ropls_x@scoreMN
+    score_matrix_transposed <- t(score_matrix)
+    score_matrix_magnitude <- mag(score_matrix)
+    result$covariance <- score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * score_matrix_magnitude )
+    result$correlation <- score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * mag_xi )
+  } else {
+    # WARNING - untested code - I don't have test data to exercise this branch
+    # Equations (1) and (2) from Wiklund 2008, doi:10.1021/ac0713510
+    # scoreMN - Numerical matrix of x scores (T; dimensions: nrow(x) x predI) X = TP' + E; Y = TC' + F
+    score_matrix <- ropls_x@scoreMN
+    score_matrix_transposed <- t(score_matrix)
+    cov_divisor <- nrow(matrix_x) - 1
+    result$covariance <- sapply(
+      X = 1:ncol(matrix_x)
+    , FUN = function(x) score_matrix_transposed %*% matrix_x[,x] / cov_divisor
+    )
+    score_sd <- sapply(
+      X = 1:ncol(score_matrix)
+      , FUN = function(x) sd(score_matrix[,x])
+    )
+    # xSdVn - Numerical vector: variable standard deviations of the 'x' matrix
+    xSdVn <- ropls_x@xSdVn
+    result$correlation <- sapply(
+      X = 1:ncol(matrix_x)
+    , FUN = function(x) {
+        ( score_matrix_transposed / score_sd ) %*% ( matrix_x[,x] / (xSdVn[x] * cov_divisor) )
+      }
+    )
+  }
+  return (result)
 }
 
 # # Wiklund_2008 centers and pareto-scales data before OPLS-DA S-plot

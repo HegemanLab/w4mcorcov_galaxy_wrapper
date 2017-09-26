@@ -209,8 +209,8 @@ Parameters
 	|
 
 [IN] Retain only pairwise-significant features
-	| When true, for each contrast of two levels, include only features that pass the significance threshold for that contrast.
-	| When false, include all features that pass the significance threshold for a difference across all levels.
+	| When true, for each contrast of two levels, include only those features which pass the significance threshold for that contrast.  Choosing true results in an OPLS-DA model that better reflects and visualizes the difference detected by univariate analysis, with somewhat increased reliability of prediction (as assessed by cross-validation).
+	| When false, include all features that pass the significance threshold when testing for difference across all factor-levels.  This choice produces a plot that displays more features but is not necessarily more informative.
 	|
 
 [IN] Levels of interest

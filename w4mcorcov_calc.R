@@ -57,10 +57,18 @@ corcov_calc <- function(calc_env, failure_action = stop) {
     return ( FALSE )
   }
 
+  # extract command-line parameters from the environment
+  vrbl_metadata <- calc_env$vrbl_metadata
+  smpl_metadata <- calc_env$smpl_metadata
+  data_matrix <- calc_env$data_matrix
+  pairSigFeatOnly <- calc_env$pairSigFeatOnly
+  facC <- calc_env$facC
+  tesC <- calc_env$tesC
   # extract the levels from the environment
   levCSV <- calc_env$levCSV
-  # matchingC: one of { "none", "wildcard", "regex" }
+  # matchingC is one of { "none", "wildcard", "regex" }
   matchingC <- calc_env$matchingC
+
   # transform wildcard to regex
   if (matchingC == "wildcard") {
     levCSV <- gsub("[.]", "[.]", levCSV)
@@ -76,21 +84,17 @@ corcov_calc <- function(calc_env, failure_action = stop) {
 
   # Wiklund_2008 centers and pareto-scales data before OPLS-DA S-plot
   # center
-  cdm <- center_colmeans(calc_env$data_matrix)
+  cdm <- center_colmeans(data_matrix)
   # pareto-scale
   my_scale <- sqrt(apply(cdm, 2, sd, na.rm=TRUE))
   scdm <- sweep(cdm, 2, my_scale, "/")
 
   # pattern to match column names like k10_kruskal_k4.k3_sig
-  col_pattern <- sprintf('^%s_%s_(.*)[.](.*)_sig$', calc_env$facC, calc_env$tesC)
-  intersample_sig_col  <- sprintf('%s_%s_sig', calc_env$facC, calc_env$tesC)
-  vrbl_metadata <- calc_env$vrbl_metadata
-  the_colnames <- colnames(vrbl_metadata)
-  smpl_metadata <- calc_env$smpl_metadata
-  facC <- calc_env$facC
+  col_pattern <- sprintf('^%s_%s_(.*)[.](.*)_sig$', facC, tesC)
+  # column name like k10_kruskal_sig
+  intersample_sig_col  <- sprintf('%s_%s_sig', facC, tesC)
   # get the facC column from sampleMetadata, dropping to one dimension
   smpl_metadata_facC <- smpl_metadata[,facC]
-  pairSigFeatOnly <- calc_env$pairSigFeatOnly
 
   # allocate a slot in the environment for the contrast_list, each element of which will be a data.frame with this structure:
   #   - feature ID
@@ -101,6 +105,7 @@ corcov_calc <- function(calc_env, failure_action = stop) {
   #   - Wiklund_2008 VIP
   calc_env$contrast_list <- list()
   # for each column name, extract the parts of the name matched by 'col_pattern', if any
+  the_colnames <- colnames(vrbl_metadata)
   col_matches <- lapply(
     X = the_colnames,
     FUN = function(x) {

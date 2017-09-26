@@ -172,7 +172,10 @@ corcov_calc <- function(calc_env, failure_action = stop) {
 }
 
 # Calculate data for correlation-versus-covariance plot
-#   Adapted from Wiklund_2008 and https://github.com/HegemanLab/extra_tools/blob/master/generic_PCA.R
+#   Adapted from:
+#     Wiklund_2008 doi:10.1021/ac0713510
+#     Galindo_Prieto_2014 doi:10.1002/cem.2627
+#     https://github.com/HegemanLab/extra_tools/blob/master/generic_PCA.R
 cor_vs_cov <- function(matrix_x, ropls_x) {
   x_class <- class(ropls_x)
   if ( !( as.character(x_class) == "opls" ) ) { # || !( attr(class(x_class),"package") == "ropls" ) ) {
@@ -213,6 +216,9 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
       }
     )
   }
+  # Variant 4 of Variable Influence on Projection for OPLS from Galindo_Prieto_2014
+  result$vip4p <- ropls_x@vipVn
+  result$vip4o <- ropls_x@orthoVipVn
   return (result)
 }
 

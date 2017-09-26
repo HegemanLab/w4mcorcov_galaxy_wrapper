@@ -136,17 +136,29 @@ corcov_calc <- function(calc_env, failure_action = stop) {
         intersample_sig_col
       }
       print(sprintf("col_selector %s", col_selector))
-      my_matrix <- scdm[ chosen_samples, 1 == vrbl_metadata[,col_selector], drop = FALSE ] 
+      my_matrix <- scdm[ chosen_samples, 1 == vrbl_metadata[,col_selector], drop = FALSE ]
       # ropls::strF(my_matrix)
       # predictor has exactly two levels
       predictor <- smpl_metadata_facC[chosen_samples]
+      file.pdfC <- sprintf("%s.pdf",vrbl_metadata_col)
+      print(file.pdfC)
       if (is_match && ncol(my_matrix) > 1 && length(unique(predictor))> 1) {
-        my_oplsda <- opls(my_matrix, predictor, algoC = algoC, predI = 1, orthoI = 1, printL = FALSE, plotL = TRUE)
+        my_oplsda <- opls(my_matrix, predictor, algoC = algoC, predI = 1, orthoI = 1,
+           printL = FALSE, plotL = TRUE,
+           parDevNewL =  TRUE,
+           file.pdfC = file.pdfC)
         my_cor_vs_cov <- cor_vs_cov(my_matrix, my_oplsda)
         with(
           my_cor_vs_cov
         , {
-            plot(y = correlation, x = covariance, type="p")
+            min_x <- min(covariance)
+            max_x <- max(covariance)
+            lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
+            plot(y = correlation, x = covariance, type="p", xlim=c(-lim_x, lim_x), ylim=c(-1,+1))
+            low_x <- -0.7 * lim_x
+            high_x <- 0.7 * lim_x
+            text(x = low_x, y = -0.15, labels = fctr_lvl_1)
+            text(x = high_x, y = 0.15, labels = fctr_lvl_2)
           }
         )
       } else {

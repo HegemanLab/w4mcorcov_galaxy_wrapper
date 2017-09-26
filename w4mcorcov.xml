@@ -93,15 +93,17 @@
         3. value2
         4. Wiklund_2008 correlation
         5. Wiklund_2008 covariance
-        6. Wiklund_2008 VIP
+        6. Galindo_Prieto_2014 VIP for predictive components, VIP4,p
+        6. Galindo_Prieto_2014 VIP for orthogonal components, VIP4,o
     -->
     <data name="contrast_corcov" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
     <!--
       tsv2: add columns to variableMetadata. For each contrast,
-        1. add a `[factor]_[level'1'].[level'2']_cor` column for Wiklund\_2008 correlation
-        2. add a `[factor]_[level'1'].[level'2']_cov` column for Wiklund\_2008 covariance
-        3. add a `[factor]_[level'1'].[level'2']_vip` column for Wiklund\_2008 VIP
-        4. add a `[factor]_[level'1'].[level'2']_sig` column for pairwise-significant features if non-pairwise-significant features are retained in the analysis
+        1. add a `[factor]_[level'1'].[level'2']_cor` column for Wiklund_2008 correlation
+        2. add a `[factor]_[level'1'].[level'2']_cov` column for Wiklund_2008 covariance
+        3. add a `[factor]_[level'1'].[level'2']_vip4p` column for Galindo_Prieto_2014 VIP4,p
+        4. add a `[factor]_[level'1'].[level'2']_vip4o` column for Galindo_Prieto_2014 VIP4,o
+        5. add a `[factor]_[level'1'].[level'2']_sig` column for pairwise-significant features if non-pairwise-significant features are retained in the analysis
     -->
     <data name="variableMetadata_out" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
   </outputs>
@@ -237,7 +239,8 @@ Parameters
 - level-name 2
 - correlation (from Supplement to Wiklund, *op. cit.*)
 - covariance (from Supplement to Wiklund, *op. cit.*)
-- variable importance in projection (VIP, from Thévenot, *op. cit.*)
+- variable importance in projection to the predictive components (VIP4,p, from Galindo-Prieto *et al.* 2014)
+- variable importance in projection to the orthogonal components (VIP4,o, from Galindo-Prieto *op cit.*)
 - (only if non-pairwise-significant features are retained in the analysis) indicator of pairwise-significance of feature 
 
 
@@ -246,7 +249,8 @@ Parameters
 
 - a ``[factor]_[level'1'].[level'2']_cor`` column for Wiklund (*op. cit.*) correlation
 - a ``[factor]_[level'1'].[level'2']_cov`` column for Wiklund (*op. cit.*) covariance
-- a ``[factor]_[level'1'].[level'2']_vip`` column for Thévenot (*op. cit.*) VIP
+- a ``[factor]_[level'1'].[level'2']_vip4p`` column for Galindo-Prieto (*op. cit.*) VIP4,p
+- a ``[factor]_[level'1'].[level'2']_vip4o`` column for Galindo-Prieto (*op. cit.*) VIP4,o
 - (only if non-pairwise-significant features are retained in the analysis) a ``[factor]_[level'1'].[level'2']_sig`` column indicating pairwise-significant features
 
 
@@ -312,6 +316,8 @@ OPLS-DA\ :superscript:`®`, SIMCA\ :superscript:`®`, and S-PLOT\ :superscript:`
 
   ]]></help>
   <citations>
+    <!-- Galindo_Prieto_2014 Variable influence on projection (VIP) for OPLS -->
+    <citation type="doi">10.1002/cem.2627</citation>
     <!-- Giacomoni_2014 W4M 2.5 -->
     <citation type="doi">10.1093/bioinformatics/btu813</citation>
     <!-- Guitton_2017 W4M 3.0 -->

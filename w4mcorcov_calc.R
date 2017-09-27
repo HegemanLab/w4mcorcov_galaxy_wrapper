@@ -136,6 +136,9 @@ corcov_calc <- function(calc_env, failure_action = stop) {
         intersample_sig_col
       }
       print(sprintf("col_selector %s", col_selector))
+      # TODO change this to:
+      #   '1 == vrbl_metadata[,intersample_sig_col] * vrbl_metadata[,vrbl_metadata_col]' for pairSigFeatOnly == TRUE
+      #   '1 == vrbl_metadata[,intersample_sig_col]' for pairSigFeatOnly == FALSE
       my_matrix <- scdm[ chosen_samples, 1 == vrbl_metadata[,col_selector], drop = FALSE ]
       # ropls::strF(my_matrix)
       # predictor has exactly two levels
@@ -217,8 +220,17 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
     )
   }
   # Variant 4 of Variable Influence on Projection for OPLS from Galindo_Prieto_2014
-  result$vip4p <- ropls_x@vipVn
-  result$vip4o <- ropls_x@orthoVipVn
+  #    Length = number of features; labels = feature identifiers.  (The same is true for $correlation and $covariance.)
+  result$vip4p     <- ropls_x@vipVn
+  result$vip4o     <- ropls_x@orthoVipVn
+  # get the level names
+  level_names      <- sort(levels(ropls_x@suppLs$y))
+  feature_count    <- length(sacurine.oplsda@vipVn)
+  results$level1   <- rep.int(x = level_names[1], times = feature_count)
+  results$level2   <- rep.int(x = level_names[2], times = feature_count)
+  # Include thise in case future consumers of this routine want to use it in currently unanticipated ways
+  result$oplsda    <- ropls_x          
+  result$predictor <- ropls_x@suppLs$y   # in case future consumers of this routine want to use it in currently unanticipated ways
   return (result)
 }
 

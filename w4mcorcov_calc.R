@@ -194,23 +194,25 @@ corcov_calc <- function(calc_env, failure_action = stop) {
             min_x <- min(covariance)
             max_x <- max(covariance)
             lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
+            covariance <- covariance / lim_x
+            lim_x <- 1.2
             main_label = sprintf("Significatly contrasting features for %s versus %s",fctr_lvl_1,fctr_lvl_2)
             main_cex = 46.0/nchar(main_label)
             plot(
-              y = correlation
-            , x = covariance
+              y = -correlation
+            , x = -covariance
             , type="p"
             , xlim=c(-lim_x, lim_x)
             , ylim=c(-1,+1)
-            , xlab = sprintf("covariance(feature,t1)")
+            , xlab = sprintf("relative covariance(feature,t1)")
             , ylab = sprintf("correlation(feature,t1)")
             , main = main_label
             , cex.main = main_cex
             )
             low_x <- -0.7 * lim_x
             high_x <- 0.7 * lim_x
-            text(x = low_x, y = -0.15, labels = fctr_lvl_1)
-            text(x = high_x, y = 0.15, labels = fctr_lvl_2)
+            text(x = low_x, y = -0.15, labels = fctr_lvl_2)
+            text(x = high_x, y = 0.15, labels = fctr_lvl_1)
             # text(y = correlation, x = covariance, labels = names(covariance))
             # TODO print cor and cov for both unique(top six cor, top six cov) and unique(bottom six cor, bottom six cov)
           }

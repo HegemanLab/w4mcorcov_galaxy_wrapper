@@ -182,7 +182,7 @@ corcov_calc <- function(calc_env, failure_action = stop) {
                     "xy-score",         # 11
                     "xy-weight"         # 12
                    )                    # [c(3,8,9)] # [c(4,3,8,9)]
-        do_deferred_oplsda_plot <- deferred_oplsda_plot(my_oplsda, typeVc[c(3,8,9)])
+        do_deferred_oplsda_plot <- deferred_oplsda_plot(my_oplsda, typeVc[c(9,3,8)])
 
         my_cor_vs_cov <- cor_vs_cov(
           matrix_x        = my_matrix
@@ -194,7 +194,19 @@ corcov_calc <- function(calc_env, failure_action = stop) {
             min_x <- min(covariance)
             max_x <- max(covariance)
             lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
-            plot(y = correlation, x = covariance, type="p", xlim=c(-lim_x, lim_x), ylim=c(-1,+1))
+            main_label = sprintf("Significatly contrasting features for %s versus %s",fctr_lvl_1,fctr_lvl_2)
+            main_cex = 46.0/nchar(main_label)
+            plot(
+              y = correlation
+            , x = covariance
+            , type="p"
+            , xlim=c(-lim_x, lim_x)
+            , ylim=c(-1,+1)
+            , xlab = sprintf("covariance(feature,t1)")
+            , ylab = sprintf("correlation(feature,t1)")
+            , main = main_label
+            , cex.main = main_cex
+            )
             low_x <- -0.7 * lim_x
             high_x <- 0.7 * lim_x
             text(x = low_x, y = -0.15, labels = fctr_lvl_1)

@@ -25,7 +25,6 @@
   contrast_grid '$contrast_grid'
   contrast_detail '$contrast_detail'
   contrast_corcov '$contrast_corcov'
-  variableMetadata_out '$variableMetadata_out'
   ]]></command>
 
   <inputs>
@@ -97,20 +96,6 @@
         7. Galindo_Prieto_2014 VIP for orthogonal components, VIP[4,o]
     -->
     <data name="contrast_corcov" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
-    <!--
-      tsv2: table that is a supplement to variableMetadata. 
-        First column:
-          Variable name
-        Second column:
-          `[factor]_[test]_sig` column copied from the `[factor]_[test]_sig` column of variableMetadata
-        For each contrast:
-          1. add a `[factor]_[level'1'].[level'2']_sig` column copied from variableMetadata.`[factor]_[test]_[level'1'].[level'2']_sig`
-          2. add a `[factor]_[level'1'].[level'2']_cor` column for Wiklund_2008 correlation
-          3. add a `[factor]_[level'1'].[level'2']_cov` column for Wiklund_2008 covariance
-          4. add a `[factor]_[level'1'].[level'2']_vip4p` column for Galindo_Prieto_2014 VIP[4,p]
-          5. add a `[factor]_[level'1'].[level'2']_vip4o` column for Galindo_Prieto_2014 VIP[4,o]
-    -->
-    <data name="variableMetadata_out" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
   </outputs>
 
   <tests>
@@ -246,21 +231,6 @@ Parameters
 - covariance (from Supplement to Wiklund, *op. cit.*, > 0 when intensity for level 1 is significantly greater than intensity for level 2)
 - variable importance in projection to the predictive components (VIP\ :subscript:`4,p`, from Galindo-Prieto *et al.* 2014)
 - variable importance in projection to the orthogonal components (VIP\ :subscript:`4,o`, from Galindo-Prieto *op cit.*)
-
-
-[OUT] Variable metadata supplement TABULAR
-	| A supplement to the variableMetadata input file with the following columns:
-
-  - First column: Variable name from variableMetadata
-  - Second column: ``[factor]_sig`` column copied from the ``[factor]_[test]_sig`` column of variableMetadata
-  - The following set of columns for each pair of levels:
-
-    - a ``[factor]_[level'1'].[level'2']_sig`` column copied from the variableMetadata ``[factor]_[test]_[level'1'].[level'2']_sig`` column
-    - a ``[factor]_[level'1'].[level'2']_cor`` column for Wiklund (*op. cit.*) correlation
-    - a ``[factor]_[level'1'].[level'2']_cov`` column for Wiklund (*op. cit.*) covariance
-    - a ``[factor]_[level'1'].[level'2']_vip4p`` column for Galindo-Prieto (*op. cit.*) VIP\ :subscript:`4,p`
-    - a ``[factor]_[level'1'].[level'2']_vip4o`` column for Galindo-Prieto (*op. cit.*) VIP\ :subscript:`4,o`
-
 
 Wild card patterns to match level-names
 ---------------------------------------

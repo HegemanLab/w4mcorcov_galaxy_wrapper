@@ -185,7 +185,7 @@ corcov_calc <- function(calc_env, failure_action = stop) {
         do_deferred_oplsda_plot <- deferred_oplsda_plot(my_oplsda, typeVc[c(9,3,8)])
 
         my_cor_vs_cov <- cor_vs_cov(
-          matrix_x        = my_matrix
+            matrix_x        = my_matrix
           , ropls_x       = my_oplsda
           )
         with(
@@ -197,7 +197,11 @@ corcov_calc <- function(calc_env, failure_action = stop) {
             covariance <- covariance / lim_x
             lim_x <- 1.2
             main_label = sprintf("Significatly contrasting features for %s versus %s",fctr_lvl_1,fctr_lvl_2)
-            main_cex = 46.0/nchar(main_label)
+            main_cex = min(1.0, 46.0/nchar(main_label))
+            cex <- sqrt(sqrt(vip4p^2 + vip4o^2))
+            red <- pmin(1.0, 0.75 * cex^2)
+            print(head(red))
+            blue <- 1.0 - red
             plot(
               y = -correlation
             , x = -covariance
@@ -208,6 +212,9 @@ corcov_calc <- function(calc_env, failure_action = stop) {
             , ylab = sprintf("correlation(feature,t1)")
             , main = main_label
             , cex.main = main_cex
+            , cex = cex
+            , pch = 16
+            , col = rgb(blue = blue, red = red, green = 0, alpha = 0.4)
             )
             low_x <- -0.7 * lim_x
             high_x <- 0.7 * lim_x
@@ -277,8 +284,8 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
   result$covariance  <- result$covariance[1,,drop = TRUE]
   # Variant 4 of Variable Influence on Projection for OPLS from Galindo_Prieto_2014
   #    Length = number of features; labels = feature identifiers.  (The same is true for $correlation and $covariance.)
-  result$vip4p     <- ropls_x@vipVn
-  result$vip4o     <- ropls_x@orthoVipVn
+  result$vip4p     <- as.numeric(ropls_x@vipVn)
+  result$vip4o     <- as.numeric(ropls_x@orthoVipVn)
   # get the level names
   level_names      <- sort(levels(as.factor(ropls_x@suppLs$y)))
   feature_count    <- length(ropls_x@vipVn)
@@ -293,16 +300,25 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
   , factorLevel2        = result$level2
   , correlation         = result$correlation
   , covariance          = result$covariance
+  , vip4p               = result$vip4p
+  , vip4o               = result$vip4o
   , row.names           = NULL
   )
+  rownames(superresult$tsv1) <- superresult$tsv1$featureID
+  superresult$covariance <- result$covariance
+  superresult$correlation <- result$correlation
+  superresult$vip4p <- result$vip4p
+  superresult$vip4o <- result$vip4o
+  superresult$details <- result
   print(superresult$tsv1)
+  result$superresult <- superresult
   #print(sprintf("sd(superresult$tsv1$covariance) = %f; sd(superresult$tsv1$correlation) = %f", sd(superresult$tsv1$covariance), sd(superresult$tsv1$correlation)))
   #strF(superresult$tsv1[,1:3])
   #strF(superresult$tsv1[,4:5])
   # Include thise in case future consumers of this routine want to use it in currently unanticipated ways
   result$oplsda    <- ropls_x          
   result$predictor <- ropls_x@suppLs$y   # in case future consumers of this routine want to use it in currently unanticipated ways
-  return (result)
+  return (superresult)
 }
 
 # # Wiklund_2008 centers and pareto-scales data before OPLS-DA S-plot

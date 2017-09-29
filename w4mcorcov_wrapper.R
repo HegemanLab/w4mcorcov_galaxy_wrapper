@@ -59,7 +59,6 @@ my_env$variableMetadata_in  <- as.character(argVc["variableMetadata_in"])
 my_env$contrast_grid        <- as.character(argVc["contrast_grid"])
 my_env$contrast_detail      <- as.character(argVc["contrast_detail"])
 my_env$contrast_corcov      <- as.character(argVc["contrast_corcov"])
-my_env$variableMetadata_out <- as.character(argVc["variableMetadata_out"])
 
 # other parameters
 

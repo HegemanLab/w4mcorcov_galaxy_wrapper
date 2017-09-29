@@ -80,7 +80,34 @@ if ( is.logical(my_result) && my_result) {
   print("Sample Metadata")
   ropls::strF(my_env$smpl_metadata)
 
-  my_result <- corcov_calc(calc_env = my_env, failure_action = my_print)
+  # receiver for result of the call to corcov_calc
+  my_result <- NULL
+
+  # compute and plot the correlation_vs_covariance details plot
+  #   The parameter settings here are generally taken from bioconductor ropls::plot.opls source.
+  marVn <- c(4.6, 4.1, 2.6, 1.6)
+  old_par <- par(
+    font      = 2         # bold font face
+  , font.axis = 2         # bold font face for axis
+  , font.lab  = 2         # bold font face for x and y labels
+  , lwd       = 2         # line-width - interpretation is device spcific
+  , mar       = marVn     # margins
+  , pch       = 18        # black diamond plot-character, see help for graphics::points
+  # , mfrow     = c(2,2)    # two rows by two columns
+  , pty       = "s"       # force plots to be square
+  )
+  plot2pdf(
+    file.name = my_env$contrast_detail
+  , width  = 8
+  , height = 8
+  , plot.function = function() {
+      # plot layout four plots per page
+      layout(matrix(1:4, byrow = TRUE, nrow = 2))
+      my_result <<- corcov_calc(calc_env = my_env, failure_action = my_print)
+    }
+  )
+  par(old_par)
+  
 }
 
 if (is.logical(my_result) && my_result) {

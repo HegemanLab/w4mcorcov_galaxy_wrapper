@@ -151,37 +151,38 @@ corcov_calc <- function(calc_env, failure_action = stop) {
           , parDevNewL =  TRUE
           , file.pdfC = file.pdfC
           )
-        my_oplsda_plot <- function(oplsda) {
+        deferred_oplsda_plot <- function(oplsda, typeVc) {
           force(oplsda)
+          force(typeVc)
           return (
             function() {
-              typeVc <- c("correlation",      # 1
-                          "outlier",          # 2
-                          "overview",         # 3
-                          "permutation",      # 4
-                          "predict-train",    # 5
-                          "predict-test",     # 6
-                          "summary",          # 7 = c(2,3,4,9)
-                          "x-loading",        # 8
-                          "x-score",          # 9
-                          "x-variance",       # 10
-                          "xy-score",         # 11
-                          "xy-weight"         # 12
-                         )                    # [c(4,3,8,9)]      
-              for (i in c(3,8,9)) {
+              for (my_type in typeVc){
                 plot(
                   oplsda
-                , typeVc = typeVc[i]
+                , typeVc = my_type
                 , parCexN = 0.4
                 , parDevNewL = FALSE # TRUE
-                , parLayL = FALSE
+                , parLayL = TRUE
                 , parEllipsesL = TRUE
                 )
               }
             }
           )
         }
-        do_my_oplsda_plot <- my_oplsda_plot(my_oplsda)
+        typeVc <- c("correlation",      # 1
+                    "outlier",          # 2
+                    "overview",         # 3
+                    "permutation",      # 4
+                    "predict-train",    # 5
+                    "predict-test",     # 6
+                    "summary",          # 7 = c(2,3,4,9)
+                    "x-loading",        # 8
+                    "x-score",          # 9
+                    "x-variance",       # 10
+                    "xy-score",         # 11
+                    "xy-weight"         # 12
+                   )                    # [c(3,8,9)] # [c(4,3,8,9)]
+        do_deferred_oplsda_plot <- deferred_oplsda_plot(my_oplsda, typeVc[c(3,8,9)])
 
         my_cor_vs_cov <- cor_vs_cov(
           matrix_x        = my_matrix
@@ -198,10 +199,11 @@ corcov_calc <- function(calc_env, failure_action = stop) {
             high_x <- 0.7 * lim_x
             text(x = low_x, y = -0.15, labels = fctr_lvl_1)
             text(x = high_x, y = 0.15, labels = fctr_lvl_2)
-            text(y = correlation, x = covariance, labels = names(covariance))
+            # text(y = correlation, x = covariance, labels = names(covariance))
+            # TODO print cor and cov for both unique(top six cor, top six cov) and unique(bottom six cor, bottom six cov)
           }
         )
-        do_my_oplsda_plot()
+        do_deferred_oplsda_plot()
       } else {
         my_oplsda <- NULL
         cat("NO PLOT\n")

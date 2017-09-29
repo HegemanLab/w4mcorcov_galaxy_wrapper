@@ -198,10 +198,12 @@ corcov_calc <- function(calc_env, failure_action = stop) {
             lim_x <- 1.2
             main_label = sprintf("Significatly contrasting features for %s versus %s",fctr_lvl_1,fctr_lvl_2)
             main_cex = min(1.0, 46.0/nchar(main_label))
-            cex <- sqrt(sqrt(vip4p^2 + vip4o^2))
-            red <- pmin(1.0, 0.75 * cex^2)
-            print(head(red))
-            blue <- 1.0 - red
+            # TODO make it an option to color by VIP
+            # cex <- sqrt(sqrt(vip4p^2 + vip4o^2))
+            # red <- pmin(1.0, 0.75 * cex^2)
+            cex <- 0.75
+            red <- as.numeric(correlation < 0)
+            blue <- 1 - red
             plot(
               y = -correlation
             , x = -covariance

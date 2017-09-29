@@ -141,7 +141,8 @@ corcov_calc <- function(calc_env, failure_action = stop) {
       print(file.pdfC)
       if (is_match && ncol(my_matrix) > 1 && length(unique(predictor))> 1) {
         my_oplsda <- opls(
-            my_matrix, predictor
+            my_matrix
+          , predictor
           , algoC = algoC
           , predI = 1
           , orthoI = 1
@@ -150,10 +151,54 @@ corcov_calc <- function(calc_env, failure_action = stop) {
           , parDevNewL =  TRUE
           , file.pdfC = file.pdfC
           )
+        my_oplsda_plot <- function(oplsda) {
+          force(oplsda)
+          return (
+            function() {
+              # typeVc <- c("correlation",      # 1
+              #             "outlier",          # 2
+              #             "overview",         # 3
+              #             "permutation",      # 4
+              #             "predict-train",    # 5
+              #             "predict-test",     # 6
+              #             "summary",          # 7 = c(2,3,4,9)
+              #             "x-loading",        # 8
+              #             "x-score",          # 9
+              #             "x-variance",       # 10
+              #             "xy-score",         # 11
+              #             "xy-weight"         # 12
+              #            )                    # [c(4,3,8,9)]      
+              # for (i in c(4,3,8,9)) {
+              # }
+              plot(
+                oplsda
+              , typeVc = c("correlation",      # 1
+                           "outlier",          # 2
+                           "overview",         # 3
+                           "permutation",      # 4
+                           "predict-train",    # 5
+                           "predict-test",     # 6
+                           "summary",          # 7 = c(2,3,4,9)
+                           "x-loading",        # 8
+                           "x-score",          # 9
+                           "x-variance",       # 10
+                           "xy-score",         # 11
+                           "xy-weight"         # 12
+                          )[c(4,3,8,9)]               # [7]      
+              , parCexN = 0.4
+              , parDevNewL = TRUE
+              , parLayL = FALSE
+              , parEllipsesL = TRUE
+              , file.pdfC = file.pdfC
+              )
+            }
+          )
+        }
+        my_plot <- my_oplsda_plot(my_oplsda)
+        my_plot()
         my_cor_vs_cov <- cor_vs_cov(
           matrix_x        = my_matrix
           , ropls_x       = my_oplsda
-          , significant_x = fully_significant
           )
         with(
           my_cor_vs_cov
@@ -184,7 +229,7 @@ corcov_calc <- function(calc_env, failure_action = stop) {
 #     Wiklund_2008 doi:10.1021/ac0713510
 #     Galindo_Prieto_2014 doi:10.1002/cem.2627
 #     https://github.com/HegemanLab/extra_tools/blob/master/generic_PCA.R
-cor_vs_cov <- function(matrix_x, ropls_x, significant_x) {
+cor_vs_cov <- function(matrix_x, ropls_x) {
   x_class <- class(ropls_x)
   if ( !( as.character(x_class) == "opls" ) ) { # || !( attr(class(x_class),"package") == "ropls" ) ) 
     stop( "cor_vs_cov: Expected ropls_x to be of class ropls::opls but instead it was of class ", as.character(x_class) )
@@ -244,7 +289,6 @@ cor_vs_cov <- function(matrix_x, ropls_x, significant_x) {
   , factorLevel2        = result$level2
   , correlation         = result$correlation
   , covariance          = result$covariance
-  #, pairwiseSignificant = significant_x
   , row.names           = NULL
   )
   print(superresult$tsv1)

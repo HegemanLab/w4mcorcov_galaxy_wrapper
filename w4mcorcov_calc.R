@@ -130,27 +130,31 @@ corcov_calc <- function(calc_env, failure_action = stop) {
       chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
       # transpose matrix because ropls matrix is the transpose of XCMS matrix
       # extract only the significantly-varying features and the chosen samples
-      col_selector <- if ( pairSigFeatOnly ) {
-        vrbl_metadata_col
-      } else {
-        intersample_sig_col
-      }
-      print(sprintf("col_selector %s", col_selector))
-      # TODO change this to:
-      #   '1 == vrbl_metadata[,intersample_sig_col] * vrbl_metadata[,vrbl_metadata_col]' for pairSigFeatOnly == TRUE
-      #   '1 == vrbl_metadata[,intersample_sig_col]' for pairSigFeatOnly == FALSE
-      my_matrix <- scdm[ chosen_samples, 1 == vrbl_metadata[,col_selector], drop = FALSE ]
+      fully_significant   <- 1 == vrbl_metadata[,vrbl_metadata_col] * vrbl_metadata[,intersample_sig_col]
+      overall_significant <- 1 == vrbl_metadata[,intersample_sig_col]
+      col_selector <- if ( pairSigFeatOnly ) fully_significant else overall_significant 
+      my_matrix <- scdm[ chosen_samples, col_selector, drop = FALSE ]
       # ropls::strF(my_matrix)
       # predictor has exactly two levels
       predictor <- smpl_metadata_facC[chosen_samples]
       file.pdfC <- sprintf("%s.pdf",vrbl_metadata_col)
       print(file.pdfC)
       if (is_match && ncol(my_matrix) > 1 && length(unique(predictor))> 1) {
-        my_oplsda <- opls(my_matrix, predictor, algoC = algoC, predI = 1, orthoI = 1,
-           printL = FALSE, plotL = TRUE,
-           parDevNewL =  TRUE,
-           file.pdfC = file.pdfC)
-        my_cor_vs_cov <- cor_vs_cov(my_matrix, my_oplsda)
+        my_oplsda <- opls(
+            my_matrix, predictor
+          , algoC = algoC
+          , predI = 1
+          , orthoI = 1
+          , printL = FALSE
+          , plotL = FALSE
+          , parDevNewL =  TRUE
+          , file.pdfC = file.pdfC
+          )
+        my_cor_vs_cov <- cor_vs_cov(
+          matrix_x        = my_matrix
+          , ropls_x       = my_oplsda
+          , significant_x = fully_significant
+          )
         with(
           my_cor_vs_cov
         , {
@@ -162,6 +166,7 @@ corcov_calc <- function(calc_env, failure_action = stop) {
             high_x <- 0.7 * lim_x
             text(x = low_x, y = -0.15, labels = fctr_lvl_1)
             text(x = high_x, y = 0.15, labels = fctr_lvl_2)
+            #text(y = correlation, x = covariance, labels = names(covariance))
           }
         )
       } else {
@@ -179,9 +184,9 @@ corcov_calc <- function(calc_env, failure_action = stop) {
 #     Wiklund_2008 doi:10.1021/ac0713510
 #     Galindo_Prieto_2014 doi:10.1002/cem.2627
 #     https://github.com/HegemanLab/extra_tools/blob/master/generic_PCA.R
-cor_vs_cov <- function(matrix_x, ropls_x) {
+cor_vs_cov <- function(matrix_x, ropls_x, significant_x) {
   x_class <- class(ropls_x)
-  if ( !( as.character(x_class) == "opls" ) ) { # || !( attr(class(x_class),"package") == "ropls" ) ) {
+  if ( !( as.character(x_class) == "opls" ) ) { # || !( attr(class(x_class),"package") == "ropls" ) ) 
     stop( "cor_vs_cov: Expected ropls_x to be of class ropls::opls but instead it was of class ", as.character(x_class) )
   }
   result <- list()
@@ -219,15 +224,33 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
       }
     )
   }
+  result$correlation <- result$correlation[1,,drop = TRUE]
+  result$covariance  <- result$covariance[1,,drop = TRUE]
   # Variant 4 of Variable Influence on Projection for OPLS from Galindo_Prieto_2014
   #    Length = number of features; labels = feature identifiers.  (The same is true for $correlation and $covariance.)
   result$vip4p     <- ropls_x@vipVn
   result$vip4o     <- ropls_x@orthoVipVn
   # get the level names
-  level_names      <- sort(levels(ropls_x@suppLs$y))
-  feature_count    <- length(sacurine.oplsda@vipVn)
-  results$level1   <- rep.int(x = level_names[1], times = feature_count)
-  results$level2   <- rep.int(x = level_names[2], times = feature_count)
+  level_names      <- sort(levels(as.factor(ropls_x@suppLs$y)))
+  feature_count    <- length(ropls_x@vipVn)
+  result$level1    <- rep.int(x = level_names[1], times = feature_count)
+  result$level2    <- rep.int(x = level_names[2], times = feature_count)
+  #strF(result$covariance)
+  #print(sprintf("sd(covariance) = %f; sd(correlation) = %f", sd(result$covariance), sd(result$correlation)))
+  superresult <- list()
+  superresult$tsv1 <- data.frame(
+    featureID           = names(ropls_x@vipVn)
+  , factorLevel1        = result$level1
+  , factorLevel2        = result$level2
+  , correlation         = result$correlation
+  , covariance          = result$covariance
+  #, pairwiseSignificant = significant_x
+  , row.names           = NULL
+  )
+  print(superresult$tsv1)
+  #print(sprintf("sd(superresult$tsv1$covariance) = %f; sd(superresult$tsv1$correlation) = %f", sd(superresult$tsv1$covariance), sd(superresult$tsv1$correlation)))
+  #strF(superresult$tsv1[,1:3])
+  #strF(superresult$tsv1[,4:5])
   # Include thise in case future consumers of this routine want to use it in currently unanticipated ways
   result$oplsda    <- ropls_x          
   result$predictor <- ropls_x@suppLs$y   # in case future consumers of this routine want to use it in currently unanticipated ways

@@ -94,7 +94,7 @@
         4. Wiklund_2008 correlation
         5. Wiklund_2008 covariance
         6. Galindo_Prieto_2014 VIP for predictive components, VIP[4,p]
-        6. Galindo_Prieto_2014 VIP for orthogonal components, VIP[4,o]
+        7. Galindo_Prieto_2014 VIP for orthogonal components, VIP[4,o]
     -->
     <data name="contrast_corcov" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
     <!--
@@ -102,14 +102,13 @@
         First column:
           Variable name
         Second column:
-          `[factor]_[test]_sig` column from variableMetadata
+          `[factor]_[test]_sig` column copied from the `[factor]_[test]_sig` column of variableMetadata
         For each contrast:
           1. add a `[factor]_[level'1'].[level'2']_sig` column copied from variableMetadata.`[factor]_[test]_[level'1'].[level'2']_sig`
-          1. add a `[factor]_[level'1'].[level'2']_cor` column for Wiklund_2008 correlation
-          2. add a `[factor]_[level'1'].[level'2']_cov` column for Wiklund_2008 covariance
-          3. add a `[factor]_[level'1'].[level'2']_vip4p` column for Galindo_Prieto_2014 VIP[4,p]
-          4. add a `[factor]_[level'1'].[level'2']_vip4o` column for Galindo_Prieto_2014 VIP[4,o]
-          5. add a `[factor]_[level'1'].[level'2']_sig` column for pairwise-significant features if non-pairwise-significant features are retained in the analysis
+          2. add a `[factor]_[level'1'].[level'2']_cor` column for Wiklund_2008 correlation
+          3. add a `[factor]_[level'1'].[level'2']_cov` column for Wiklund_2008 covariance
+          4. add a `[factor]_[level'1'].[level'2']_vip4p` column for Galindo_Prieto_2014 VIP[4,p]
+          5. add a `[factor]_[level'1'].[level'2']_vip4o` column for Galindo_Prieto_2014 VIP[4,o]
     -->
     <data name="variableMetadata_out" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
   </outputs>
@@ -240,14 +239,13 @@ Parameters
 [OUT] Contrast Correlation-Covarinace data TABULAR
 	| A tab-separated values file having the following columns:
 
-- feature ID
-- factor-level 1
-- factor-level 2
-- correlation (from Supplement to Wiklund, *op. cit.*)
-- covariance (from Supplement to Wiklund, *op. cit.*)
+- featureID - feature identifier
+- factorLevel1 - factor-level 1
+- factorLevel2 - factor-level 2
+- correlation (from Supplement to Wiklund, *op. cit.*, > 0 when intensity for level 1 is significantly greater than intensity for level 2)
+- covariance (from Supplement to Wiklund, *op. cit.*, > 0 when intensity for level 1 is significantly greater than intensity for level 2)
 - variable importance in projection to the predictive components (VIP\ :subscript:`4,p`, from Galindo-Prieto *et al.* 2014)
 - variable importance in projection to the orthogonal components (VIP\ :subscript:`4,o`, from Galindo-Prieto *op cit.*)
-- (only if non-pairwise-significant features are retained in the analysis) indicator of pairwise-significance of feature 
 
 
 [OUT] Variable metadata supplement TABULAR
@@ -262,7 +260,6 @@ Parameters
     - a ``[factor]_[level'1'].[level'2']_cov`` column for Wiklund (*op. cit.*) covariance
     - a ``[factor]_[level'1'].[level'2']_vip4p`` column for Galindo-Prieto (*op. cit.*) VIP\ :subscript:`4,p`
     - a ``[factor]_[level'1'].[level'2']_vip4o`` column for Galindo-Prieto (*op. cit.*) VIP\ :subscript:`4,o`
-    - (only if non-pairwise-significant features are retained in the analysis) a ``[factor]_[level'1'].[level'2']_sig`` column indicating pairwise-significant features
 
 
 Wild card patterns to match level-names

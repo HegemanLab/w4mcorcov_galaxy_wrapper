@@ -116,17 +116,17 @@ corcov_calc <- function(calc_env, failure_action = stop) {
   do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_fctr_lvl_1, x_fctr_lvl_2) {
     if (x_is_match && ncol(x_dataMatrix) > 1 && length(unique(x_predictor))> 1) {
       my_oplsda <- opls(
-          x_dataMatrix
-        , x_predictor
-        , algoC = x_algorithm
-        , predI = 1
+          x      = x_dataMatrix
+        , y      = x_predictor
+        , algoC  = x_algorithm
+        , predI  = 1
         , orthoI = 1
         , printL = FALSE
-        , plotL = FALSE
+        , plotL  = FALSE
         )
       my_cor_vs_cov <- cor_vs_cov(
-          matrix_x      = x_dataMatrix
-        , ropls_x       = my_oplsda
+          matrix_x = x_dataMatrix
+        , ropls_x  = my_oplsda
         )
       with(
         my_cor_vs_cov
@@ -142,27 +142,40 @@ corcov_calc <- function(calc_env, failure_action = stop) {
           # cex <- sqrt(sqrt(vip4p^2 + vip4o^2))
           # red <- pmin(1.0, 0.75 * cex^2)
           cex <- 0.75
-          red <- as.numeric(correlation < 0)
-          blue <- 1 - red
+          print(vip4p)
+          # " It is generally accepted that a variable should be selected if vj>1, [27–29], but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]." (Mehmood 2012 doi:10.1016/j.chemolab.2004.12.011)
+          vipco <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
+          alpha <- 0.1 + 0.4 * vipco
+          print(vipco)
+          red  <- as.numeric(correlation < 0) * vipco
+          blue <- as.numeric(correlation > 0) * vipco
           plot(
             y = -correlation
           , x = -covariance
           , type="p"
-          , xlim=c(-lim_x, lim_x)
-          , ylim=c(-1,+1)
+          , xlim=c(-lim_x, lim_x + 0.1)
+          , ylim=c(-1.1,+1)
           , xlab = sprintf("relative covariance(feature,t1)")
           , ylab = sprintf("correlation(feature,t1)")
           , main = main_label
           , cex.main = main_cex
           , cex = cex
           , pch = 16
-          , col = rgb(blue = blue, red = red, green = 0, alpha = 0.4)
+          , col = rgb(blue = blue, red = red, green = 0, alpha = alpha)
           )
           low_x <- -0.7 * lim_x
           high_x <- 0.7 * lim_x
           text(x = low_x, y = -0.15, labels =  x_fctr_lvl_2)
           text(x = high_x, y = 0.15, labels =  x_fctr_lvl_1)
-          # text(y = correlation, x = covariance, labels = names(covariance))
+          text(
+            y = -correlation - 0.013
+          , x = -covariance  + 0.02
+          , cex = 0.3
+          , labels = names(correlation)
+          , col = rgb(blue = blue, red = red, green = 0, alpha = 0.2 + 0.8 * alpha)
+          , srt = -30 # slant 30 degrees downward
+          , adj = 0 # left-justified
+          )
           # TODO print cor and cov for both unique(top six cor, top six cov) and unique(bottom six cor, bottom six cov)
         }
       )

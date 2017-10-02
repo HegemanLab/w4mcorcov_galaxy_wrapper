@@ -197,26 +197,16 @@ corcov_calc <- function(calc_env, failure_action = stop) {
                   "xy-score",         # 11
                   "xy-weight"         # 12
                  )                    # [c(3,8,9)] # [c(4,3,8,9)]
-      deferred_oplsda_plot <- function(oplsda, typeVc) {
-        force(oplsda)
-        force(typeVc)
-        return (
-          function() {
-            for (my_type in typeVc){
-              plot(
-                oplsda
-              , typeVc = my_type
-              , parCexN = 0.4
-              , parDevNewL = FALSE # TRUE
-              , parLayL = TRUE
-              , parEllipsesL = TRUE
-              )
-            }
-          }
+      for (my_type in typeVc[c(9,3,8)]) {
+        plot(
+          x            = my_oplsda
+        , typeVc       = my_type
+        , parCexN      = 0.4
+        , parDevNewL   = FALSE
+        , parLayL      = TRUE
+        , parEllipsesL = TRUE
         )
       }
-      do_deferred_oplsda_plot <- deferred_oplsda_plot(my_oplsda, typeVc[c(9,3,8)])
-      do_deferred_oplsda_plot()
 
     } else {
       my_oplsda <- NULL

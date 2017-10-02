@@ -113,6 +113,98 @@ corcov_calc <- function(calc_env, failure_action = stop) {
       regmatches( x, regexec(col_pattern, x) )[[1]]
     }
   )
+  do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_fctr_lvl_1, x_fctr_lvl_2) {
+    if (x_is_match && ncol(x_dataMatrix) > 1 && length(unique(x_predictor))> 1) {
+      my_oplsda <- opls(
+          x_dataMatrix
+        , x_predictor
+        , algoC = x_algorithm
+        , predI = 1
+        , orthoI = 1
+        , printL = FALSE
+        , plotL = FALSE
+        )
+      my_cor_vs_cov <- cor_vs_cov(
+          matrix_x      = x_dataMatrix
+        , ropls_x       = my_oplsda
+        )
+      with(
+        my_cor_vs_cov
+      , {
+          min_x <- min(covariance)
+          max_x <- max(covariance)
+          lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
+          covariance <- covariance / lim_x
+          lim_x <- 1.2
+          main_label = sprintf("Significatly contrasting features for %s versus %s", x_fctr_lvl_1, x_fctr_lvl_2)
+          main_cex = min(1.0, 46.0/nchar(main_label))
+          # TODO make it an option to color by VIP
+          # cex <- sqrt(sqrt(vip4p^2 + vip4o^2))
+          # red <- pmin(1.0, 0.75 * cex^2)
+          cex <- 0.75
+          red <- as.numeric(correlation < 0)
+          blue <- 1 - red
+          plot(
+            y = -correlation
+          , x = -covariance
+          , type="p"
+          , xlim=c(-lim_x, lim_x)
+          , ylim=c(-1,+1)
+          , xlab = sprintf("relative covariance(feature,t1)")
+          , ylab = sprintf("correlation(feature,t1)")
+          , main = main_label
+          , cex.main = main_cex
+          , cex = cex
+          , pch = 16
+          , col = rgb(blue = blue, red = red, green = 0, alpha = 0.4)
+          )
+          low_x <- -0.7 * lim_x
+          high_x <- 0.7 * lim_x
+          text(x = low_x, y = -0.15, labels =  x_fctr_lvl_2)
+          text(x = high_x, y = 0.15, labels =  x_fctr_lvl_1)
+          # text(y = correlation, x = covariance, labels = names(covariance))
+          # TODO print cor and cov for both unique(top six cor, top six cov) and unique(bottom six cor, bottom six cov)
+        }
+      )
+      typeVc <- c("correlation",      # 1
+                  "outlier",          # 2
+                  "overview",         # 3
+                  "permutation",      # 4
+                  "predict-train",    # 5
+                  "predict-test",     # 6
+                  "summary",          # 7 = c(2,3,4,9)
+                  "x-loading",        # 8
+                  "x-score",          # 9
+                  "x-variance",       # 10
+                  "xy-score",         # 11
+                  "xy-weight"         # 12
+                 )                    # [c(3,8,9)] # [c(4,3,8,9)]
+      deferred_oplsda_plot <- function(oplsda, typeVc) {
+        force(oplsda)
+        force(typeVc)
+        return (
+          function() {
+            for (my_type in typeVc){
+              plot(
+                oplsda
+              , typeVc = my_type
+              , parCexN = 0.4
+              , parDevNewL = FALSE # TRUE
+              , parLayL = TRUE
+              , parEllipsesL = TRUE
+              )
+            }
+          }
+        )
+      }
+      do_deferred_oplsda_plot <- deferred_oplsda_plot(my_oplsda, typeVc[c(9,3,8)])
+      do_deferred_oplsda_plot()
+
+    } else {
+      my_oplsda <- NULL
+      cat("NO PLOT\n")
+    }
+  }
   # process columns matching the pattern
   for (i in 1:length(col_matches)) {
     # for each potential match of the pattern
@@ -128,6 +220,7 @@ corcov_calc <- function(calc_env, failure_action = stop) {
       cat(sprintf("%s %s %s %s\n", vrbl_metadata_col, fctr_lvl_1, fctr_lvl_2, is_match))
       # choose only samples with one of the two factors for this column
       chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
+      predictor <- smpl_metadata_facC[chosen_samples]
       # extract only the significantly-varying features and the chosen samples
       if (tesC != "none") {
         fully_significant   <- 1 == vrbl_metadata[,vrbl_metadata_col] * vrbl_metadata[,intersample_sig_col]
@@ -137,103 +230,8 @@ corcov_calc <- function(calc_env, failure_action = stop) {
       } else {
         my_matrix <- scdm[ chosen_samples,             , drop = FALSE ]
       }
-      # ropls::strF(my_matrix)
-      # predictor has exactly two levels
-      predictor <- smpl_metadata_facC[chosen_samples]
-      file.pdfC <- sprintf("%s.pdf",vrbl_metadata_col)
-      print(file.pdfC)
-      if (is_match && ncol(my_matrix) > 1 && length(unique(predictor))> 1) {
-        my_oplsda <- opls(
-            my_matrix
-          , predictor
-          , algoC = algoC
-          , predI = 1
-          , orthoI = 1
-          , printL = FALSE
-          , plotL = FALSE
-          , parDevNewL =  TRUE
-          , file.pdfC = file.pdfC
-          )
-        deferred_oplsda_plot <- function(oplsda, typeVc) {
-          force(oplsda)
-          force(typeVc)
-          return (
-            function() {
-              for (my_type in typeVc){
-                plot(
-                  oplsda
-                , typeVc = my_type
-                , parCexN = 0.4
-                , parDevNewL = FALSE # TRUE
-                , parLayL = TRUE
-                , parEllipsesL = TRUE
-                )
-              }
-            }
-          )
-        }
-        typeVc <- c("correlation",      # 1
-                    "outlier",          # 2
-                    "overview",         # 3
-                    "permutation",      # 4
-                    "predict-train",    # 5
-                    "predict-test",     # 6
-                    "summary",          # 7 = c(2,3,4,9)
-                    "x-loading",        # 8
-                    "x-score",          # 9
-                    "x-variance",       # 10
-                    "xy-score",         # 11
-                    "xy-weight"         # 12
-                   )                    # [c(3,8,9)] # [c(4,3,8,9)]
-        do_deferred_oplsda_plot <- deferred_oplsda_plot(my_oplsda, typeVc[c(9,3,8)])
-
-        my_cor_vs_cov <- cor_vs_cov(
-            matrix_x        = my_matrix
-          , ropls_x       = my_oplsda
-          )
-        with(
-          my_cor_vs_cov
-        , {
-            min_x <- min(covariance)
-            max_x <- max(covariance)
-            lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
-            covariance <- covariance / lim_x
-            lim_x <- 1.2
-            main_label = sprintf("Significatly contrasting features for %s versus %s",fctr_lvl_1,fctr_lvl_2)
-            main_cex = min(1.0, 46.0/nchar(main_label))
-            # TODO make it an option to color by VIP
-            # cex <- sqrt(sqrt(vip4p^2 + vip4o^2))
-            # red <- pmin(1.0, 0.75 * cex^2)
-            cex <- 0.75
-            red <- as.numeric(correlation < 0)
-            blue <- 1 - red
-            plot(
-              y = -correlation
-            , x = -covariance
-            , type="p"
-            , xlim=c(-lim_x, lim_x)
-            , ylim=c(-1,+1)
-            , xlab = sprintf("relative covariance(feature,t1)")
-            , ylab = sprintf("correlation(feature,t1)")
-            , main = main_label
-            , cex.main = main_cex
-            , cex = cex
-            , pch = 16
-            , col = rgb(blue = blue, red = red, green = 0, alpha = 0.4)
-            )
-            low_x <- -0.7 * lim_x
-            high_x <- 0.7 * lim_x
-            text(x = low_x, y = -0.15, labels = fctr_lvl_2)
-            text(x = high_x, y = 0.15, labels = fctr_lvl_1)
-            # text(y = correlation, x = covariance, labels = names(covariance))
-            # TODO print cor and cov for both unique(top six cor, top six cov) and unique(bottom six cor, bottom six cov)
-          }
-        )
-        do_deferred_oplsda_plot()
-      } else {
-        my_oplsda <- NULL
-        cat("NO PLOT\n")
-      }
+      do_detail_plot( x_dataMatrix = my_matrix, x_predictor = predictor, x_is_match = is_match
+                    , x_algorithm = algoC, x_fctr_lvl_1 = fctr_lvl_1, x_fctr_lvl_2 = fctr_lvl_2)
     }
   }
 

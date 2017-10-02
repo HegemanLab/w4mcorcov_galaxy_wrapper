@@ -128,12 +128,15 @@ corcov_calc <- function(calc_env, failure_action = stop) {
       cat(sprintf("%s %s %s %s\n", vrbl_metadata_col, fctr_lvl_1, fctr_lvl_2, is_match))
       # choose only samples with one of the two factors for this column
       chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
-      # transpose matrix because ropls matrix is the transpose of XCMS matrix
       # extract only the significantly-varying features and the chosen samples
-      fully_significant   <- 1 == vrbl_metadata[,vrbl_metadata_col] * vrbl_metadata[,intersample_sig_col]
-      overall_significant <- 1 == vrbl_metadata[,intersample_sig_col]
-      col_selector <- if ( pairSigFeatOnly ) fully_significant else overall_significant 
-      my_matrix <- scdm[ chosen_samples, col_selector, drop = FALSE ]
+      if (tesC != "none") {
+        fully_significant   <- 1 == vrbl_metadata[,vrbl_metadata_col] * vrbl_metadata[,intersample_sig_col]
+        overall_significant <- 1 == vrbl_metadata[,intersample_sig_col]
+        col_selector <- if ( pairSigFeatOnly ) fully_significant else overall_significant 
+        my_matrix <- scdm[ chosen_samples, col_selector, drop = FALSE ]
+      } else {
+        my_matrix <- scdm[ chosen_samples,             , drop = FALSE ]
+      }
       # ropls::strF(my_matrix)
       # predictor has exactly two levels
       predictor <- smpl_metadata_facC[chosen_samples]

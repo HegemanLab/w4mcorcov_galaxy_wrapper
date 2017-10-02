@@ -68,7 +68,8 @@ corcov_calc <- function(calc_env, failure_action = stop) {
   levCSV <- calc_env$levCSV
   # matchingC is one of { "none", "wildcard", "regex" }
   matchingC <- calc_env$matchingC
-
+  labelFeatures <- calc_env$labelFeatures
+  
   # transform wildcard to regex
   if (matchingC == "wildcard") {
     levCSV <- gsub("[.]", "[.]", levCSV)
@@ -113,7 +114,8 @@ corcov_calc <- function(calc_env, failure_action = stop) {
       regmatches( x, regexec(col_pattern, x) )[[1]]
     }
   )
-  do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_fctr_lvl_1, x_fctr_lvl_2) {
+  do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_fctr_lvl_1, x_fctr_lvl_2, x_show_labels) {
+    off <- function(x) if (x_show_labels) x else 0
     if (x_is_match && ncol(x_dataMatrix) > 1 && length(unique(x_predictor))> 1) {
       my_oplsda <- opls(
           x      = x_dataMatrix
@@ -149,12 +151,14 @@ corcov_calc <- function(calc_env, failure_action = stop) {
           print(vipco)
           red  <- as.numeric(correlation < 0) * vipco
           blue <- as.numeric(correlation > 0) * vipco
+          minus_cor <- -correlation
+          minus_cov <- -covariance
           plot(
-            y = -correlation
-          , x = -covariance
+            y = minus_cor
+          , x = minus_cov
           , type="p"
-          , xlim=c(-lim_x, lim_x + 0.1)
-          , ylim=c(-1.1,+1)
+          , xlim=c(-lim_x, lim_x + off(0.1))
+          , ylim=c(-1.0 - off(0.1), 1.0)
           , xlab = sprintf("relative covariance(feature,t1)")
           , ylab = sprintf("correlation(feature,t1)")
           , main = main_label
@@ -167,16 +171,17 @@ corcov_calc <- function(calc_env, failure_action = stop) {
           high_x <- 0.7 * lim_x
           text(x = low_x, y = -0.15, labels =  x_fctr_lvl_2)
           text(x = high_x, y = 0.15, labels =  x_fctr_lvl_1)
-          text(
-            y = -correlation - 0.013
-          , x = -covariance  + 0.02
-          , cex = 0.3
-          , labels = names(correlation)
-          , col = rgb(blue = blue, red = red, green = 0, alpha = 0.2 + 0.8 * alpha)
-          , srt = -30 # slant 30 degrees downward
-          , adj = 0 # left-justified
-          )
-          # TODO print cor and cov for both unique(top six cor, top six cov) and unique(bottom six cor, bottom six cov)
+          if (x_show_labels) {
+            text(
+              y = minus_cor - 0.013
+            , x = minus_cov + 0.020
+            , cex = 0.3
+            , labels = names(minus_cor)
+            , col = rgb(blue = blue, red = red, green = 0, alpha = 0.2 + 0.8 * alpha)
+            , srt = -30 # slant 30 degrees downward
+            , adj = 0 # left-justified
+            )
+          }
         }
       )
       typeVc <- c("correlation",      # 1
@@ -244,7 +249,8 @@ corcov_calc <- function(calc_env, failure_action = stop) {
         my_matrix <- scdm[ chosen_samples,             , drop = FALSE ]
       }
       do_detail_plot( x_dataMatrix = my_matrix, x_predictor = predictor, x_is_match = is_match
-                    , x_algorithm = algoC, x_fctr_lvl_1 = fctr_lvl_1, x_fctr_lvl_2 = fctr_lvl_2)
+                    , x_algorithm = algoC, x_fctr_lvl_1 = fctr_lvl_1, x_fctr_lvl_2 = fctr_lvl_2
+                    , x_show_labels = labelFeatures)
     }
   }
 

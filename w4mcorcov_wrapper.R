@@ -67,6 +67,7 @@ my_env$facC            <- as.character(argVc["facC"])
 my_env$pairSigFeatOnly <- as.character(argVc["pairSigFeatOnly"])
 my_env$levCSV          <- as.character(argVc["levCSV"])
 my_env$matchingC       <- as.character(argVc["matchingC"])
+my_env$labelFeatures   <- as.character(argVc["labelFeatures"])
 
 # read_inputs is defined in w4mcorcov_input.R
 my_result <- read_inputs(input_env = my_env, failure_action = my_print)

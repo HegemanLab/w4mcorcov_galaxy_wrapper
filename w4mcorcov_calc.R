@@ -140,15 +140,10 @@ corcov_calc <- function(calc_env, failure_action = stop) {
           lim_x <- 1.2
           main_label = sprintf("Significatly contrasting features for %s versus %s", x_fctr_lvl_1, x_fctr_lvl_2)
           main_cex = min(1.0, 46.0/nchar(main_label))
-          # TODO make it an option to color by VIP
-          # cex <- sqrt(sqrt(vip4p^2 + vip4o^2))
-          # red <- pmin(1.0, 0.75 * cex^2)
           cex <- 0.75
-          print(vip4p)
           # " It is generally accepted that a variable should be selected if vj>1, [27–29], but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]." (Mehmood 2012 doi:10.1016/j.chemolab.2004.12.011)
           vipco <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
           alpha <- 0.1 + 0.4 * vipco
-          print(vipco)
           red  <- as.numeric(correlation < 0) * vipco
           blue <- as.numeric(correlation > 0) * vipco
           minus_cor <- -correlation
@@ -179,7 +174,7 @@ corcov_calc <- function(calc_env, failure_action = stop) {
             , labels = names(minus_cor)
             , col = rgb(blue = blue, red = red, green = 0, alpha = 0.2 + 0.8 * alpha)
             , srt = -30 # slant 30 degrees downward
-            , adj = 0 # left-justified
+            , adj = 0   # left-justified
             )
           }
         }
@@ -322,7 +317,7 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
   superresult$vip4p <- result$vip4p
   superresult$vip4o <- result$vip4o
   superresult$details <- result
-  print(superresult$tsv1)
+  #print(superresult$tsv1)
   result$superresult <- superresult
   #print(sprintf("sd(superresult$tsv1$covariance) = %f; sd(superresult$tsv1$correlation) = %f", sd(superresult$tsv1$covariance), sd(superresult$tsv1$correlation)))
   #strF(superresult$tsv1[,1:3])
@@ -333,41 +328,4 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
   return (superresult)
 }
 
-# # Wiklund_2008 centers and pareto-scales data before OPLS-DA S-plot
-# cdm <- center_colmeans(dataMatrix)
-# my_scale <- sqrt(apply(cdm, 2, sd, na.rm=TRUE))
-# scdm <- sweep(cdm, 2, my_scale, "/")
-# 
-# my_matrix <- scdm
-# #my_matrix <- dataMatrix
-# 
-# my_pca <- opls(my_matrix)
-# dev.off()
-# with( 
-#   cor_vs_cov(
-#     matrix_x = my_matrix
-#   , ropls_x = my_pca
-#   )
-# , plot(y = correlation, x = covariance)
-# )
-# 
-# # to suppress the summary plot, invoke with plotL = FALSE
-# my_oplsda <- opls(my_matrix, sampleMetadata[, "gender"], algoC = algoC, predI = 1, orthoI = 1)
-# dev.off()
-# my_cor_vs_cov <-
-#   cor_vs_cov(
-#     matrix_x = my_matrix
-#     , ropls_x = my_oplsda
-#   )
-# with(
-#   my_cor_vs_cov
-# , {
-#     plot(y = correlation, x = covariance, type="n")
-#     text(y = correlation, x = covariance)
-#   }
-# )
-# plot( y = -cor(my_matrix, sampleMetadata[, "gender"]=="M"), x = -cov(sampleMetadata[, "gender"]=="M", my_matrix), type="n" )
-# text( y = -cor(my_matrix, sampleMetadata[, "gender"]=="M"), x = -cov(sampleMetadata[, "gender"]=="M", my_matrix) )
-# plot(y = my_cor_vs_cov$correlation, x = cor(my_matrix, sampleMetadata[, "gender"]=="M"))
-# plot(y = my_cor_vs_cov$covariance, x = cov(my_matrix, sampleMetadata[, "gender"]=="M"))
 

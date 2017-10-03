@@ -7,48 +7,6 @@ center_colmeans <- function(x) {
 #### OPLS-DA
 algoC <- "nipals"
 
-cor_vs_cov <- function(matrix_x, ropls_x) {
-  x_class <- class(ropls_x)
-  if ( !( as.character(x_class) == "opls" ) ) { # || !( attr(class(x_class),"package") == "ropls" ) ) {
-    stop( "cor_vs_cov: Expected ropls_x to be of class ropls::opls but instead it was of class ", as.character(x_class) )
-  }
-  result <- list()
-  # suppLs$algoC - Character: algorithm used - "svd" for singular value decomposition; "nipals" for NIPALS
-  if ( ropls_x@suppLs$algoC == "svd") {
-    # Equations (1) and (2) from Wiklund 2008, doi:10.1021/ac0713510
-    # scoreMN - Numerical matrix of x scores (T; dimensions: nrow(x) x predI) X = TP' + E; Y = TC' + F
-    score_matrix <- ropls_x@scoreMN
-    score_matrix_transposed <- t(score_matrix)
-    cov_divisor <- nrow(matrix_x) - 1
-    result$covariance <- sapply(
-      X = 1:ncol(matrix_x)
-    , FUN = function(x) score_matrix_transposed %*% matrix_x[,x] / cov_divisor
-    )
-    score_sd <- sapply(
-      X = 1:ncol(score_matrix)
-      , FUN = function(x) sd(score_matrix[,x])
-    )
-    # xSdVn - Numerical vector: variable standard deviations of the 'x' matrix
-    xSdVn <- ropls_x@xSdVn
-    result$correlation <- sapply(
-      X = 1:ncol(matrix_x)
-    , FUN = function(x) {
-        ( score_matrix_transposed / score_sd ) %*% ( matrix_x[,x] / (xSdVn[x] * cov_divisor) )
-    }
-    )
-  } else {
-    # Equations (1) and (2) from *Supplement to* Wiklund 2008, doi:10.1021/ac0713510
-    mag <- function(one_dimensional) sqrt(sum(one_dimensional * one_dimensional))
-    mag_xi <- sapply(X = 1:ncol(matrix_x), FUN = function(x) mag(matrix_x[,x]))
-    score_matrix <- ropls_x@scoreMN
-    score_matrix_transposed <- t(score_matrix)
-    score_matrix_magnitude <- mag(score_matrix)
-    result$covariance  <- score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * score_matrix_magnitude )
-    result$correlation <- score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * mag_xi )
-  }
-  return (result)
-}
-
 do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_show_labels) {
   off <- function(x) if (x_show_labels) x else 0
   if (x_is_match && ncol(x_dataMatrix) > 1 && length(unique(x_predictor))> 1) {
@@ -77,8 +35,8 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
         covariance <- covariance / lim_x
         lim_x <- 1.2
         main_label = sprintf("Significatly contrasting features for %s versus %s", fctr_lvl_1, fctr_lvl_2)
-        print("main_label")
-        print(main_label)
+        # print("main_label")
+        # print(main_label)
         main_cex = min(1.0, 46.0/nchar(main_label))
         cex <- 0.75
         # " It is generally accepted that a variable should be selected if vj>1, [27–29], but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]." (Mehmood 2012 doi:10.1016/j.chemolab.2004.12.011)
@@ -227,8 +185,9 @@ corcov_calc <- function(calc_env, failure_action = stop) {
         fctr_lvl_2 <- col_match[3]                      #                ^^      # Factor-level 2
         # only process this column if both factors are members of lvlCSV
         is_match <- isLevelSelected(fctr_lvl_1) && isLevelSelected(fctr_lvl_2)
+        cat(sprintf("plotting contrast of %s vs %s\n", fctr_lvl_1, fctr_lvl_2))
         # TODO delete next line displaying currently-processed column
-        cat(sprintf("%s %s %s %s\n", vrbl_metadata_col, fctr_lvl_1, fctr_lvl_2, is_match))
+        # cat(sprintf("%s %s %s %s\n", vrbl_metadata_col, fctr_lvl_1, fctr_lvl_2, is_match))
         # choose only samples with one of the two factors for this column
         chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
         predictor <- smpl_metadata_facC[chosen_samples]
@@ -247,29 +206,21 @@ corcov_calc <- function(calc_env, failure_action = stop) {
       x = unique(sort(smpl_metadata_facC))
     , m = 2
     , FUN = function(x) { 
-        #print("foo")
         fctr_lvl_1 <- x[1]
         fctr_lvl_2 <- x[2]
-        cat(sprintf("%s %s\n", fctr_lvl_1, fctr_lvl_2))
+        cat(sprintf("plotting contrast of %s vs %s\n", fctr_lvl_1, fctr_lvl_2))
         chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
-        print("chosen_samples")
-        print(chosen_samples)
         if (length(unique(chosen_samples)) < 1) {
           print("NO PLOT")
         } else {
           predictor <- smpl_metadata_facC[chosen_samples]
-          print("predictor")
-          print(predictor)
           my_matrix <- scdm[ chosen_samples, , drop = FALSE ]
-          print("my_matrix")
-          strF(my_matrix)
-          #print("bar")
           do_detail_plot( x_dataMatrix = my_matrix, x_predictor = predictor, x_is_match = TRUE
                         , x_algorithm = algoC
                         , x_show_labels = labelFeatures)
         }
         #print("baz")
-        "dummy"
+        "dummy" # need to return a value; otherwise combn fails with an error
       }
     )
   }
@@ -352,11 +303,11 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
   superresult$vip4p <- result$vip4p
   superresult$vip4o <- result$vip4o
   superresult$details <- result
-  #print(superresult$tsv1)
+  # #print(superresult$tsv1)
   result$superresult <- superresult
-  #print(sprintf("sd(superresult$tsv1$covariance) = %f; sd(superresult$tsv1$correlation) = %f", sd(superresult$tsv1$covariance), sd(superresult$tsv1$correlation)))
-  #strF(superresult$tsv1[,1:3])
-  #strF(superresult$tsv1[,4:5])
+  # #print(sprintf("sd(superresult$tsv1$covariance) = %f; sd(superresult$tsv1$correlation) = %f", sd(superresult$tsv1$covariance), sd(superresult$tsv1$correlation)))
+  # #strF(superresult$tsv1[,1:3])
+  # #strF(superresult$tsv1[,4:5])
   # Include thise in case future consumers of this routine want to use it in currently unanticipated ways
   result$oplsda    <- ropls_x          
   result$predictor <- ropls_x@suppLs$y   # in case future consumers of this routine want to use it in currently unanticipated ways

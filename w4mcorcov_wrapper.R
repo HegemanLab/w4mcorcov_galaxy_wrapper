@@ -73,14 +73,14 @@ my_env$labelFeatures   <- as.character(argVc["labelFeatures"])
 my_result <- read_inputs(input_env = my_env, failure_action = my_print)
 
 if ( is.logical(my_result) && my_result) {
-  print("--------------------------  Reading input data  --------------------------")
-  print("Data Matrix")
+  cat("--------------------------  Reading input data  --------------------------\n")
+  cat("\nData Matrix:\n\n")
   ropls::strF(my_env$data_matrix)
-  print("Variable Metadata")
+  cat("\nVariable Metadata:\n\n")
   ropls::strF(my_env$vrbl_metadata)
-  print("Sample Metadata")
+  cat("\nSample Metadata:\n\n")
   ropls::strF(my_env$smpl_metadata)
-  print("--------------------------  Beginning data processing  --------------------------")
+  cat("\n--------------------------  Beginning data processing  --------------------------\n")
 
   # receiver for result of the call to corcov_calc
   my_result <- NULL
@@ -110,7 +110,7 @@ if ( is.logical(my_result) && my_result) {
   )
   par(old_par)
   
-  print("--------------------------  Finished data processing  --------------------------")
+  cat("--------------------------  Finished data processing  --------------------------\n")
 }
 
 my_print("\nEnd of the '", modNamC, "' Galaxy module call: ",

@@ -1,5 +1,4 @@
-# center with 'colMeans()'
-# ref: http://gastonsanchez.com/visually-enforced/how-to/2014/01/15/Center-data-in-R/
+# center with 'colMeans()' - ref: http://gastonsanchez.com/visually-enforced/how-to/2014/01/15/Center-data-in-R/
 center_colmeans <- function(x) {
   xcenter = colMeans(x)
   x - rep(xcenter, rep.int(nrow(x), ncol(x)))
@@ -44,10 +43,110 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
     score_matrix <- ropls_x@scoreMN
     score_matrix_transposed <- t(score_matrix)
     score_matrix_magnitude <- mag(score_matrix)
-    result$covariance <- score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * score_matrix_magnitude )
+    result$covariance  <- score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * score_matrix_magnitude )
     result$correlation <- score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * mag_xi )
   }
   return (result)
+}
+
+do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_show_labels) {
+  off <- function(x) if (x_show_labels) x else 0
+  if (x_is_match && ncol(x_dataMatrix) > 1 && length(unique(x_predictor))> 1) {
+    my_oplsda <- opls(
+        x      = x_dataMatrix
+      , y      = x_predictor
+      , algoC  = x_algorithm
+      , predI  = 1
+      , orthoI = 1
+      , printL = FALSE
+      , plotL  = FALSE
+      )
+    my_oplsda_suppLs_y_levels <- levels(as.factor(my_oplsda@suppLs$y))
+    fctr_lvl_1 <- my_oplsda_suppLs_y_levels[1]
+    fctr_lvl_2 <- my_oplsda_suppLs_y_levels[2]
+    my_cor_vs_cov <- cor_vs_cov(
+        matrix_x = x_dataMatrix
+      , ropls_x  = my_oplsda
+      )
+    with(
+      my_cor_vs_cov
+    , {
+        min_x <- min(covariance)
+        max_x <- max(covariance)
+        lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
+        covariance <- covariance / lim_x
+        lim_x <- 1.2
+        main_label = sprintf("Significatly contrasting features for %s versus %s", fctr_lvl_1, fctr_lvl_2)
+        print("main_label")
+        print(main_label)
+        main_cex = min(1.0, 46.0/nchar(main_label))
+        cex <- 0.75
+        # " It is generally accepted that a variable should be selected if vj>1, [27–29], but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]." (Mehmood 2012 doi:10.1016/j.chemolab.2004.12.011)
+        vipco <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
+        alpha <- 0.1 + 0.4 * vipco
+        red  <- as.numeric(correlation < 0) * vipco
+        blue <- as.numeric(correlation > 0) * vipco
+        minus_cor <- -correlation
+        minus_cov <- -covariance
+        plot(
+          y = minus_cor
+        , x = minus_cov
+        , type="p"
+        , xlim=c(-lim_x, lim_x + off(0.1))
+        , ylim=c(-1.0 - off(0.1), 1.0)
+        , xlab = sprintf("relative covariance(feature,t1)")
+        , ylab = sprintf("correlation(feature,t1)")
+        , main = main_label
+        , cex.main = main_cex
+        , cex = cex
+        , pch = 16
+        , col = rgb(blue = blue, red = red, green = 0, alpha = alpha)
+        )
+        low_x <- -0.7 * lim_x
+        high_x <- 0.7 * lim_x
+        text(x = low_x, y = -0.15, labels =  fctr_lvl_1)
+        text(x = high_x, y = 0.15, labels =  fctr_lvl_2)
+        if (x_show_labels) {
+          text(
+            y = minus_cor - 0.013
+          , x = minus_cov + 0.020
+          , cex = 0.3
+          , labels = names(minus_cor)
+          , col = rgb(blue = blue, red = red, green = 0, alpha = 0.2 + 0.8 * alpha)
+          , srt = -30 # slant 30 degrees downward
+          , adj = 0   # left-justified
+          )
+        }
+      }
+    )
+    typeVc <- c("correlation",      # 1
+                "outlier",          # 2
+                "overview",         # 3
+                "permutation",      # 4
+                "predict-train",    # 5
+                "predict-test",     # 6
+                "summary",          # 7 = c(2,3,4,9)
+                "x-loading",        # 8
+                "x-score",          # 9
+                "x-variance",       # 10
+                "xy-score",         # 11
+                "xy-weight"         # 12
+               )                    # [c(3,8,9)] # [c(4,3,8,9)]
+    for (my_type in typeVc[c(9,3,8)]) {
+      plot(
+        x            = my_oplsda
+      , typeVc       = my_type
+      , parCexN      = 0.4
+      , parDevNewL   = FALSE
+      , parLayL      = TRUE
+      , parEllipsesL = TRUE
+      )
+    }
+
+  } else {
+    my_oplsda <- NULL
+    cat("NO PLOT\n")
+  }
 }
 
 # S-PLOT and OPLS reference: Wiklund_2008 doi:10.1021/ac0713510
@@ -106,137 +205,73 @@ corcov_calc <- function(calc_env, failure_action = stop) {
   #   - Wiklund_2008 covariance
   #   - Wiklund_2008 VIP
   calc_env$contrast_list <- list()
-  # for each column name, extract the parts of the name matched by 'col_pattern', if any
-  the_colnames <- colnames(vrbl_metadata)
-  col_matches <- lapply(
-    X = the_colnames,
-    FUN = function(x) {
-      regmatches( x, regexec(col_pattern, x) )[[1]]
-    }
-  )
-  do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_fctr_lvl_1, x_fctr_lvl_2, x_show_labels) {
-    off <- function(x) if (x_show_labels) x else 0
-    if (x_is_match && ncol(x_dataMatrix) > 1 && length(unique(x_predictor))> 1) {
-      my_oplsda <- opls(
-          x      = x_dataMatrix
-        , y      = x_predictor
-        , algoC  = x_algorithm
-        , predI  = 1
-        , orthoI = 1
-        , printL = FALSE
-        , plotL  = FALSE
-        )
-      my_cor_vs_cov <- cor_vs_cov(
-          matrix_x = x_dataMatrix
-        , ropls_x  = my_oplsda
-        )
-      with(
-        my_cor_vs_cov
-      , {
-          min_x <- min(covariance)
-          max_x <- max(covariance)
-          lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
-          covariance <- covariance / lim_x
-          lim_x <- 1.2
-          main_label = sprintf("Significatly contrasting features for %s versus %s", x_fctr_lvl_1, x_fctr_lvl_2)
-          main_cex = min(1.0, 46.0/nchar(main_label))
-          cex <- 0.75
-          # " It is generally accepted that a variable should be selected if vj>1, [27–29], but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]." (Mehmood 2012 doi:10.1016/j.chemolab.2004.12.011)
-          vipco <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
-          alpha <- 0.1 + 0.4 * vipco
-          red  <- as.numeric(correlation < 0) * vipco
-          blue <- as.numeric(correlation > 0) * vipco
-          minus_cor <- -correlation
-          minus_cov <- -covariance
-          plot(
-            y = minus_cor
-          , x = minus_cov
-          , type="p"
-          , xlim=c(-lim_x, lim_x + off(0.1))
-          , ylim=c(-1.0 - off(0.1), 1.0)
-          , xlab = sprintf("relative covariance(feature,t1)")
-          , ylab = sprintf("correlation(feature,t1)")
-          , main = main_label
-          , cex.main = main_cex
-          , cex = cex
-          , pch = 16
-          , col = rgb(blue = blue, red = red, green = 0, alpha = alpha)
-          )
-          low_x <- -0.7 * lim_x
-          high_x <- 0.7 * lim_x
-          text(x = low_x, y = -0.15, labels =  x_fctr_lvl_2)
-          text(x = high_x, y = 0.15, labels =  x_fctr_lvl_1)
-          if (x_show_labels) {
-            text(
-              y = minus_cor - 0.013
-            , x = minus_cov + 0.020
-            , cex = 0.3
-            , labels = names(minus_cor)
-            , col = rgb(blue = blue, red = red, green = 0, alpha = 0.2 + 0.8 * alpha)
-            , srt = -30 # slant 30 degrees downward
-            , adj = 0   # left-justified
-            )
-          }
-        }
-      )
-      typeVc <- c("correlation",      # 1
-                  "outlier",          # 2
-                  "overview",         # 3
-                  "permutation",      # 4
-                  "predict-train",    # 5
-                  "predict-test",     # 6
-                  "summary",          # 7 = c(2,3,4,9)
-                  "x-loading",        # 8
-                  "x-score",          # 9
-                  "x-variance",       # 10
-                  "xy-score",         # 11
-                  "xy-weight"         # 12
-                 )                    # [c(3,8,9)] # [c(4,3,8,9)]
-      for (my_type in typeVc[c(9,3,8)]) {
-        plot(
-          x            = my_oplsda
-        , typeVc       = my_type
-        , parCexN      = 0.4
-        , parDevNewL   = FALSE
-        , parLayL      = TRUE
-        , parEllipsesL = TRUE
-        )
-      }
 
-    } else {
-      my_oplsda <- NULL
-      cat("NO PLOT\n")
-    }
-  }
-  # process columns matching the pattern
-  for (i in 1:length(col_matches)) {
-    # for each potential match of the pattern
-    col_match <- col_matches[[i]]
-    if (length(col_match) > 0) {
-      # it's an actual match; extract the pieces, e.g., k10_kruskal_k4.k3_sig
-      vrbl_metadata_col <- col_match[1]               # ^^^^^^^^^^^^^^^^^^^^^  # Column name
-      fctr_lvl_1 <- col_match[2]                      #             ^^         # Factor-level 1
-      fctr_lvl_2 <- col_match[3]                      #                ^^      # Factor-level 2
-      # only process this column if both factors are members of lvlCSV
-      is_match <- isLevelSelected(fctr_lvl_1) && isLevelSelected(fctr_lvl_2)
-      # TODO delete next line displaying currently-processed column
-      cat(sprintf("%s %s %s %s\n", vrbl_metadata_col, fctr_lvl_1, fctr_lvl_2, is_match))
-      # choose only samples with one of the two factors for this column
-      chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
-      predictor <- smpl_metadata_facC[chosen_samples]
-      # extract only the significantly-varying features and the chosen samples
-      if (tesC != "none") {
+
+  if (tesC != "none") {
+    # for each column name, extract the parts of the name matched by 'col_pattern', if any
+    the_colnames <- colnames(vrbl_metadata)
+    col_matches <- lapply(
+      X = the_colnames,
+      FUN = function(x) {
+        regmatches( x, regexec(col_pattern, x) )[[1]]
+      }
+    )
+    # process columns matching the pattern
+    for (i in 1:length(col_matches)) {
+      # for each potential match of the pattern
+      col_match <- col_matches[[i]]
+      if (length(col_match) > 0) {
+        # it's an actual match; extract the pieces, e.g., k10_kruskal_k4.k3_sig
+        vrbl_metadata_col <- col_match[1]               # ^^^^^^^^^^^^^^^^^^^^^  # Column name
+        fctr_lvl_1 <- col_match[2]                      #             ^^         # Factor-level 1
+        fctr_lvl_2 <- col_match[3]                      #                ^^      # Factor-level 2
+        # only process this column if both factors are members of lvlCSV
+        is_match <- isLevelSelected(fctr_lvl_1) && isLevelSelected(fctr_lvl_2)
+        # TODO delete next line displaying currently-processed column
+        cat(sprintf("%s %s %s %s\n", vrbl_metadata_col, fctr_lvl_1, fctr_lvl_2, is_match))
+        # choose only samples with one of the two factors for this column
+        chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
+        predictor <- smpl_metadata_facC[chosen_samples]
+        # extract only the significantly-varying features and the chosen samples
         fully_significant   <- 1 == vrbl_metadata[,vrbl_metadata_col] * vrbl_metadata[,intersample_sig_col]
         overall_significant <- 1 == vrbl_metadata[,intersample_sig_col]
         col_selector <- if ( pairSigFeatOnly ) fully_significant else overall_significant 
         my_matrix <- scdm[ chosen_samples, col_selector, drop = FALSE ]
-      } else {
-        my_matrix <- scdm[ chosen_samples,             , drop = FALSE ]
+        do_detail_plot( x_dataMatrix = my_matrix, x_predictor = predictor, x_is_match = is_match
+                      , x_algorithm = algoC
+                      , x_show_labels = labelFeatures)
       }
-      do_detail_plot( x_dataMatrix = my_matrix, x_predictor = predictor, x_is_match = is_match
-                    , x_algorithm = algoC, x_fctr_lvl_1 = fctr_lvl_1, x_fctr_lvl_2 = fctr_lvl_2
-                    , x_show_labels = labelFeatures)
     }
+  } else { # tesC == "none"
+    utils::combn(
+      x = unique(sort(smpl_metadata_facC))
+    , m = 2
+    , FUN = function(x) { 
+        #print("foo")
+        fctr_lvl_1 <- x[1]
+        fctr_lvl_2 <- x[2]
+        cat(sprintf("%s %s\n", fctr_lvl_1, fctr_lvl_2))
+        chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
+        print("chosen_samples")
+        print(chosen_samples)
+        if (length(unique(chosen_samples)) < 1) {
+          print("NO PLOT")
+        } else {
+          predictor <- smpl_metadata_facC[chosen_samples]
+          print("predictor")
+          print(predictor)
+          my_matrix <- scdm[ chosen_samples, , drop = FALSE ]
+          print("my_matrix")
+          strF(my_matrix)
+          #print("bar")
+          do_detail_plot( x_dataMatrix = my_matrix, x_predictor = predictor, x_is_match = TRUE
+                        , x_algorithm = algoC
+                        , x_show_labels = labelFeatures)
+        }
+        #print("baz")
+        "dummy"
+      }
+    )
   }
 
   return ( TRUE )

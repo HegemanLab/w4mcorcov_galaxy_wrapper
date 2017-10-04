@@ -34,7 +34,7 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
         lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
         covariance <- covariance / lim_x
         lim_x <- 1.2
-        main_label = sprintf("Significatly contrasting features for %s versus %s", fctr_lvl_1, fctr_lvl_2)
+        main_label = sprintf("Significantly contrasting features for %s versus %s", fctr_lvl_1, fctr_lvl_2)
         # print("main_label")
         # print(main_label)
         main_cex = min(1.0, 46.0/nchar(main_label))
@@ -100,15 +100,15 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
       , parEllipsesL = TRUE
       )
     }
-
+    return (my_cor_vs_cov)
   } else {
     my_oplsda <- NULL
-    cat("NO PLOT\n")
+    return (NULL)
   }
 }
 
 # S-PLOT and OPLS reference: Wiklund_2008 doi:10.1021/ac0713510
-corcov_calc <- function(calc_env, failure_action = stop) {
+corcov_calc <- function(calc_env, failure_action = stop, progress_action = function(x){}, corcov_tsv_action = NULL) {
   if ( ! is.environment(calc_env) ) {
     failure_action("corcov_calc: fatal error - 'calc_env' is not an environment")
     return ( FALSE )
@@ -185,7 +185,7 @@ corcov_calc <- function(calc_env, failure_action = stop) {
         fctr_lvl_2 <- col_match[3]                      #                ^^      # Factor-level 2
         # only process this column if both factors are members of lvlCSV
         is_match <- isLevelSelected(fctr_lvl_1) && isLevelSelected(fctr_lvl_2)
-        cat(sprintf("plotting contrast of %s vs %s\n", fctr_lvl_1, fctr_lvl_2))
+        progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))
         # TODO delete next line displaying currently-processed column
         # cat(sprintf("%s %s %s %s\n", vrbl_metadata_col, fctr_lvl_1, fctr_lvl_2, is_match))
         # choose only samples with one of the two factors for this column
@@ -196,9 +196,17 @@ corcov_calc <- function(calc_env, failure_action = stop) {
         overall_significant <- 1 == vrbl_metadata[,intersample_sig_col]
         col_selector <- if ( pairSigFeatOnly ) fully_significant else overall_significant 
         my_matrix <- scdm[ chosen_samples, col_selector, drop = FALSE ]
-        do_detail_plot( x_dataMatrix = my_matrix, x_predictor = predictor, x_is_match = is_match
-                      , x_algorithm = algoC
-                      , x_show_labels = labelFeatures)
+        my_cor_cov <- do_detail_plot(
+          x_dataMatrix = my_matrix
+        , x_predictor = predictor
+        , x_is_match = is_match
+        , x_algorithm = algoC
+        , x_show_labels = labelFeatures
+        )
+        if ( ! is.null(my_cor_cov) && is.function(corcov_tsv_action) )
+          corcov_tsv_action(my_cor_cov$tsv1)
+        else
+          progress_action("NOTHING TO PLOT")
       }
     }
   } else { # tesC == "none"
@@ -208,23 +216,30 @@ corcov_calc <- function(calc_env, failure_action = stop) {
     , FUN = function(x) { 
         fctr_lvl_1 <- x[1]
         fctr_lvl_2 <- x[2]
-        cat(sprintf("plotting contrast of %s vs %s\n", fctr_lvl_1, fctr_lvl_2))
+        progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))
         chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
         if (length(unique(chosen_samples)) < 1) {
-          print("NO PLOT")
+          progress_action("NOTHING TO PLOT")
         } else {
           predictor <- smpl_metadata_facC[chosen_samples]
           my_matrix <- scdm[ chosen_samples, , drop = FALSE ]
-          do_detail_plot( x_dataMatrix = my_matrix, x_predictor = predictor, x_is_match = TRUE
-                        , x_algorithm = algoC
-                        , x_show_labels = labelFeatures)
+          my_cor_cov <- do_detail_plot(
+            x_dataMatrix = my_matrix
+          , x_predictor = predictor
+          , x_is_match = TRUE
+          , x_algorithm = algoC
+          , x_show_labels = labelFeatures
+          )
+          if ( ! is.null(my_cor_cov) && is.function(corcov_tsv_action) )
+            corcov_tsv_action(my_cor_cov$tsv1)
+          else
+            progress_action("NOTHING TO PLOT")
         }
         #print("baz")
         "dummy" # need to return a value; otherwise combn fails with an error
       }
     )
   }
-
   return ( TRUE )
 }
 

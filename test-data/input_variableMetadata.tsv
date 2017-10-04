@@ -1,8 +1,8 @@
 variableMetadata	k10_kruskal_sig	k10_kruskal_k2.k1_sig	k10_kruskal_k3.k1_sig	k10_kruskal_k4.k1_sig	k10_kruskal_k3.k2_sig	k10_kruskal_k4.k2_sig	k10_kruskal_k4.k3_sig
-M200.005T296	1	0	0	0	1	0	0
+M200.005T296	0	0	0	0	1	0	0
 M200.1286T209	1	0	0	0	0	0	0
-M200.1286T214	1	0	0	0	1	0	0
-M200.8062T276	1	0	0	0	0	0	0
+M200.1286T214	0	0	0	0	1	0	0
+M200.8062T276	0	0	0	0	0	0	0
 M201.1135T595	1	0	0	0	0	0	0
 M201.7354T319	1	0	0	1	0	0	1
 M201.8009T418	1	0	0	0	0	0	0

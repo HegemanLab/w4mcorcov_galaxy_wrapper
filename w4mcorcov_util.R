@@ -65,11 +65,11 @@ print2pdf <- function(
   )
 }
 
-# iso8601.filename.fragment <- function()
-# {
-#   strftime(as.POSIXlt(Sys.time(), "UTC"), "%Y%m%d-%H%M%S")
-# }
-#
+iso8601.znow <- function()
+{
+  strftime(as.POSIXlt(Sys.time(), "UTC"), "%Y-%m-%dT%H:%M:%SZ")
+}
+
 # pdf.name <- function(name)
 # {
 #   paste0(name, "_", iso8601.filename.fragment(), ".pdf")

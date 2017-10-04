@@ -11,21 +11,13 @@
 modNamC <- "w4mcorcov" ## module name
 
 topEnvC <- environment()
-flgC <- "\n"
+nl <- "\n"
 
 ## options
 ##--------
 
 strAsFacL <- options()$stringsAsFactors
 options(stringsAsFactors = FALSE)
-
-## log file
-##---------
-
-my_print <- function(x, ...) { cat(paste(x, ..., sep=""))}
-
-my_print("\nStart of the '", modNamC, "' Galaxy module call: ",
-    format(Sys.time(), "%a %d %b %Y %X"), flgC)
 
 ## subroutines
 ##----------
@@ -35,6 +27,13 @@ source("w4mcorcov_util.R")
 source("w4mcorcov_input.R")
 source("w4mcorcov_calc.R")
 source("w4mcorcov_output.R")
+
+## log file
+##---------
+
+my_print <- function(x, ...) { cat(paste(iso8601.znow(), " ", x, ..., nl, sep=""))}
+
+my_print("Start of the '", modNamC, "' Galaxy module call: ")
 
 
 ########
@@ -69,18 +68,29 @@ my_env$levCSV          <- as.character(argVc["levCSV"])
 my_env$matchingC       <- as.character(argVc["matchingC"])
 my_env$labelFeatures   <- as.character(argVc["labelFeatures"])
 
+corcov_tsv_colnames <- TRUE
+corcov_tsv_append   <- FALSE
+corcov_tsv_action <- function(tsv) {
+  write.table(
+    x = tsv
+  , file = my_env$contrast_corcov
+  , sep = "\t"
+  , quote = FALSE
+  , row.names = FALSE
+  , col.names = corcov_tsv_colnames
+  , append = corcov_tsv_append
+  )
+  corcov_tsv_colnames <<- FALSE
+  corcov_tsv_append   <<- TRUE
+}
+
+my_print( "--------------------------  Reading input data  --------------------------")
+
 # read_inputs is defined in w4mcorcov_input.R
 my_result <- read_inputs(input_env = my_env, failure_action = my_print)
 
 if ( is.logical(my_result) && my_result) {
-  cat("--------------------------  Reading input data  --------------------------\n")
-  cat("\nData Matrix:\n\n")
-  ropls::strF(my_env$data_matrix)
-  cat("\nVariable Metadata:\n\n")
-  ropls::strF(my_env$vrbl_metadata)
-  cat("\nSample Metadata:\n\n")
-  ropls::strF(my_env$smpl_metadata)
-  cat("\n--------------------------  Beginning data processing  --------------------------\n")
+  my_print( "--------------------------  Beginning data processing  --------------------------")
 
   # receiver for result of the call to corcov_calc
   my_result <- NULL
@@ -105,16 +115,15 @@ if ( is.logical(my_result) && my_result) {
   , plot.function = function() {
       # plot layout four plots per page
       layout(matrix(1:4, byrow = TRUE, nrow = 2))
-      my_result <<- corcov_calc(calc_env = my_env, failure_action = my_print)
+      my_result <<- corcov_calc(calc_env = my_env, failure_action = my_print, progress_action = my_print, corcov_tsv_action = corcov_tsv_action)
     }
   )
   par(old_par)
   
-  cat("--------------------------  Finished data processing  --------------------------\n")
+  my_print( "--------------------------  Finished data processing  --------------------------")
 }
 
-my_print("\nEnd of the '", modNamC, "' Galaxy module call: ",
-    format(Sys.time(), "%a %d %b %Y %X"), flgC)
+my_print( "End of the '", modNamC, "' Galaxy module call")
 
 if (is.logical(my_result) && my_result) {
   cat("success :)\n")

@@ -9,13 +9,13 @@ algoC <- "nipals"
 
 do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_show_labels) {
   off <- function(x) if (x_show_labels) x else 0
-  if (x_is_match && ncol(x_dataMatrix) > 1 && length(unique(x_predictor))> 1) {
+  if (x_is_match && ncol(x_dataMatrix) > 0 && length(unique(x_predictor))> 1) {
     my_oplsda <- opls(
         x      = x_dataMatrix
       , y      = x_predictor
       , algoC  = x_algorithm
       , predI  = 1
-      , orthoI = 1
+      , orthoI = if (ncol(x_dataMatrix) > 1) 1 else 0
       , printL = FALSE
       , plotL  = FALSE
       )
@@ -90,15 +90,27 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
                 "xy-score",         # 11
                 "xy-weight"         # 12
                )                    # [c(3,8,9)] # [c(4,3,8,9)]
-    for (my_type in typeVc[c(9,3,8)]) {
-      plot(
-        x            = my_oplsda
-      , typeVc       = my_type
-      , parCexN      = 0.4
-      , parDevNewL   = FALSE
-      , parLayL      = TRUE
-      , parEllipsesL = TRUE
-      )
+    if ( length(my_oplsda@orthoVipVn) > 0 ) {
+      my_typevc <- typeVc[c(9,3,8)]
+    } else {
+      my_typevc <- c("(dummy)","overview","(dummy)")
+    }
+    for (my_type in my_typevc) {
+      if (my_type %in% typeVc) {
+        # print(sprintf("plotting type %s", my_type))
+        plot(
+          x            = my_oplsda
+        , typeVc       = my_type
+        , parCexN      = 0.4
+        , parDevNewL   = FALSE
+        , parLayL      = TRUE
+        , parEllipsesL = TRUE
+        )
+      } else {
+        # print("plotting dummy graph")
+        plot(x=1, y=1, xaxt="n", yaxt="n", xlab="", ylab="", type="n")
+        text(x=1, y=1, labels="no orthogonal projection is possible")
+      }
     }
     return (my_cor_vs_cov)
   } else {
@@ -116,6 +128,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
 
   # extract parameters from the environment
   vrbl_metadata <- calc_env$vrbl_metadata
+  vrbl_metadata_names <- vrbl_metadata[,1]
   smpl_metadata <- calc_env$smpl_metadata
   data_matrix <- calc_env$data_matrix
   pairSigFeatOnly <- calc_env$pairSigFeatOnly
@@ -219,7 +232,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
         # extract only the significantly-varying features and the chosen samples
         fully_significant   <- 1 == vrbl_metadata[,vrbl_metadata_col] * vrbl_metadata[,intersample_sig_col]
         overall_significant <- 1 == vrbl_metadata[,intersample_sig_col]
-        col_selector <- if ( pairSigFeatOnly ) fully_significant else overall_significant 
+        col_selector <- vrbl_metadata_names[ if ( pairSigFeatOnly ) fully_significant else overall_significant ]
         my_matrix <- scdm[ chosen_samples, col_selector, drop = FALSE ]
         my_cor_cov <- do_detail_plot(
           x_dataMatrix = my_matrix
@@ -229,7 +242,9 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
         , x_show_labels = labelFeatures
         )
         if ( ! is.null(my_cor_cov) && is.function(corcov_tsv_action) ) {
-          corcov_tsv_action(my_cor_cov$tsv1)
+          tsv <- my_cor_cov$tsv1
+          tsv["level1_level2_sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ] 
+          corcov_tsv_action(tsv)
           did_plot <- TRUE
         } else {
           progress_action("NOTHING TO PLOT")
@@ -335,9 +350,9 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
   feature_count    <- length(ropls_x@vipVn)
   result$level1    <- rep.int(x = level_names[1], times = feature_count)
   result$level2    <- rep.int(x = level_names[2], times = feature_count)
-  #strF(result$covariance)
-  #print(sprintf("sd(covariance) = %f; sd(correlation) = %f", sd(result$covariance), sd(result$correlation)))
+  # print(sprintf("sd(covariance) = %f; sd(correlation) = %f", sd(result$covariance), sd(result$correlation)))
   superresult <- list()
+  if (length(result$vip4o) == 0) result$vip4o <- NA
   superresult$tsv1 <- data.frame(
     featureID           = names(ropls_x@vipVn)
   , factorLevel1        = result$level1
@@ -356,9 +371,6 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
   superresult$details <- result
   # #print(superresult$tsv1)
   result$superresult <- superresult
-  # #print(sprintf("sd(superresult$tsv1$covariance) = %f; sd(superresult$tsv1$correlation) = %f", sd(superresult$tsv1$covariance), sd(superresult$tsv1$correlation)))
-  # #strF(superresult$tsv1[,1:3])
-  # #strF(superresult$tsv1[,4:5])
   # Include thise in case future consumers of this routine want to use it in currently unanticipated ways
   result$oplsda    <- ropls_x          
   result$predictor <- ropls_x@suppLs$y   # in case future consumers of this routine want to use it in currently unanticipated ways

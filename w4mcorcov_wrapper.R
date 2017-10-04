@@ -31,9 +31,13 @@ source("w4mcorcov_output.R")
 ## log file
 ##---------
 
-my_print <- function(x, ...) { cat(paste(iso8601.znow(), " ", x, ..., nl, sep=""))}
+my_log <- function(x, ...) { cat(paste(iso8601.znow(), " ", x, ..., nl, sep=""))}
+my_fatal <- function(x, ...) { 
+  my_log("ERROR: ", x, ...)
+  quit(save = "no", status = 11, runLast = TRUE)
+}
 
-my_print("Start of the '", modNamC, "' Galaxy module call: ")
+my_log("Start of the '", modNamC, "' Galaxy module call: ")
 
 
 ########
@@ -84,13 +88,13 @@ corcov_tsv_action <- function(tsv) {
   corcov_tsv_append   <<- TRUE
 }
 
-my_print( "--------------------------  Reading input data  --------------------------")
+my_log( "--------------------------  Reading input data  --------------------------")
 
 # read_inputs is defined in w4mcorcov_input.R
-my_result <- read_inputs(input_env = my_env, failure_action = my_print)
+my_result <- read_inputs(input_env = my_env, failure_action = my_log)
 
 if ( is.logical(my_result) && my_result) {
-  my_print( "--------------------------  Beginning data processing  --------------------------")
+  my_log( "--------------------------  Beginning data processing  --------------------------")
 
   # receiver for result of the call to corcov_calc
   my_result <- NULL
@@ -115,18 +119,19 @@ if ( is.logical(my_result) && my_result) {
   , plot.function = function() {
       # plot layout four plots per page
       layout(matrix(1:4, byrow = TRUE, nrow = 2))
-      my_result <<- corcov_calc(calc_env = my_env, failure_action = my_print, progress_action = my_print, corcov_tsv_action = corcov_tsv_action)
+      my_result <<- corcov_calc(calc_env = my_env, failure_action = my_fatal, progress_action = my_log, corcov_tsv_action = corcov_tsv_action)
     }
   )
   par(old_par)
   
-  my_print( "--------------------------  Finished data processing  --------------------------")
+  my_log( "--------------------------  Finished data processing  --------------------------")
 }
 
-my_print( "End of the '", modNamC, "' Galaxy module call")
+my_log( "End of the '", modNamC, "' Galaxy module call")
 
 if (is.logical(my_result) && my_result) {
-  cat("success :)\n")
+  quit(save = "no", status = 0, runLast = TRUE)
 } else {
-  cat("failure :(\n")
+  my_log("failure :(")
+  quit(save = "no", status = 10, runLast = TRUE)
 }

@@ -1,4 +1,4 @@
-<tool id="w4mcorcov" name="PLS-DA Contrasts" version="0.98.1">
+<tool id="w4mcorcov" name="PLS-DA_Contrasts" version="0.98.1">
 
   <description>PLS-DA Contrasts of Univariate Results</description>
   
@@ -13,7 +13,7 @@
   </stdio>
 
   <command><![CDATA[
-  Rscript $__tool_directory__/w4mcorcov_wrapper.R
+  cd $__tool_directory__; Rscript w4mcorcov_wrapper.R
   dataMatrix_in "$dataMatrix_in"
   sampleMetadata_in "$sampleMetadata_in"
   variableMetadata_in "$variableMetadata_in"
@@ -22,7 +22,7 @@
   pairSigFeatOnly "$pairSigFeatOnly"
   levCSV '$levCSV'
   matchingC '$matchingC'
-  contrast_grid '$contrast_grid'
+  labelFeatures '$labelFeatures'
   contrast_detail '$contrast_detail'
   contrast_corcov '$contrast_corcov'
   ]]></command>
@@ -39,9 +39,15 @@
       <option value="wilcoxon">wilcoxon - Wilcoxon rank test (nonparametric test, qualitative factor with exactly 2 levels)</option>      
       <option value="kruskal">kruskal - Kruskal-Wallis rank test (nonparametric test, qualitative factor with more than 2 levels)</option>
     </param>
-    <!-- TODO display pairSigFeatOnly parameter only when test is not 'none' -->
-    <param name="pairSigFeatOnly" type="boolean" checked="true" truevalue="TRUE" falsevalue="FALSE" label="Retain only pairwise-significant features" help="When true, analyze only features that differ significantly for the pair of levels being contrasted; when false, include any feature that varies significantly across all levels."/>
-    <param name="levCSV" label="Levels of interest" type="text" value = "REQUIRED - AT LEAST TWO COMMA-SEPARATED VALUES" help="comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions">
+    <param
+      name="pairSigFeatOnly"
+      type="boolean"
+      checked="true"
+      truevalue="TRUE"
+      falsevalue="FALSE"
+      label="Retain only pairwise-significant features"
+      help="Ignored when 'no test' is chosen.  Otherwise, when 'Yes', analyze only features that differ significantly for the pair of levels being contrasted; when 'No', include any feature that varies significantly across all levels."/>
+    <param name="levCSV" label="Levels of interest" type="text" value = "" help="comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions">
       <sanitizer>
         <valid initial="string.letters">
           <add preset="string.digits"/>
@@ -51,6 +57,7 @@
           <add value="&#42;"  /> <!-- * splat, asterisk -->
           <add value="&#43;"  /> <!-- + plus -->
           <add value="&#44;"  /> <!-- , comma -->
+          <add value="&#45;"  /> <!-- - dash, minus-sign -->
           <add value="&#46;"  /> <!-- . dot, period -->
           <add value="&#58;"  /> <!-- : colon -->
           <add value="&#59;"  /> <!-- ; semi, semicolon -->
@@ -62,6 +69,7 @@
           <add value="&#123;" /> <!-- { l-cube, left-curly-bracket -->
           <add value="&#124;" /> <!-- | pipe -->
           <add value="&#125;" /> <!-- } r-cube, right-curly-bracket -->
+          <!-- IMPORTANT - Note that single and double quotes are not part of this list; they have the potential to make the 'command' section insecure or broken. -->
         </valid>
       </sanitizer>
     </param>
@@ -75,14 +83,7 @@
 
   <outputs>
     <!--
-      pdf1: contrast grid
-        * with S-PLOTs in the upper triangle
-        * PLS score-plots in the lower triangle
-        * with level-labels along the diagonal
-    -->
-    <data name="contrast_grid" label="${tool.name}_${variableMetadata_in.name}_grid" format="pdf" />
-    <!--
-      pdf2: summaries of each contrasts, clearly labeled by level=pair name
+      pdf1: summaries of each contrasts, clearly labeled by level=pair name
         * first PCA score-plot
         * then PLS score-plot
         * then PLS S-PLOT; color in red features with VIP > 1; color in grey any non-pairwise-significant features, if these are included

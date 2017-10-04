@@ -114,7 +114,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
     return ( FALSE )
   }
 
-  # extract command-line parameters from the environment
+  # extract parameters from the environment
   vrbl_metadata <- calc_env$vrbl_metadata
   smpl_metadata <- calc_env$smpl_metadata
   data_matrix <- calc_env$data_matrix
@@ -122,21 +122,41 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
   facC <- calc_env$facC
   tesC <- calc_env$tesC
   # extract the levels from the environment
-  levCSV <- calc_env$levCSV
+  originalLevCSV <- levCSV <- calc_env$levCSV
   # matchingC is one of { "none", "wildcard", "regex" }
   matchingC <- calc_env$matchingC
   labelFeatures <- calc_env$labelFeatures
+
+  # arg/env checking
+  if (!(facC %in% names(smpl_metadata))) {
+    failure_action(sprintf("bad parameter!  Factor name '%s' not found in sampleMetadata", facC))
+    return ( FALSE )
+  }
   
-  # transform wildcard to regex
+  # transform wildcards to regexen
   if (matchingC == "wildcard") {
+    # strsplit(x = "hello,wild,world", split = ",")
     levCSV <- gsub("[.]", "[.]", levCSV)
-    levCSV <- utils::glob2rx(levCSV, trim.tail = FALSE)
+    levCSV <- strsplit(x = levCSV, split = ",")
+    levCSV <- sapply(levCSV, utils::glob2rx, trim.tail = FALSE)
+    levCSV <- paste(levCSV, collapse = ",")
   }
   # function to determine whether level is a member of levCSV
   isLevelSelected <- function(lvl) {
-    matchFun <- if (matchingC == "regex") grepl else `==`
+    matchFun <- if (matchingC != "none") grepl else `==`
     return(
-      0 < sum(sapply(X = strsplit(x = levCSV, split = ",", fixed = TRUE)[[1]], FUN = matchFun, lvl))
+      Reduce(
+        f = "||"
+      , x = sapply(
+              X = strsplit(
+                    x = levCSV
+                  , split = ","
+                  , fixed = TRUE
+                  )[[1]]
+            , FUN = matchFun
+            , lvl
+            )
+      )
     )
   }
 
@@ -165,9 +185,14 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
   calc_env$contrast_list <- list()
 
 
+  did_plot <- FALSE
   if (tesC != "none") {
     # for each column name, extract the parts of the name matched by 'col_pattern', if any
     the_colnames <- colnames(vrbl_metadata)
+    if (!Reduce(f = "||", x = grepl(tesC, the_colnames))) {
+      failure_action(sprintf("bad parameter!  variableMetadata must contain results of W4M Univariate test '%s'.", tesC))
+      return ( FALSE )
+    }
     col_matches <- lapply(
       X = the_colnames,
       FUN = function(x) {
@@ -203,10 +228,12 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
         , x_algorithm = algoC
         , x_show_labels = labelFeatures
         )
-        if ( ! is.null(my_cor_cov) && is.function(corcov_tsv_action) )
+        if ( ! is.null(my_cor_cov) && is.function(corcov_tsv_action) ) {
           corcov_tsv_action(my_cor_cov$tsv1)
-        else
+          did_plot <- TRUE
+        } else {
           progress_action("NOTHING TO PLOT")
+        }
       }
     }
   } else { # tesC == "none"
@@ -223,22 +250,31 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
         } else {
           predictor <- smpl_metadata_facC[chosen_samples]
           my_matrix <- scdm[ chosen_samples, , drop = FALSE ]
+          # only process this column if both factors are members of lvlCSV
+          is_match <- isLevelSelected(fctr_lvl_1) && isLevelSelected(fctr_lvl_2)
           my_cor_cov <- do_detail_plot(
             x_dataMatrix = my_matrix
           , x_predictor = predictor
-          , x_is_match = TRUE
+          , x_is_match = is_match
           , x_algorithm = algoC
           , x_show_labels = labelFeatures
           )
-          if ( ! is.null(my_cor_cov) && is.function(corcov_tsv_action) )
+          if ( ! is.null(my_cor_cov) && is.function(corcov_tsv_action) ) {
             corcov_tsv_action(my_cor_cov$tsv1)
-          else
+            did_plot <<- TRUE
+          }
+          else {
             progress_action("NOTHING TO PLOT")
+          }
         }
         #print("baz")
         "dummy" # need to return a value; otherwise combn fails with an error
       }
     )
+  }
+  if (!did_plot) {
+    failure_action(sprintf("bad parameter!  sampleMetadata must have at least two levels of factor '%s' matching '%s'", facC, originalLevCSV))
+    return ( FALSE )
   }
   return ( TRUE )
 }

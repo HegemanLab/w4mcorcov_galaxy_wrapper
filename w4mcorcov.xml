@@ -33,7 +33,7 @@
     <param name="variableMetadata_in" label="Variable metadata file (from Univariate)" type="data" format="tabular" help="variable x metadata, decimal: '.', missing: NA, mode: character and numerical, sep: tabular" />
     <param name="facC" label="Factor of interest" type="text" help="Name of the column of the sample metadata table corresponding to the qualitative variable used to define the contrasts - it is a portion of the column names in the variable metadata file"/>
     <param name="tesC" label="Univariate Significance-Test" type="select" help="Name of the statistical test that was run in Univariate to produce the variable metadata file - it is a portion of the column names in that file">
-      <option value="none">no test - Display all features from variableMetadata (rather than choosing a subset based on significance in univariate testing)</option>
+      <option value="none">none - Display all features from variableMetadata (rather than choosing a subset based on significance in univariate testing)</option>
       <option value="ttest">ttest - Student's t-test (parametric test, qualitative factor with exactly 2 levels)</option>
       <option value="anova">anova - Analysis of variance (parametric test, qualitative factor with more than 2 levels)</option>
       <option value="wilcoxon">wilcoxon - Wilcoxon rank test (nonparametric test, qualitative factor with exactly 2 levels)</option>      
@@ -46,7 +46,7 @@
       truevalue="TRUE"
       falsevalue="FALSE"
       label="Retain only pairwise-significant features"
-      help="Ignored when 'no test' is chosen.  Otherwise, when 'Yes', analyze only features that differ significantly for the pair of levels being contrasted; when 'No', include any feature that varies significantly across all levels."/>
+      help="Ignored when 'none' is chosen.  Otherwise, when 'Yes', analyze only features that differ significantly for the pair of levels being contrasted; when 'No', include any feature that varies significantly across all levels."/>
     <param name="levCSV" label="Levels of interest" type="text" value = "" help="comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions">
       <sanitizer>
         <valid initial="string.letters">
@@ -98,6 +98,7 @@
         5. Wiklund_2008 covariance
         6. Galindo_Prieto_2014 VIP for predictive components, VIP[4,p]
         7. Galindo_Prieto_2014 VIP for orthogonal components, VIP[4,o]
+        8. (When filtering on significance of univariate tests) Significance of test of null hypothesis that there is no difference among all classes, i.e, not the pair-wise test.
     -->
     <data name="contrast_corcov" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
   </outputs>
@@ -197,7 +198,7 @@ Parameters
 
 [IN] Test
 	| Name of the **statistical test** - a component of column names in variable metadata table
-	| May be one of 'ttest', 'gwilcoxon, anova, kruskal, pearson, spearman'
+	| May be one of 'none', 'ttest', 'gwilcoxon', 'anova', 'kruskal', 'pearson', 'spearman'
 	|
 
 [IN] Factor of interest
@@ -231,10 +232,11 @@ Parameters
 - featureID - feature identifier
 - factorLevel1 - factor-level 1
 - factorLevel2 - factor-level 2
-- correlation (from Supplement to Wiklund, *op. cit.*, > 0 when intensity for level 1 is significantly greater than intensity for level 2)
-- covariance (from Supplement to Wiklund, *op. cit.*, > 0 when intensity for level 1 is significantly greater than intensity for level 2)
+- correlation (from Supplement to Wiklund, *op. cit.*, > 0 when intensity for level 1 is greater than intensity for level 2)
+- covariance (from Supplement to Wiklund, *op. cit.*, > 0 when intensity for level 1 is greater than intensity for level 2)
 - variable importance in projection to the predictive components (VIP\ :subscript:`4,p`, from Galindo-Prieto *et al.* 2014)
 - variable importance in projection to the orthogonal components (VIP\ :subscript:`4,o`, from Galindo-Prieto *op cit.*)
+- (Only present when a test other than "none" is chosen) '1' when feature varies significantly across all classes (i.e., not pair-wise); '0' otherwise.
 
 Wild card patterns to match level-names
 ---------------------------------------

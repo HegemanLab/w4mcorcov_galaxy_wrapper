@@ -219,8 +219,8 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
       if (length(col_match) > 0) {
         # it's an actual match; extract the pieces, e.g., k10_kruskal_k4.k3_sig
         vrbl_metadata_col <- col_match[1]               # ^^^^^^^^^^^^^^^^^^^^^  # Column name
-        fctr_lvl_1 <- col_match[2]                      #             ^^         # Factor-level 1
-        fctr_lvl_2 <- col_match[3]                      #                ^^      # Factor-level 2
+        fctr_lvl_1        <- col_match[2]               #             ^^         # Factor-level 1
+        fctr_lvl_2        <- col_match[3]               #                ^^      # Factor-level 2
         # only process this column if both factors are members of lvlCSV
         is_match <- isLevelSelected(fctr_lvl_1) && isLevelSelected(fctr_lvl_2)
         progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))

@@ -7,8 +7,12 @@ center_colmeans <- function(x) {
 #### OPLS-DA
 algoC <- "nipals"
 
-do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_show_labels) {
+do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_show_labels, x_progress = print, x_env) {
   off <- function(x) if (x_show_labels) x else 0
+  salience_raw_lookup <- x_env$salience_raw_lookup
+  salience_adj_lookup <- x_env$salience_adj_lookup
+  # x_progress("head(salience_df): ", head(salience_df))
+  # x_progress("head(salience): ", head(salience))
   if (x_is_match && ncol(x_dataMatrix) > 0 && length(unique(x_predictor))> 1) {
     my_oplsda <- opls(
         x      = x_dataMatrix
@@ -38,7 +42,6 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
         # print("main_label")
         # print(main_label)
         main_cex = min(1.0, 46.0/nchar(main_label))
-        cex <- 0.75
         # " It is generally accepted that a variable should be selected if vj>1, [27–29], but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]." (Mehmood 2012 doi:10.1016/j.chemolab.2004.12.011)
         vipco <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
         alpha <- 0.1 + 0.4 * vipco
@@ -46,6 +49,11 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
         blue <- as.numeric(correlation > 0) * vipco
         minus_cor <- -correlation
         minus_cov <- -covariance
+        # x_progress("head(names(minus_cor)): ", head(names(minus_cor)))
+        cex <- salience_raw_lookup(feature = names(minus_cor))
+        # x_progress("head(cex.1): ", head(cex))
+        cex <- 0.25 + (0.75 * cex / max(cex))
+        # x_progress("head(cex.2): ", head(cex))
         plot(
           y = minus_cor
         , x = minus_cov
@@ -125,6 +133,10 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
     failure_action("corcov_calc: fatal error - 'calc_env' is not an environment")
     return ( FALSE )
   }
+  if ( is.null(corcov_tsv_action) || ! is.function(corcov_tsv_action) ) {
+    failure_action("corcov_calc: fatal error - 'corcov_tsv_action' is not a function")
+    return ( FALSE )
+  }
 
   # extract parameters from the environment
   vrbl_metadata <- calc_env$vrbl_metadata
@@ -145,6 +157,19 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
     failure_action(sprintf("bad parameter!  Factor name '%s' not found in sampleMetadata", facC))
     return ( FALSE )
   }
+
+  # calculate salience_df as data.frame(feature, max_level, max_median, max_rcv, mean_median, salience_raw, salience_adj)
+  salience_df <- calc_env$salience_df <- w4msalience(
+    data_matrix    = data_matrix
+  , sample_class   = smpl_metadata[,facC]
+  , failure_action = failure_action
+  )
+  salience_raw        <- salience_df$salience_raw
+  names(salience_raw) <- salience_df$feature
+  salience_raw_lookup <- calc_env$salience_raw_lookup <- function(feature) unname(salience_raw[feature])
+  salience_adj        <- salience_df$salience_adj
+  names(salience_adj) <- salience_df$feature
+  salience_adj_lookup <- calc_env$salience_adj_lookup <- function(feature) unname(salience_adj[feature])
   
   # transform wildcards to regexen
   if (matchingC == "wildcard") {
@@ -235,19 +260,21 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
         col_selector <- vrbl_metadata_names[ if ( pairSigFeatOnly ) fully_significant else overall_significant ]
         my_matrix <- scdm[ chosen_samples, col_selector, drop = FALSE ]
         my_cor_cov <- do_detail_plot(
-          x_dataMatrix = my_matrix
-        , x_predictor = predictor
-        , x_is_match = is_match
-        , x_algorithm = algoC
+          x_dataMatrix  = my_matrix
+        , x_predictor   = predictor
+        , x_is_match    = is_match
+        , x_algorithm   = algoC
         , x_show_labels = labelFeatures
+        , x_progress    = progress_action
+        , x_env         = calc_env
         )
-        if ( ! is.null(my_cor_cov) && is.function(corcov_tsv_action) ) {
+        if ( is.null(my_cor_cov) ) {
+          progress_action("NOTHING TO PLOT")
+        } else {
           tsv <- my_cor_cov$tsv1
           tsv["level1_level2_sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ] 
           corcov_tsv_action(tsv)
           did_plot <- TRUE
-        } else {
-          progress_action("NOTHING TO PLOT")
         }
       }
     }
@@ -268,18 +295,19 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
           # only process this column if both factors are members of lvlCSV
           is_match <- isLevelSelected(fctr_lvl_1) && isLevelSelected(fctr_lvl_2)
           my_cor_cov <- do_detail_plot(
-            x_dataMatrix = my_matrix
-          , x_predictor = predictor
-          , x_is_match = is_match
-          , x_algorithm = algoC
+            x_dataMatrix  = my_matrix
+          , x_predictor   = predictor
+          , x_is_match    = is_match
+          , x_algorithm   = algoC
           , x_show_labels = labelFeatures
+          , x_progress    = progress_action
+          , x_env         = calc_env
           )
-          if ( ! is.null(my_cor_cov) && is.function(corcov_tsv_action) ) {
+          if ( is.null(my_cor_cov) ) {
+            progress_action("NOTHING TO PLOT")
+          } else {
             corcov_tsv_action(my_cor_cov$tsv1)
             did_plot <<- TRUE
-          }
-          else {
-            progress_action("NOTHING TO PLOT")
           }
         }
         #print("baz")

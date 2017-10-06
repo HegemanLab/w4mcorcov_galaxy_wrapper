@@ -25,6 +25,7 @@ options(stringsAsFactors = FALSE)
 source("w4mcorcov_lib.R")
 source("w4mcorcov_util.R")
 source("w4mcorcov_input.R")
+source("w4mcorcov_salience.R")
 source("w4mcorcov_calc.R")
 source("w4mcorcov_output.R")
 

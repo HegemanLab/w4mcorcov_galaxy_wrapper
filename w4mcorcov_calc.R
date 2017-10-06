@@ -164,12 +164,15 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
   , sample_class   = smpl_metadata[,facC]
   , failure_action = failure_action
   )
-  salience_raw        <- salience_df$salience_raw
-  names(salience_raw) <- salience_df$feature
-  salience_raw_lookup <- calc_env$salience_raw_lookup <- function(feature) unname(salience_raw[feature])
-  salience_adj        <- salience_df$salience_adj
-  names(salience_adj) <- salience_df$feature
-  salience_adj_lookup <- calc_env$salience_adj_lookup <- function(feature) unname(salience_adj[feature])
+  salience_raw         <- salience_df$salience_raw
+  names(salience_raw)  <- salience_df$feature
+  salience_raw_lookup  <- calc_env$salience_raw_lookup <- function(feature) unname(salience_raw[feature])
+  salience_adj         <- salience_df$salience_adj
+  names(salience_adj)  <- salience_df$feature
+  salience_adj_lookup  <- calc_env$salience_adj_lookup <- function(feature) unname(salience_adj[feature])
+  salient_level        <- salience_df$max_level
+  names(salient_level) <- salience_df$feature
+  salient_level_lookup <- calc_env$salient_level_lookup <- function(feature) unname(salient_level[feature])
   
   # transform wildcards to regexen
   if (matchingC == "wildcard") {
@@ -273,6 +276,9 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
         } else {
           tsv <- my_cor_cov$tsv1
           tsv["level1_level2_sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ] 
+          tsv$salience_raw  <- salience_raw_lookup(tsv$featureID)
+          tsv$salience_adj  <- salience_adj_lookup(tsv$featureID)
+          tsv$salient_level <- salient_level_lookup(tsv$featureID)
           corcov_tsv_action(tsv)
           did_plot <- TRUE
         }
@@ -306,7 +312,12 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
           if ( is.null(my_cor_cov) ) {
             progress_action("NOTHING TO PLOT")
           } else {
-            corcov_tsv_action(my_cor_cov$tsv1)
+            tsv <- my_cor_cov$tsv1
+            tsv["level1_level2_sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ] 
+            tsv$salience_raw  <- salience_raw_lookup(tsv$featureID)
+            tsv$salience_adj  <- salience_adj_lookup(tsv$featureID)
+            tsv$salient_level <- salient_level_lookup(tsv$featureID)
+            corcov_tsv_action(tsv)
             did_plot <<- TRUE
           }
         }

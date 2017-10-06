@@ -73,18 +73,30 @@ my_env$levCSV          <- as.character(argVc["levCSV"])
 my_env$matchingC       <- as.character(argVc["matchingC"])
 my_env$labelFeatures   <- as.character(argVc["labelFeatures"])
 
+tsv_action_factory <- function(file, colnames, append) {
+  return (
+    function(tsv) {
+      write.table(
+        x = tsv
+      , file = file
+      , sep = "\t"
+      , quote = FALSE
+      , row.names = FALSE
+      , col.names = colnames
+      , append = append
+      )
+    }
+  )
+}
+
 corcov_tsv_colnames <- TRUE
 corcov_tsv_append   <- FALSE
 corcov_tsv_action <- function(tsv) {
-  write.table(
-    x = tsv
-  , file = my_env$contrast_corcov
-  , sep = "\t"
-  , quote = FALSE
-  , row.names = FALSE
-  , col.names = corcov_tsv_colnames
-  , append = corcov_tsv_append
-  )
+  tsv_action_factory(
+    file     = my_env$contrast_corcov
+  , colnames = corcov_tsv_colnames
+  , append   = corcov_tsv_append
+  )(tsv)
   corcov_tsv_colnames <<- FALSE
   corcov_tsv_append   <<- TRUE
 }
@@ -120,7 +132,12 @@ if ( is.logical(my_result) && my_result) {
   , plot.function = function() {
       # plot layout four plots per page
       layout(matrix(1:4, byrow = TRUE, nrow = 2))
-      my_result <<- corcov_calc(calc_env = my_env, failure_action = my_fatal, progress_action = my_log, corcov_tsv_action = corcov_tsv_action)
+      my_result <<- corcov_calc(
+          calc_env = my_env
+        , failure_action = my_fatal
+        , progress_action = my_log
+        , corcov_tsv_action = corcov_tsv_action
+        )
     }
   )
   par(old_par)

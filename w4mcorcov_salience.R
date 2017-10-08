@@ -59,7 +59,7 @@ w4msalience <- function(
   rcvOfFeatureBySampleClassLevel <- as.matrix(
     madOfFeatureBySampleClassLevel[,2:n_features_plus_1] / medianOfFeatureBySampleClassLevel[,2:n_features_plus_1]
   )
-  rcvOfFeatureBySampleClassLevel[is.nan(rcvOfFeatureBySampleClassLevel)] <- Inf
+  rcvOfFeatureBySampleClassLevel[is.nan(rcvOfFeatureBySampleClassLevel)] <- max(9999,max(rcvOfFeatureBySampleClassLevel, na.rm = TRUE)) 
 
   # "For each feature, 'select max(median_feature_intensity) from feature'."
   maxApplyMedianOfFeatureBySampleClassLevel <- sapply(
@@ -105,9 +105,12 @@ w4msalience <- function(
   , stringsAsFactors = FALSE
   )
   # raw salience is the ratio of the most-prominent level to the mean of all levels for the feature
-  salience_df$salience_raw <- with(salience_df, max_median / mean_median)
-  # adjusted salience favors maximum levels with a low CV using an arbitrary scaling formula
-  salience_df$salience_adj <- pmax( 0, with(salience_df, (1 - max_rcv^2) * salience_raw) )
+  salience_df$salience <- sapply(
+      X = 1:nrow(salience_df)
+    , FUN = function(i) with(salience_df[i,], if (mean_median > 0) { max_median / mean_median } else { 0 } )
+    )
+  # "robust coefficient of variation, i.e., mad(feature-intensity for class-level max_level) / median(feature-intensity for class-level max_level)
+  salience_df$salient_rcv <- salience_df$max_rcv
 
   return (salience_df)
 }

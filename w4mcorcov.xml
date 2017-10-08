@@ -91,14 +91,17 @@
     <data name="contrast_detail" label="${tool.name}_${variableMetadata_in.name}_detail" format="pdf" />
     <!--
       tsv1: cor and cov table with columns:
-        1. feature-ID
-        2. factor-level 1
-        3. factor-level 2, lexically greater than level 1
-        4. Wiklund_2008 correlation
-        5. Wiklund_2008 covariance
-        6. Galindo_Prieto_2014 VIP for predictive components, VIP[4,p]
-        7. Galindo_Prieto_2014 VIP for orthogonal components, VIP[4,o]
-        8. (When filtering on significance of univariate tests) Significance of test of null hypothesis that there is no difference among all classes, i.e, not the pair-wise test.
+        * feature-ID
+        * factor-level 1
+        * factor-level 2, lexically greater than level 1
+        * Wiklund_2008 correlation
+        * Wiklund_2008 covariance
+        * Galindo_Prieto_2014 VIP for predictive components, VIP[4,p]
+        * Galindo_Prieto_2014 VIP for orthogonal components, VIP[4,o]
+        * Salient level, i.e., for the feature, the class-level having the greatest median intensity
+        * Salient robust coefficient of variation, i.e., for the feature, the mean absolute deviation of the intensity for the salient level divided by the median intensity for the salient level
+        * Raw salience, i.e., for the feature, the median of the class-level having the greatest intensity divided by the mean of the medians for all class-levels.
+        * (When filtering on significance of univariate tests) Significance of test of null hypothesis that there is no difference between the two classes, i.e, the pair-wise test.
     -->
     <data name="contrast_corcov" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
   </outputs>
@@ -229,14 +232,17 @@ Parameters
 [OUT] Contrast Correlation-Covarinace data TABULAR
 	| A tab-separated values file having the following columns:
 
-- featureID - feature identifier
-- factorLevel1 - factor-level 1
-- factorLevel2 - factor-level 2
-- correlation (from Supplement to Wiklund, *op. cit.*, > 0 when intensity for level 1 is greater than intensity for level 2)
-- covariance (from Supplement to Wiklund, *op. cit.*, > 0 when intensity for level 1 is greater than intensity for level 2)
-- variable importance in projection to the predictive components (VIP\ :subscript:`4,p`, from Galindo-Prieto *et al.* 2014)
-- variable importance in projection to the orthogonal components (VIP\ :subscript:`4,o`, from Galindo-Prieto *op cit.*)
-- (Only present when a test other than "none" is chosen) '1' when feature varies significantly across all classes (i.e., not pair-wise); '0' otherwise.
+- **featureID** - feature identifier
+- **factorLevel1** - factor-level 1
+- **factorLevel2** - factor-level 2
+- **correlation** - correlation of the features projection explaining the difference between the features, > 0 when intensity for level 1 is greater than intensity for level 2 (from formula in Supplement to Wiklund, *op. cit.*)
+- **covariance** - covariance of the features projection explaining the difference between the features, > 0 when intensity for level 1 is greater than intensity for level 2 (from formula in *ibid.*)
+- **vip4p** - variable importance in projection to the predictive components (VIP\ :subscript:`4,p` from Galindo-Prieto *et al.* 2014)
+- **vip4o** - variable importance in projection to the orthogonal components (VIP\ :subscript:`4,o` from Galindo-Prieto *op cit.*)
+- **salientLevel** - Salient level, i.e., for the feature, the class-level having the greatest median intensity
+- **salientRCV** - Salient robust coefficient of variation, i.e., for the feature, the mean absolute deviation of the intensity for the salient level divided by the median intensity for the salient level
+- **salience** - Raw salience, i.e., for the feature, the median of the class-level having the greatest intensity divided by the mean of the medians for all class-levels
+- **level1Level2Sig** - (Only present when a test other than "none" is chosen) '1' when feature varies significantly across all classes (i.e., not pair-wise); '0' otherwise
 
 Wild card patterns to match level-names
 ---------------------------------------
@@ -291,6 +297,23 @@ Second Example: Consider these regular expression patterns as possible matches t
 - '``^[A-Z][A-Z][0-9]``' - MATCHES  '``**^AB0** 123$``' - first two characters are letters aind the third is a digit.
 - '``^[A-Z][A-Z]*[0-9][0-9]$``' - NO MATCH - the name does not end with the pattern '``[A-Z][0-9][0-9]$``', i.e., it ends with four digits, not two.
 - '``^[A-Z][0-9]*$``' - NO MATCH - the pattern specifies that second character and all those that follow, if present, must be digits.
+
+Working example
+---------------
+
+.. class:: infomark 
+
+**Input files**
+
++-------------------+-------------------------------------------------------------------------------------------------------------------+
+| Input File        | Download from URL                                                                                                 |
++===================+===================================================================================================================+
+| Data matrix       | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/input_dataMatrix.tsv       |
++-------------------+-------------------------------------------------------------------------------------------------------------------+
+| Sample metadata   | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/input_sampleMetadata.tsv   |
++-------------------+-------------------------------------------------------------------------------------------------------------------+
+| Variable metadata | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/input_variableMetadata.tsv |
++-------------------+-------------------------------------------------------------------------------------------------------------------+
 
 Trademarks
 ----------

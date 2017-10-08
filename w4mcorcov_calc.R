@@ -7,10 +7,10 @@ center_colmeans <- function(x) {
 #### OPLS-DA
 algoC <- "nipals"
 
-do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_show_labels, x_progress = print, x_env) {
+do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_prefix, x_show_labels, x_progress = print, x_env) {
   off <- function(x) if (x_show_labels) x else 0
-  salience_raw_lookup <- x_env$salience_raw_lookup
-  salience_adj_lookup <- x_env$salience_adj_lookup
+  salience_lookup <- x_env$salience_lookup
+  salient_rcv_lookup <- x_env$salient_rcv_lookup
   # x_progress("head(salience_df): ", head(salience_df))
   # x_progress("head(salience): ", head(salience))
   if (x_is_match && ncol(x_dataMatrix) > 0 && length(unique(x_predictor))> 1) {
@@ -38,10 +38,10 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
         lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
         covariance <- covariance / lim_x
         lim_x <- 1.2
-        main_label = sprintf("Significantly contrasting features for %s versus %s", fctr_lvl_1, fctr_lvl_2)
+        main_label <- sprintf("%s for levels %s versus %s", x_prefix, fctr_lvl_1, fctr_lvl_2)
         # print("main_label")
         # print(main_label)
-        main_cex = min(1.0, 46.0/nchar(main_label))
+        main_cex <- min(1.0, 46.0/nchar(main_label))
         # " It is generally accepted that a variable should be selected if vj>1, [27–29], but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]." (Mehmood 2012 doi:10.1016/j.chemolab.2004.12.011)
         vipco <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
         alpha <- 0.1 + 0.4 * vipco
@@ -50,9 +50,10 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
         minus_cor <- -correlation
         minus_cov <- -covariance
         # x_progress("head(names(minus_cor)): ", head(names(minus_cor)))
-        cex <- salience_raw_lookup(feature = names(minus_cor))
+        cex <- salience_lookup(feature = names(minus_cor))
         # x_progress("head(cex.1): ", head(cex))
-        cex <- 0.25 + (0.75 * cex / max(cex))
+        # cex <- 0.25 + (0.75 * cex / max(cex))
+        cex <- 0.25 + (1.25 * cex / max(cex))
         # x_progress("head(cex.2): ", head(cex))
         plot(
           y = minus_cor
@@ -77,7 +78,7 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
             y = minus_cor - 0.013
           , x = minus_cov + 0.020
           , cex = 0.3
-          , labels = names(minus_cor)
+          , labels = tsv1$featureID
           , col = rgb(blue = blue, red = red, green = 0, alpha = 0.2 + 0.8 * alpha)
           , srt = -30 # slant 30 degrees downward
           , adj = 0   # left-justified
@@ -158,18 +159,18 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
     return ( FALSE )
   }
 
-  # calculate salience_df as data.frame(feature, max_level, max_median, max_rcv, mean_median, salience_raw, salience_adj)
+  # calculate salience_df as data.frame(feature, max_level, max_median, max_rcv, mean_median, salience, salient_rcv)
   salience_df <- calc_env$salience_df <- w4msalience(
     data_matrix    = data_matrix
   , sample_class   = smpl_metadata[,facC]
   , failure_action = failure_action
   )
-  salience_raw         <- salience_df$salience_raw
-  names(salience_raw)  <- salience_df$feature
-  salience_raw_lookup  <- calc_env$salience_raw_lookup <- function(feature) unname(salience_raw[feature])
-  salience_adj         <- salience_df$salience_adj
-  names(salience_adj)  <- salience_df$feature
-  salience_adj_lookup  <- calc_env$salience_adj_lookup <- function(feature) unname(salience_adj[feature])
+  salience             <- salience_df$salience
+  names(salience)      <- salience_df$feature
+  salience_lookup      <- calc_env$salience_lookup <- function(feature) unname(salience[feature])
+  salient_rcv          <- salience_df$salient_rcv
+  names(salient_rcv)   <- salience_df$feature
+  salient_rcv_lookup   <- calc_env$salient_rcv_lookup <- function(feature) unname(salient_rcv[feature])
   salient_level        <- salience_df$max_level
   names(salient_level) <- salience_df$feature
   salient_level_lookup <- calc_env$salient_level_lookup <- function(feature) unname(salient_level[feature])
@@ -267,6 +268,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
         , x_predictor   = predictor
         , x_is_match    = is_match
         , x_algorithm   = algoC
+        , x_prefix      = if (pairSigFeatOnly) "Significantly contrasting features" else "Significant features"
         , x_show_labels = labelFeatures
         , x_progress    = progress_action
         , x_env         = calc_env
@@ -275,10 +277,10 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
           progress_action("NOTHING TO PLOT")
         } else {
           tsv <- my_cor_cov$tsv1
-          tsv["level1_level2_sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ] 
-          tsv$salience_raw  <- salience_raw_lookup(tsv$featureID)
-          tsv$salience_adj  <- salience_adj_lookup(tsv$featureID)
-          tsv$salient_level <- salient_level_lookup(tsv$featureID)
+          tsv$salientLevel <- salient_level_lookup(tsv$featureID)
+          tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
+          tsv$salience     <- salience_lookup(tsv$featureID)
+          tsv["level1Level2Sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ] 
           corcov_tsv_action(tsv)
           did_plot <- TRUE
         }
@@ -305,6 +307,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
           , x_predictor   = predictor
           , x_is_match    = is_match
           , x_algorithm   = algoC
+          , x_prefix      = "Features"
           , x_show_labels = labelFeatures
           , x_progress    = progress_action
           , x_env         = calc_env
@@ -313,10 +316,9 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
             progress_action("NOTHING TO PLOT")
           } else {
             tsv <- my_cor_cov$tsv1
-            tsv["level1_level2_sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ] 
-            tsv$salience_raw  <- salience_raw_lookup(tsv$featureID)
-            tsv$salience_adj  <- salience_adj_lookup(tsv$featureID)
-            tsv$salient_level <- salient_level_lookup(tsv$featureID)
+            tsv$salientLevel <- salient_level_lookup(tsv$featureID)
+            tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
+            tsv$salience     <- salience_lookup(tsv$featureID)
             corcov_tsv_action(tsv)
             did_plot <<- TRUE
           }
@@ -380,6 +382,7 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
   }
   result$correlation <- result$correlation[1,,drop = TRUE]
   result$covariance  <- result$covariance[1,,drop = TRUE]
+
   # Variant 4 of Variable Influence on Projection for OPLS from Galindo_Prieto_2014
   #    Length = number of features; labels = feature identifiers.  (The same is true for $correlation and $covariance.)
   result$vip4p     <- as.numeric(ropls_x@vipVn)

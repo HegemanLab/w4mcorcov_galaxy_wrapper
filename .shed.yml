@@ -1,0 +1,25 @@
+categories: [Metabolomics]
+description: OPLS-DA Contrasts of Univariate Results
+homepage_url: https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper
+long_description: SIMCA OPLS-DA S-PLOT "work-alike" for W4M data
+name: w4mcorcov
+owner: eschen42
+remote_repository_url: https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/tree/master
+include:
+  - .shed.yml
+  - LICENSE
+  - README
+  - test-data/expected_contrast_corcov.tsv
+  - test-data/expected_contrast_corcov_all.tsv
+  - test-data/expected_contrast_corcov_global.tsv
+  - test-data/input_dataMatrix.tsv
+  - test-data/input_sampleMetadata.tsv
+  - test-data/input_variableMetadata.tsv
+  - w4mcorcov.xml
+  - w4mcorcov_calc.R
+  - w4mcorcov_input.R
+  - w4mcorcov_lib.R
+  - w4mcorcov_output.R
+  - w4mcorcov_salience.R
+  - w4mcorcov_util.R
+  - w4mcorcov_wrapper.R

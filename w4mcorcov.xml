@@ -1,6 +1,6 @@
-<tool id="w4mcorcov" name="PLS-DA_Contrasts" version="0.98.1">
+<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.1">
 
-  <description>PLS-DA Contrasts of Univariate Results</description>
+  <description>OPLS-DA Contrasts of Univariate Results</description>
   
   <requirements>
     <requirement type="package">r-batch</requirement>

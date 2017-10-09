@@ -100,7 +100,7 @@
         * Galindo_Prieto_2014 VIP for orthogonal components, VIP[4,o]
         * Salient level, i.e., for the feature, the class-level having the greatest median intensity
         * Salient robust coefficient of variation, i.e., for the feature, the mean absolute deviation of the intensity for the salient level divided by the median intensity for the salient level
-        * Raw salience, i.e., for the feature, the median of the class-level having the greatest intensity divided by the mean of the medians for all class-levels.
+        * Salience, i.e., for the feature, the median of the class-level having the greatest intensity divided by the mean of the medians for all class-levels.
         * (When filtering on significance of univariate tests) Significance of test of null hypothesis that there is no difference between the two classes, i.e, the pair-wise test.
     -->
     <data name="contrast_corcov" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
@@ -391,7 +391,7 @@ Parameters
 - **vip4o** - variable importance in projection to the orthogonal components (VIP\ :subscript:`4,o` from Galindo-Prieto *op cit.*)
 - **salientLevel** - Salient level, i.e., for the feature, the class-level having the greatest median intensity
 - **salientRCV** - Salient robust coefficient of variation, i.e., for the feature, the mean absolute deviation of the intensity for the salient level divided by the median intensity for the salient level
-- **salience** - Raw salience, i.e., for the feature, the median of the class-level having the greatest intensity divided by the mean of the medians for all class-levels
+- **salience** - Salience, i.e., for the feature, the median of the class-level having the greatest intensity divided by the mean of the medians for all class-levels
 - **level1Level2Sig** - (Only present when a test other than "none" is chosen) '1' when feature varies significantly across all classes (i.e., not pair-wise); '0' otherwise
 
 Wild card patterns to match level-names

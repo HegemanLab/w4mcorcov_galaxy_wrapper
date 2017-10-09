@@ -21,11 +21,6 @@ matchingC=regex
 #     * with S-PLOTs in the upper triangle
 #     * PLS score-plots in the lower triangle
 #     * with level-labels along the diagonal
-contrast_grid=test-data/output_contrast_grid.pdf
-#   pdf2: summaries of each contrasts, clearly labeled by level=pair name
-#     * first PCA score-plot
-#     * then PLS score-plot
-#     * then PLS S-PLOT; color in red features with VIP > 1; color in grey any non-pairwise-significant features, if these are included
 contrast_detail=test-data/output_contrast_detail.pdf
 #   tsv1: cor and cov dataframe with colums:
 #     * feature-ID
@@ -54,7 +49,6 @@ bash -c " cd $__tool_directory__; \
   pairSigFeatOnly '$pairSigFeatOnly' \
   levCSV '$levCSV' \
   matchingC '$matchingC' \
-  contrast_grid '$contrast_grid' \
   contrast_detail '$contrast_detail' \
   contrast_corcov '$contrast_corcov' \
   labelFeatures '$labelFeatures' \
@@ -76,7 +70,6 @@ bash -c " cd $__tool_directory__; \
   pairSigFeatOnly '$pairSigFeatOnly' \
   levCSV '$levCSV' \
   matchingC '$matchingC' \
-  contrast_grid '$contrast_grid' \
   contrast_detail '$contrast_detail' \
   contrast_corcov '$contrast_corcov' \
   labelFeatures '$labelFeatures' \
@@ -99,7 +92,6 @@ bash -c " cd $__tool_directory__; \
   pairSigFeatOnly '$pairSigFeatOnly' \
   levCSV '$levCSV' \
   matchingC '$matchingC' \
-  contrast_grid '$contrast_grid' \
   contrast_detail '$contrast_detail' \
   contrast_corcov '$contrast_corcov' \
   labelFeatures '$labelFeatures' \

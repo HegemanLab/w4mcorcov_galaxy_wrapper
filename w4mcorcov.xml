@@ -107,6 +107,156 @@
   </outputs>
 
   <tests>
+    <test>
+      <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
+      <param name="sampleMetadata_in" value="input_sampleMetadata.tsv"/>
+      <param name="variableMetadata_in" value="input_variableMetadata.tsv"/>
+      <param name="tesC" value="kruskal"/>
+      <param name="facC" value="k10"/>
+      <param name="pairSigFeatOnly" value="FALSE"/>
+      <param name="labelFeatures" value="TRUE"/>
+      <param name="levCSV" value="k[12],k[3-4]"/>
+      <param name="matchingC" value="regex"/>
+      <output name="contrast_corcov">
+        <assert_contents>
+          <!-- column-labels line -->
+          <has_text text="featureID" />
+          <has_text text="factorLevel1" />
+          <has_text text="factorLevel2" />
+          <has_text text="correlation" />
+          <has_text text="covariance" />
+          <has_text text="vip4p" />
+          <has_text text="vip4o" />
+          <has_text text="salientLevel" />
+          <has_text text="salientRCV" />
+          <has_text text="salience" />
+          <has_text text="level1Level2Sig" />
+          <!-- first matched line -->
+          <has_text text="M349.2383T700" />
+          <has_text text="-0.05007" />
+          <has_text text="-5.8455" />
+          <has_text text="0.0961269" />
+          <has_text text="0.1848301" />
+          <has_text text="0.659554" />
+          <has_text text="8.81866595" />
+          <!-- second matched line -->
+          <has_text text="M207.9308T206" />
+          <has_text text="-0.2967565" />
+          <has_text text="-19.56942" />
+          <has_text text="1.6023" />
+          <has_text text="1.35368" />
+          <has_text text="0.0578578" />
+          <has_text text="2.27527985" />
+          <!-- third matched line -->
+          <has_text text="M211.0607T263" />
+          <has_text text="0.47052" />
+          <has_text text="15.910087" />
+          <has_text text="0.89838" />
+          <has_text text="0.125372" />
+          <has_text text="9999" />
+          <has_text text="12.87766096" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
+      <param name="sampleMetadata_in" value="input_sampleMetadata.tsv"/>
+      <param name="variableMetadata_in" value="input_variableMetadata.tsv"/>
+      <param name="tesC" value="kruskal"/>
+      <param name="facC" value="k10"/>
+      <param name="pairSigFeatOnly" value="TRUE"/>
+      <param name="labelFeatures" value="TRUE"/>
+      <param name="levCSV" value="k[12],k[3-4]"/>
+      <param name="matchingC" value="regex"/>
+      <output name="contrast_corcov">
+        <assert_contents>
+          <!-- column-labels line -->
+          <has_text text="featureID" />
+          <has_text text="factorLevel1" />
+          <has_text text="factorLevel2" />
+          <has_text text="correlation" />
+          <has_text text="covariance" />
+          <has_text text="vip4p" />
+          <has_text text="vip4o" />
+          <has_text text="salientLevel" />
+          <has_text text="salientRCV" />
+          <has_text text="salience" />
+          <has_text text="level1Level2Sig" />
+          <!-- first matched line -->
+          <has_text text="M349.2383T700" />
+          <has_text text="-0.99601577" />
+          <has_text text="-947.55795176" />
+          <has_text text="0.659554" />
+          <has_text text="8.81866595" />
+          <!-- second matched line -->
+          <has_text text="M207.9308T206" />
+          <has_text text="0.688549" />
+          <has_text text="58.22352" />
+          <has_text text="1.394687" />
+          <has_text text="0.06049885" />
+          <has_text text="0.0578578" />
+          <has_text text="2.27527985" />
+          <!-- third matched line -->
+          <has_text text="M211.0607T263" />
+          <has_text text="-0.572018" />
+          <has_text text="-14.57769" />
+          <has_text text="0.7780899" />
+          <has_text text="0.3678166776" />
+          <has_text text="9999" />
+          <has_text text="12.87766096" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
+      <param name="sampleMetadata_in" value="input_sampleMetadata.tsv"/>
+      <param name="variableMetadata_in" value="input_variableMetadata.tsv"/>
+      <param name="tesC" value="none"/>
+      <param name="facC" value="k10"/>
+      <param name="pairSigFeatOnly" value="TRUE"/>
+      <param name="labelFeatures" value="FALSE"/>
+      <param name="levCSV" value="k[12],k[3-4]"/>
+      <param name="matchingC" value="regex"/>
+      <output name="contrast_corcov">
+        <assert_contents>
+          <!-- column-labels line -->
+          <has_text text="featureID" />
+          <has_text text="factorLevel1" />
+          <has_text text="factorLevel2" />
+          <has_text text="correlation" />
+          <has_text text="covariance" />
+          <has_text text="vip4p" />
+          <has_text text="vip4o" />
+          <has_text text="salientLevel" />
+          <has_text text="salientRCV" />
+          <has_text text="salience" />
+          <!-- first matched line -->
+          <has_text text="M349.2383T700" />
+          <has_text text="-0.64331257" />
+          <has_text text="-161.82220" />
+          <has_text text="1.862455" />
+          <has_text text="0.2105143" />
+          <has_text text="0.659554" />
+          <has_text text="8.81866595" />
+          <!-- second matched line -->
+          <has_text text="M207.9308T206" />
+          <has_text text="-0.313507" />
+          <has_text text="-20.0476" />
+          <has_text text="1.6956987" />
+          <has_text text="1.19247" />
+          <has_text text="0.0578578" />
+          <has_text text="2.27527985" />
+          <!-- third matched line -->
+          <has_text text="M211.0607T263" />
+          <has_text text="-0.38986114" />
+          <has_text text="-23.747718" />
+          <has_text text="1.064296856" />
+          <has_text text="1.16507455" />
+          <has_text text="9999" />
+          <has_text text="12.87766096" />
+        </assert_contents>
+      </output>
+    </test>
   </tests>
   <!-- 
   .. |reg|    unicode:: U+000AE .. REGISTERED SIGN - see http://docutils.sourceforge.net/docutils/parsers/rst/include/isonum.txt or /usr/share/docutils/parsers/rst/include/isonum.txt
@@ -301,8 +451,6 @@ Second Example: Consider these regular expression patterns as possible matches t
 Working example
 ---------------
 
-.. class:: infomark 
-
 **Input files**
 
 +-------------------+-------------------------------------------------------------------------------------------------------------------+
@@ -314,6 +462,29 @@ Working example
 +-------------------+-------------------------------------------------------------------------------------------------------------------+
 | Variable metadata | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/input_variableMetadata.tsv |
 +-------------------+-------------------------------------------------------------------------------------------------------------------+
+
++-------------------------------------------+--------------------------------------------------+
+| Input Parameter                           | Input value                                      |
++===========================================+==================================================+
+| Factor of interest                        | k10                                              |
++-------------------------------------------+--------------------------------------------------+
+| Univariate Significance-Test              | kruskal                                          |
++-------------------------------------------+--------------------------------------------------+
+| Retain only pairwise-significant features | Yes                                              |
++-------------------------------------------+--------------------------------------------------+
+| Levels of interest                        | k[12],k[3-4]                                     |
++-------------------------------------------+--------------------------------------------------+
+| Level-name matching                       | use regular expressions for matching level-names |
++-------------------------------------------+--------------------------------------------------+
+| Label features on detail plot             | Yes                                              |
++-------------------------------------------+--------------------------------------------------+
+
++-------------------+---------------------------------------------------------------------------------------------------------------------+
+| Expected Output   | Download from URL                                                                                                   |
++===================+=====================================================================================================================+
+| Data matrix       | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_corcov.tsv |
++-------------------+---------------------------------------------------------------------------------------------------------------------+
+
 
 Trademarks
 ----------

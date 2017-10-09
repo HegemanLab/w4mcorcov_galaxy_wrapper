@@ -123,7 +123,7 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
     }
     return (my_cor_vs_cov)
   } else {
-    my_oplsda <- NULL
+    # x_progress(sprintf("x_is_match = %s, ncol(x_dataMatrix) = %d, length(unique(x_predictor)) = %d",x_is_match, ncol(x_dataMatrix), length(unique(x_predictor))))
     return (NULL)
   }
 }
@@ -274,7 +274,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
         , x_env         = calc_env
         )
         if ( is.null(my_cor_cov) ) {
-          progress_action("NOTHING TO PLOT")
+          progress_action("NOTHING TO PLOT.")
         } else {
           tsv <- my_cor_cov$tsv1
           tsv$salientLevel <- salient_level_lookup(tsv$featureID)
@@ -296,7 +296,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
         progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))
         chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
         if (length(unique(chosen_samples)) < 1) {
-          progress_action("NOTHING TO PLOT")
+          progress_action("NOTHING TO PLOT...")
         } else {
           predictor <- smpl_metadata_facC[chosen_samples]
           my_matrix <- scdm[ chosen_samples, , drop = FALSE ]

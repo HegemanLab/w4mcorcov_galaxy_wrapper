@@ -60,7 +60,6 @@ my_env <- new.env()
 my_env$dataMatrix_in        <- as.character(argVc["dataMatrix_in"])
 my_env$sampleMetadata_in    <- as.character(argVc["sampleMetadata_in"])
 my_env$variableMetadata_in  <- as.character(argVc["variableMetadata_in"])
-my_env$contrast_grid        <- as.character(argVc["contrast_grid"])
 my_env$contrast_detail      <- as.character(argVc["contrast_detail"])
 my_env$contrast_corcov      <- as.character(argVc["contrast_corcov"])
 
@@ -68,10 +67,10 @@ my_env$contrast_corcov      <- as.character(argVc["contrast_corcov"])
 
 my_env$tesC            <- as.character(argVc["tesC"])
 my_env$facC            <- as.character(argVc["facC"])
-my_env$pairSigFeatOnly <- as.character(argVc["pairSigFeatOnly"])
+my_env$pairSigFeatOnly <- as.logical(argVc["pairSigFeatOnly"])
 my_env$levCSV          <- as.character(argVc["levCSV"])
 my_env$matchingC       <- as.character(argVc["matchingC"])
-my_env$labelFeatures   <- as.character(argVc["labelFeatures"])
+my_env$labelFeatures   <- as.logical(argVc["labelFeatures"])
 
 tsv_action_factory <- function(file, colnames, append) {
   return (

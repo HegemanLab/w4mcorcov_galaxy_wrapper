@@ -12,6 +12,7 @@ include:
   - test-data/expected_contrast_corcov.tsv
   - test-data/expected_contrast_corcov_all.tsv
   - test-data/expected_contrast_corcov_global.tsv
+  - test-data/expected_contrast_salience.tsv
   - test-data/input_dataMatrix.tsv
   - test-data/input_sampleMetadata.tsv
   - test-data/input_variableMetadata.tsv

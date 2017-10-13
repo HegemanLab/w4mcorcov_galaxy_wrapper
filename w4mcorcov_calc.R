@@ -169,14 +169,15 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
   , sample_class   = smpl_metadata[,facC]
   , failure_action = failure_action
   )
-  salience_tsv_action(
-    data.frame(
+  salience_tsv_action({
+    my_df <- data.frame(
       featureID    = salience_df$feature
     , salientLevel = salience_df$max_level
     , salientRCV   = salience_df$salient_rcv
     , salience     = salience_df$salience
     )
-  )
+    my_df[order(-my_df$salience),]
+  })
   salience             <- salience_df$salience
   names(salience)      <- salience_df$feature
   salience_lookup      <- calc_env$salience_lookup <- function(feature) unname(salience[feature])

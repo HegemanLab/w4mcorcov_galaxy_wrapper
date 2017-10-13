@@ -99,9 +99,6 @@
         * Wiklund_2008 covariance
         * Galindo_Prieto_2014 VIP for predictive components, VIP[4,p]
         * Galindo_Prieto_2014 VIP for orthogonal components, VIP[4,o]
-        * Salient level, i.e., for the feature, the class-level having the greatest median intensity
-        * Salient robust coefficient of variation, i.e., for the feature, the mean absolute deviation of the intensity for the salient level divided by the median intensity for the salient level
-        * Salience, i.e., for the feature, the median of the class-level having the greatest intensity divided by the mean of the medians for all class-levels.
         * (When filtering on significance of univariate tests) Significance of test of null hypothesis that there is no difference between the two classes, i.e, the pair-wise test.
     -->
     <data name="contrast_corcov" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
@@ -370,8 +367,6 @@ Output files
 +------------------------------+-----------+
 | File                         |  Format   |
 +==============================+===========+
-| Contrast grid                |    pdf    |
-+------------------------------+-----------+
 | Contrast detail              |    pdf    |
 +------------------------------+-----------+
 | Contrast cor and cov         |  tabular  |
@@ -416,10 +411,6 @@ Parameters
 	| How to **specify levels generically** - wild cards, regular expressions, or none (no generic matching)
 	|
 
-[OUT] Contrast-grid output PDF
-	| An output file **displaying on a single figure**, for each pair of selected level-names, **the OPLS-DA scores plot and the correlation-vs.-covariance plot** (a work-alike for the SIMCA S-PLOT) 
-	|
-
 [OUT] Contrast-detail output PDF
 	| An output file having **several plots for each pair of selected level-names**: the PCA score-plot for the first two scores, the OPLS-DA score-plot for the first two scores, and the OPLS-DA correlation-vs.-covariance plot (a work-alike for the S-PLOT)
 	|
@@ -434,10 +425,15 @@ Parameters
 - **covariance** - covariance of the features projection explaining the difference between the features, > 0 when intensity for level 1 is greater than intensity for level 2 (from formula in *ibid.*)
 - **vip4p** - variable importance in projection to the predictive components (VIP\ :subscript:`4,p` from Galindo-Prieto *et al.* 2014)
 - **vip4o** - variable importance in projection to the orthogonal components (VIP\ :subscript:`4,o` from Galindo-Prieto *op cit.*)
-- **salientLevel** - Salient level, i.e., for the feature, the class-level having the greatest median intensity
-- **salientRCV** - Salient robust coefficient of variation, i.e., for the feature, the mean absolute deviation of the intensity for the salient level divided by the median intensity for the salient level
-- **salience** - Salience, i.e., for the feature, the median of the class-level having the greatest intensity divided by the mean of the medians for all class-levels
 - **level1Level2Sig** - (Only present when a test other than "none" is chosen) '1' when feature varies significantly across all classes (i.e., not pair-wise); '0' otherwise
+
+[OUT] Feature "Salience" data TABULAR
+	| Metrics for the "salient level" for each feature, i.e., the level at which the feature is more prominent than any other level.  This is *not* at all related to the SIMCA OPLS-DA S-PLOT; rather, it is intended as a potential (and unproven) way to identify features that may suggest potential biomarkers without dimensional reduction of data.  This is a tab-separated values file having the following columns:
+
+- **featureID** - feature identifier
+- **salientLevel** - salient level, i.e., for the feature, the class-level having the greatest median intensity
+- **salientRCV** - salient robust coefficient of variation, i.e., for the feature, the mean absolute deviation of the intensity for the salient level divided by the median intensity for the salient level
+- **salience** - salience, i.e., for the feature, the median of the class-level having the greatest intensity divided by the mean of the medians for all class-levels
 
 Wild card patterns to match level-names
 ---------------------------------------

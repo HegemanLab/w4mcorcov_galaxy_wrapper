@@ -25,6 +25,7 @@
   labelFeatures '$labelFeatures'
   contrast_detail '$contrast_detail'
   contrast_corcov '$contrast_corcov'
+  contrast_salience '$contrast_salience'
   ]]></command>
 
   <inputs>
@@ -104,6 +105,14 @@
         * (When filtering on significance of univariate tests) Significance of test of null hypothesis that there is no difference between the two classes, i.e, the pair-wise test.
     -->
     <data name="contrast_corcov" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
+    <!--
+      tsv2: salience table with columns (experimental feature):
+        * feature-ID
+        * Salient level, i.e., for the feature, the class-level having the greatest median intensity
+        * Salient robust coefficient of variation, i.e., for the feature, the mean absolute deviation of the intensity for the salient level divided by the median intensity for the salient level
+        * Salience, i.e., for the feature, the median of the class-level having the greatest intensity divided by the mean of the medians for all class-levels.
+    -->
+    <data name="contrast_salience" label="${tool.name}_${variableMetadata_in.name}_salience" format="tabular" />
   </outputs>
 
   <tests>
@@ -127,9 +136,6 @@
           <has_text text="covariance" />
           <has_text text="vip4p" />
           <has_text text="vip4o" />
-          <has_text text="salientLevel" />
-          <has_text text="salientRCV" />
-          <has_text text="salience" />
           <has_text text="level1Level2Sig" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
@@ -137,22 +143,37 @@
           <has_text text="-5.8455" />
           <has_text text="0.0961269" />
           <has_text text="0.1848301" />
-          <has_text text="0.659554" />
-          <has_text text="8.81866595" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
           <has_text text="-0.2967565" />
           <has_text text="-19.56942" />
           <has_text text="1.6023" />
           <has_text text="1.35368" />
-          <has_text text="0.0578578" />
-          <has_text text="2.27527985" />
           <!-- third matched line -->
           <has_text text="M211.0607T263" />
           <has_text text="0.47052" />
           <has_text text="15.910087" />
           <has_text text="0.89838" />
           <has_text text="0.125372" />
+        </assert_contents>
+      </output>
+      <output name="contrast_salience">
+        <assert_contents>
+          <!-- column-labels line -->
+          <has_text text="featureID" />
+          <has_text text="salientLevel" />
+          <has_text text="salientRCV" />
+          <has_text text="salience" />
+          <!-- first matched line -->
+          <has_text text="M349.2383T700" />
+          <has_text text="0.659554" />
+          <has_text text="8.81866595" />
+          <!-- second matched line -->
+          <has_text text="M207.9308T206" />
+          <has_text text="0.0578578" />
+          <has_text text="2.27527985" />
+          <!-- third matched line -->
+          <has_text text="M211.0607T263" />
           <has_text text="9999" />
           <has_text text="12.87766096" />
         </assert_contents>
@@ -178,30 +199,42 @@
           <has_text text="covariance" />
           <has_text text="vip4p" />
           <has_text text="vip4o" />
-          <has_text text="salientLevel" />
-          <has_text text="salientRCV" />
-          <has_text text="salience" />
           <has_text text="level1Level2Sig" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
           <has_text text="-0.99601577" />
           <has_text text="-947.55795176" />
-          <has_text text="0.659554" />
-          <has_text text="8.81866595" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
           <has_text text="0.688549" />
           <has_text text="58.22352" />
           <has_text text="1.394687" />
           <has_text text="0.06049885" />
-          <has_text text="0.0578578" />
-          <has_text text="2.27527985" />
           <!-- third matched line -->
           <has_text text="M211.0607T263" />
           <has_text text="-0.572018" />
           <has_text text="-14.57769" />
           <has_text text="0.7780899" />
           <has_text text="0.3678166776" />
+        </assert_contents>
+      </output>
+      <output name="contrast_salience">
+        <assert_contents>
+          <!-- column-labels line -->
+          <has_text text="featureID" />
+          <has_text text="salientLevel" />
+          <has_text text="salientRCV" />
+          <has_text text="salience" />
+          <!-- first matched line -->
+          <has_text text="M349.2383T700" />
+          <has_text text="0.659554" />
+          <has_text text="8.81866595" />
+          <!-- second matched line -->
+          <has_text text="M207.9308T206" />
+          <has_text text="0.0578578" />
+          <has_text text="2.27527985" />
+          <!-- third matched line -->
+          <has_text text="M211.0607T263" />
           <has_text text="9999" />
           <has_text text="12.87766096" />
         </assert_contents>
@@ -227,31 +260,43 @@
           <has_text text="covariance" />
           <has_text text="vip4p" />
           <has_text text="vip4o" />
-          <has_text text="salientLevel" />
-          <has_text text="salientRCV" />
-          <has_text text="salience" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
           <has_text text="-0.64331257" />
           <has_text text="-161.82220" />
           <has_text text="1.862455" />
           <has_text text="0.2105143" />
-          <has_text text="0.659554" />
-          <has_text text="8.81866595" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
           <has_text text="-0.313507" />
           <has_text text="-20.0476" />
           <has_text text="1.6956987" />
           <has_text text="1.19247" />
-          <has_text text="0.0578578" />
-          <has_text text="2.27527985" />
           <!-- third matched line -->
           <has_text text="M211.0607T263" />
           <has_text text="-0.38986114" />
           <has_text text="-23.747718" />
           <has_text text="1.064296856" />
           <has_text text="1.16507455" />
+        </assert_contents>
+      </output>
+      <output name="contrast_salience">
+        <assert_contents>
+          <!-- column-labels line -->
+          <has_text text="featureID" />
+          <has_text text="salientLevel" />
+          <has_text text="salientRCV" />
+          <has_text text="salience" />
+          <!-- first matched line -->
+          <has_text text="M349.2383T700" />
+          <has_text text="0.659554" />
+          <has_text text="8.81866595" />
+          <!-- second matched line -->
+          <has_text text="M207.9308T206" />
+          <has_text text="0.0578578" />
+          <has_text text="2.27527985" />
+          <!-- third matched line -->
+          <has_text text="M211.0607T263" />
           <has_text text="9999" />
           <has_text text="12.87766096" />
         </assert_contents>

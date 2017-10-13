@@ -37,6 +37,7 @@ contrast_detail=test-data/output_contrast_detail.pdf
 
 
 contrast_corcov=test-data/output_contrast_corcov.tsv
+contrast_salience=test-data/output_contrast_salience.tsv
 
 # Run the script
 bash -c " cd $__tool_directory__; \
@@ -51,6 +52,7 @@ bash -c " cd $__tool_directory__; \
   matchingC '$matchingC' \
   contrast_detail '$contrast_detail' \
   contrast_corcov '$contrast_corcov' \
+  contrast_salience '$contrast_salience' \
   labelFeatures '$labelFeatures' \
   "
 
@@ -58,6 +60,7 @@ bash -c " cd $__tool_directory__; \
 pairSigFeatOnly=FALSE
 contrast_detail=test-data/output_contrast_detail_all.pdf
 contrast_corcov=test-data/output_contrast_corcov_all.tsv
+contrast_salience=test-data/output_contrast_salience_all.tsv
 
 # Run the script
 bash -c " cd $__tool_directory__; \
@@ -72,6 +75,7 @@ bash -c " cd $__tool_directory__; \
   matchingC '$matchingC' \
   contrast_detail '$contrast_detail' \
   contrast_corcov '$contrast_corcov' \
+  contrast_salience '$contrast_salience' \
   labelFeatures '$labelFeatures' \
   "
 
@@ -80,6 +84,7 @@ tesC=none
 labelFeatures=FALSE
 contrast_detail=test-data/output_contrast_detail_global.pdf
 contrast_corcov=test-data/output_contrast_corcov_global.tsv
+contrast_salience=test-data/output_contrast_salience_global.tsv
 
 # Run the script
 bash -c " cd $__tool_directory__; \
@@ -94,6 +99,7 @@ bash -c " cd $__tool_directory__; \
   matchingC '$matchingC' \
   contrast_detail '$contrast_detail' \
   contrast_corcov '$contrast_corcov' \
+  contrast_salience '$contrast_salience' \
   labelFeatures '$labelFeatures' \
   "
 

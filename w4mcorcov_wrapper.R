@@ -62,6 +62,8 @@ my_env$sampleMetadata_in    <- as.character(argVc["sampleMetadata_in"])
 my_env$variableMetadata_in  <- as.character(argVc["variableMetadata_in"])
 my_env$contrast_detail      <- as.character(argVc["contrast_detail"])
 my_env$contrast_corcov      <- as.character(argVc["contrast_corcov"])
+my_env$contrast_salience    <- as.character(argVc["contrast_salience"])
+# print(sprintf("contrast_salience: %s", my_env$contrast_salience))
 
 # other parameters
 
@@ -100,6 +102,18 @@ corcov_tsv_action <- function(tsv) {
   corcov_tsv_append   <<- TRUE
 }
 
+salience_tsv_colnames <- TRUE
+salience_tsv_append   <- FALSE
+salience_tsv_action <- function(tsv) {
+  tsv_action_factory(
+    file     = my_env$contrast_salience
+  , colnames = salience_tsv_colnames
+  , append   = salience_tsv_append
+  )(tsv)
+  salience_tsv_colnames <<- FALSE
+  salience_tsv_append   <<- TRUE
+}
+
 my_log( "--------------------------  Reading input data  --------------------------")
 
 # read_inputs is defined in w4mcorcov_input.R
@@ -132,10 +146,11 @@ if ( is.logical(my_result) && my_result) {
       # plot layout four plots per page
       layout(matrix(1:4, byrow = TRUE, nrow = 2))
       my_result <<- corcov_calc(
-          calc_env = my_env
-        , failure_action = my_fatal
-        , progress_action = my_log
-        , corcov_tsv_action = corcov_tsv_action
+          calc_env            = my_env
+        , failure_action      = my_fatal
+        , progress_action     = my_log
+        , corcov_tsv_action   = corcov_tsv_action
+        , salience_tsv_action = salience_tsv_action
         )
     }
   )

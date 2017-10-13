@@ -129,13 +129,17 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
 }
 
 # S-PLOT and OPLS reference: Wiklund_2008 doi:10.1021/ac0713510
-corcov_calc <- function(calc_env, failure_action = stop, progress_action = function(x){}, corcov_tsv_action = NULL) {
+corcov_calc <- function(calc_env, failure_action = stop, progress_action = function(x){}, corcov_tsv_action = function(t){}, salience_tsv_action = function(t){}) {
   if ( ! is.environment(calc_env) ) {
     failure_action("corcov_calc: fatal error - 'calc_env' is not an environment")
     return ( FALSE )
   }
-  if ( is.null(corcov_tsv_action) || ! is.function(corcov_tsv_action) ) {
+  if ( ! is.function(corcov_tsv_action) ) {
     failure_action("corcov_calc: fatal error - 'corcov_tsv_action' is not a function")
+    return ( FALSE )
+  }
+  if ( ! is.function(salience_tsv_action) ) {
+    failure_action("salience_calc: fatal error - 'salience_tsv_action' is not a function")
     return ( FALSE )
   }
 
@@ -164,6 +168,14 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
     data_matrix    = data_matrix
   , sample_class   = smpl_metadata[,facC]
   , failure_action = failure_action
+  )
+  salience_tsv_action(
+    data.frame(
+      featureID    = salience_df$feature
+    , salientLevel = salience_df$max_level
+    , salientRCV   = salience_df$salient_rcv
+    , salience     = salience_df$salience
+    )
   )
   salience             <- salience_df$salience
   names(salience)      <- salience_df$feature
@@ -283,9 +295,9 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
           progress_action("NOTHING TO PLOT.")
         } else {
           tsv <- my_cor_cov$tsv1
-          tsv$salientLevel <- salient_level_lookup(tsv$featureID)
-          tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
-          tsv$salience     <- salience_lookup(tsv$featureID)
+          # tsv$salientLevel <- salient_level_lookup(tsv$featureID)
+          # tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
+          # tsv$salience     <- salience_lookup(tsv$featureID)
           tsv["level1Level2Sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ] 
           corcov_tsv_action(tsv)
           did_plot <- TRUE
@@ -329,9 +341,9 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
           progress_action("NOTHING TO PLOT.")
         } else {
           tsv <- my_cor_cov$tsv1
-          tsv$salientLevel <- salient_level_lookup(tsv$featureID)
-          tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
-          tsv$salience     <- salience_lookup(tsv$featureID)
+          # tsv$salientLevel <- salient_level_lookup(tsv$featureID)
+          # tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
+          # tsv$salience     <- salience_lookup(tsv$featureID)
           tsv["level1Level2Sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ] 
           corcov_tsv_action(tsv)
           did_plot <- TRUE
@@ -380,9 +392,9 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
               progress_action("NOTHING TO PLOT")
             } else {
               tsv <- my_cor_cov$tsv1
-              tsv$salientLevel <- salient_level_lookup(tsv$featureID)
-              tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
-              tsv$salience     <- salience_lookup(tsv$featureID)
+              # tsv$salientLevel <- salient_level_lookup(tsv$featureID)
+              # tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
+              # tsv$salience     <- salience_lookup(tsv$featureID)
               corcov_tsv_action(tsv)
               did_plot <<- TRUE
             }
@@ -424,9 +436,9 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
               progress_action("NOTHING TO PLOT")
             } else {
               tsv <- my_cor_cov$tsv1
-              tsv$salientLevel <- salient_level_lookup(tsv$featureID)
-              tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
-              tsv$salience     <- salience_lookup(tsv$featureID)
+              # tsv$salientLevel <- salient_level_lookup(tsv$featureID)
+              # tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
+              # tsv$salience     <- salience_lookup(tsv$featureID)
               corcov_tsv_action(tsv)
               did_plot <<- TRUE
             }

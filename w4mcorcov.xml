@@ -29,11 +29,11 @@
   ]]></command>
 
   <inputs>
-    <param name="dataMatrix_in" label="Data matrix file" type="data" format="tabular" help="variable x sample, decimal: '.', missing: NA, mode: numerical, sep: tabular" />
-    <param name="sampleMetadata_in" label="Sample metadata file" type="data" format="tabular" help="sample x metadata, decimal: '.', missing: NA, mode: character and numerical, sep: tabular" />
-    <param name="variableMetadata_in" label="Variable metadata file (from Univariate)" type="data" format="tabular" help="variable x metadata, decimal: '.', missing: NA, mode: character and numerical, sep: tabular" />
-    <param name="facC" label="Factor of interest" type="text" help="Name of the column of the sample metadata table corresponding to the qualitative variable used to define the contrasts - it is a portion of the column names in the variable metadata file"/>
-    <param name="tesC" label="Univariate Significance-Test" type="select" help="Name of the statistical test that was run in Univariate to produce the variable metadata file - it is a portion of the column names in that file">
+    <param name="dataMatrix_in" label="Data matrix file" type="data" format="tabular" help="features x samples - decimal: '.', missing: NA, mode: numerical, sep: tab character" />
+    <param name="sampleMetadata_in" label="Sample metadata file" type="data" format="tabular" help="samples x metadata - decimal: '.', missing: NA, mode: character or numerical, sep: tab character" />
+    <param name="variableMetadata_in" label="Variable metadata file (from Univariate)" type="data" format="tabular" help="features x metadata - decimal: '.', missing: NA, mode: character or numerical, sep: tab character" />
+    <param name="facC" label="Factor of interest" type="text" help="The name of the column of sampleMetadata corresponding to the qualitative variable used to define the contrasts - it must be a portion of the column names in the variableMetadata file"/>
+    <param name="tesC" label="Univariate Significance-Test" type="select" help="Either 'none' or the name of the statistical test that was run by the Univariate tool to produce the variableMetadata file - if not 'none' then it must be a portion of the column names in that file">
       <option value="none">none - Display all features from variableMetadata (rather than choosing a subset based on significance in univariate testing)</option>
       <option value="ttest">ttest - Student's t-test (parametric test, qualitative factor with exactly 2 levels)</option>
       <option value="anova">anova - Analysis of variance (parametric test, qualitative factor with more than 2 levels)</option>
@@ -329,6 +329,8 @@ For instance, suppose that you ran Kruskal-Wallis testing for a column named 'cl
 
 The 'PLS-DA Contrasts' tool accepts the output of the W4M 'Univariate' tool and produces graphics and data for OPLS-DA\ :superscript:`®` contrasts of feature-intensities between significantly different pairs of factor-levels.  It omits features that are not significantly different either for each pair-wise contrast or across all samples.
 
+For each factor-level, the tool performs a contrast with all other factor-levels combined and then separately with each other factor-level.
+
 W4M Workflow Position
 ---------------------
 
@@ -412,19 +414,23 @@ Parameters
 	|
 
 [OUT] Contrast-detail output PDF
-	| An output file having **several plots for each pair of selected level-names**: the PCA score-plot for the first two scores, the OPLS-DA score-plot for the first two scores, and the OPLS-DA correlation-vs.-covariance plot (a work-alike for the S-PLOT)
-	|
+	| Several plots for each two-projection OPLS-DA analysis:
+
+- (top-left) **correlation-versus-covariance plot** of OPLS-DA results (a work-alike for the S-PLOT, computed using formula in Supplement to Wiklund, *op. cit.*); point-color becomes saturated as the "variable importance in projection to the predictive components" (VIP\ :subscript:`4,p` from Galindo-Prieto *et al.* 2014) ranges from 0.83 and 1.21 (Mehmood *et al.* 2012)
+- (bottom-left) **model-overview plot** for the two projections; grey bars are the correlation coefficient for the fitted data; black bars indicate performance in cross-validation tests (Thévenot, 2017)
+- (top-right) OPLS-DA **scores-plot** for the two projections (Thévenot *et al.*, 2015)
+- (bottom-right) OPLS-DA **loadings-plot** for the two projections (*ibid.*)
 
 [OUT] Contrast Correlation-Covarinace data TABULAR
 	| A tab-separated values file having the following columns:
 
-- **featureID** - feature identifier
+- **featureID** - feature-identifier
 - **factorLevel1** - factor-level 1
-- **factorLevel2** - factor-level 2
-- **correlation** - correlation of the features projection explaining the difference between the features, > 0 when intensity for level 1 is greater than intensity for level 2 (from formula in Supplement to Wiklund, *op. cit.*)
-- **covariance** - covariance of the features projection explaining the difference between the features, > 0 when intensity for level 1 is greater than intensity for level 2 (from formula in *ibid.*)
-- **vip4p** - variable importance in projection to the predictive components (VIP\ :subscript:`4,p` from Galindo-Prieto *et al.* 2014)
-- **vip4o** - variable importance in projection to the orthogonal components (VIP\ :subscript:`4,o` from Galindo-Prieto *op cit.*)
+- **factorLevel2** - factor-level 2 (or "other" when contrasting factor-level 1 with all other levels)
+- **correlation** - correlation of the features projection explaining the difference between the features, < 0 when intensity for level 1 is greater (from formula in Supplement to Wiklund, *op. cit.*)
+- **covariance** - covariance of the features projection explaining the difference between the features, < 0 when intensity for level 1 is greater (from formula in *ibid.*)
+- **vip4p** - "variable importance in projection" to the predictive components (VIP\ :subscript:`4,p` from Galindo-Prieto *op. cit.*)
+- **vip4o** - "variable importance in projection" to the orthogonal components (VIP\ :subscript:`4,o` from Galindo-Prieto *op. cit.*)
 - **level1Level2Sig** - (Only present when a test other than "none" is chosen) '1' when feature varies significantly across all classes (i.e., not pair-wise); '0' otherwise
 
 [OUT] Feature "Salience" data TABULAR
@@ -541,10 +547,24 @@ OPLS-DA\ :superscript:`®`, SIMCA\ :superscript:`®`, and S-PLOT\ :superscript:`
     <citation type="doi">10.1093/bioinformatics/btu813</citation>
     <!-- Guitton_2017 W4M 3.0 -->
     <citation type="doi">10.1016/j.biocel.2017.07.002</citation>
+    <!-- Mehmood_2012 PLS-based variable-selection -->
+    <citation type="doi">10.1186/1748-7188-6-27</citation>
     <!-- Sun_2016 Urinary Biomarkers for adolescent idiopathic scoliosis -->
     <citation type="doi">10.1038/srep22274</citation>
     <!-- Th_venot_2015 Urinary metabolome statistics -->
     <citation type="doi">10.1021/acs.jproteome.5b00354</citation>
+    <!-- ropls package -->
+    <citation type="bibtex"><![CDATA[
+@incollection{Thevenot_ropls_2017,
+    author = {Th{\'{e}}venot, Etienne A.},
+    title = {ropls: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and feature selection of omics data},
+    publisher = {bioconductor.org},
+    year = {2017},
+    doi = {10.18129/B9.bioc.ropls},
+    booktitle = {Bioconductor: Open source software for bioinformatics},
+    address = {Roswell Park Cancer Institute},
+}
+    ]]></citation>
     <!-- Wiklund_2008 OPLS PLS-DA and S-PLOT -->
     <citation type="doi">10.1021/ac0713510</citation>
   </citations>

@@ -42,19 +42,18 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
         # print("main_label")
         # print(main_label)
         main_cex <- min(1.0, 46.0/nchar(main_label))
-        # " It is generally accepted that a variable should be selected if vj>1, [27–29], but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]." (Mehmood 2012 doi:10.1016/j.chemolab.2004.12.011)
+        # "It is generally accepted that a variable should be selected if vj>1, [27–29],
+        #   but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]."
+        #   (Mehmood 2012 doi:10.1186/1748-7188-6-27)
         vipco <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
         alpha <- 0.1 + 0.4 * vipco
         red  <- as.numeric(correlation < 0) * vipco
         blue <- as.numeric(correlation > 0) * vipco
         minus_cor <- -correlation
         minus_cov <- -covariance
-        # x_progress("head(names(minus_cor)): ", head(names(minus_cor)))
-        cex <- salience_lookup(feature = names(minus_cor))
-        # x_progress("head(cex.1): ", head(cex))
-        # cex <- 0.25 + (0.75 * cex / max(cex))
-        cex <- 0.25 + (1.25 * cex / max(cex))
-        # x_progress("head(cex.2): ", head(cex))
+        # cex <- salience_lookup(feature = names(minus_cor))
+        # cex <- 0.25 + (1.25 * cex / max(cex))
+        cex <- 0.75
         plot(
           y = minus_cor
         , x = minus_cov

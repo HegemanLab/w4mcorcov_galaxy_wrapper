@@ -13,27 +13,27 @@
   </stdio>
 
   <command><![CDATA[
-  cd $__tool_directory__; Rscript w4mcorcov_wrapper.R
-  dataMatrix_in "$dataMatrix_in"
-  sampleMetadata_in "$sampleMetadata_in"
-  variableMetadata_in "$variableMetadata_in"
-  tesC "$tesC"
-  facC "$facC"
-  pairSigFeatOnly "$pairSigFeatOnly"
-  levCSV '$levCSV'
-  matchingC '$matchingC'
-  labelFeatures '$labelFeatures'
-  contrast_detail '$contrast_detail'
-  contrast_corcov '$contrast_corcov'
-  contrast_salience '$contrast_salience'
+    cd $__tool_directory__; Rscript w4mcorcov_wrapper.R
+    dataMatrix_in "$dataMatrix_in"
+    sampleMetadata_in "$sampleMetadata_in"
+    variableMetadata_in "$variableMetadata_in"
+    tesC "$tesC"
+    facC "$facC"
+    pairSigFeatOnly "$pairSigFeatOnly"
+    levCSV '$levCSV'
+    matchingC '$matchingC'
+    labelFeatures '$labelFeatures'
+    contrast_detail '$contrast_detail'
+    contrast_corcov '$contrast_corcov'
+    contrast_salience '$contrast_salience'
   ]]></command>
 
   <inputs>
-    <param name="dataMatrix_in" label="Data matrix file" type="data" format="tabular" help="features x samples - decimal: '.', missing: NA, mode: numerical, sep: tab character" />
-    <param name="sampleMetadata_in" label="Sample metadata file" type="data" format="tabular" help="samples x metadata - decimal: '.', missing: NA, mode: character or numerical, sep: tab character" />
-    <param name="variableMetadata_in" label="Variable metadata file (from Univariate)" type="data" format="tabular" help="features x metadata - decimal: '.', missing: NA, mode: character or numerical, sep: tab character" />
-    <param name="facC" label="Factor of interest" type="text" help="The name of the column of sampleMetadata corresponding to the qualitative variable used to define the contrasts - it must be a portion of the column names in the variableMetadata file"/>
-    <param name="tesC" label="Univariate Significance-Test" type="select" help="Either 'none' or the name of the statistical test that was run by the Univariate tool to produce the variableMetadata file - if not 'none' then it must be a portion of the column names in that file">
+    <param name="dataMatrix_in" label="Data matrix file" type="data" format="tabular" help="Features x samples (tabular data - decimal: '.'; missing: NA; mode: numerical; separator: tab character)" />
+    <param name="sampleMetadata_in" label="Sample metadata file" type="data" format="tabular" help="Samples x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
+    <param name="variableMetadata_in" label="Variable metadata file (from Univariate)" type="data" format="tabular" help="Features x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
+    <param name="facC" label="Factor of interest" type="text" help="The name of the column of sampleMetadata corresponding to the qualitative variable used to define the contrasts.  This also must be a portion of the column names in the variableMetadata file except when the 'Univariate Significance-test' is set to 'none'."/>
+    <param name="tesC" label="Univariate Significance-Test" type="select" help="Either 'none' or the name of the statistical test that was run by the 'Univariate' tool to produce the variableMetadata file; that name must also be a portion of the column names in that file">
       <option value="none">none - Display all features from variableMetadata (rather than choosing a subset based on significance in univariate testing)</option>
       <option value="ttest">ttest - Student's t-test (parametric test, qualitative factor with exactly 2 levels)</option>
       <option value="anova">anova - Analysis of variance (parametric test, qualitative factor with more than 2 levels)</option>
@@ -48,7 +48,7 @@
       falsevalue="FALSE"
       label="Retain only pairwise-significant features"
       help="Ignored when 'none' is chosen.  Otherwise, when 'Yes', analyze only features that differ significantly for the pair of levels being contrasted; when 'No', include any feature that varies significantly across all levels."/>
-    <param name="levCSV" label="Levels of interest" type="text" value = "" help="comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions">
+    <param name="levCSV" label="Levels of interest" type="text" value = "" help="Comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions">
       <sanitizer>
         <valid initial="string.letters">
           <add preset="string.digits"/>
@@ -74,7 +74,7 @@
         </valid>
       </sanitizer>
     </param>
-    <param name="matchingC" label="Level-name matching" type="select" help="how to specify levels generically">
+    <param name="matchingC" label="Level-name matching" type="select" help="How to specify levels generically">
       <option value="none"  selected="true">do no generic matching (default)</option>
       <option value="wildcard">use wild-cards for matching level-names</option>
       <option value="regex">use regular expressions for matching level-names</option>
@@ -310,37 +310,11 @@
 
 **Author** - Arthur Eschenlauer (University of Minnesota, esch0041@umn.edu)
 
-**Tool updates**
-----------------
-
-See the **NEWS** section at the bottom of this page
-
-
-Description
------------
-
-The purpose of the 'PLS-DA Contrasts' tool is to identify and visualize GC-MS or LC-MS features that are likely biomarkers, i.e., that can be used to discriminate between members of a pair of classes of samples.  It is intended to complement Workflow4Metabolomics (W4M, Giacomoni *et al.*, 2014, Guitton *et al.*, 2017), which provides a suite of tools for preprocessing and statistical analysis of LC-MS, GC-MS, and NMR metabolomics data.
-
-The W4M 'Univariate' tool (Thévenot *et al.*, 2015) adds the results of family-wise corrected pairwise significance-tests as columns of the **variableMetadata** dataset.
-For instance, suppose that you ran Kruskal-Wallis testing for a column named 'cluster' in sampleMetadata that has values 'k1' and 'k2' and at least one other value.
-
-- A column of variableMetadata would be labeled 'cluster_kruskal_sig' and would have values '1' and '0', where '1' means that if the samples are grouped by cluster, there is little strong evidence against the hypothesis that there is no difference among the mean intensity for the feature for each group.
-- A column of variableMetadata would be labeled 'cluster_kruskal_k1.k2_sig' and would have values '1' and '0', where '1' means that there is significant evidence against the hypothesis that samples from sampleMetadata whose 'cluster' column contains 'k1' or 'k2' have the same mean intensity for a given feature.
-
-The 'PLS-DA Contrasts' tool accepts the output of the W4M 'Univariate' tool and produces graphics and data for OPLS-DA\ :superscript:`®` contrasts of feature-intensities between significantly different pairs of factor-levels.  It omits features that are not significantly different either for each pair-wise contrast or across all samples.
-
-For each factor-level, the tool performs a contrast with all other factor-levels combined and then separately with each other factor-level.
-
-W4M Workflow Position
----------------------
-
-- Upstream tool: **Univariate** (category: Statistical Analysis)
-- Downstream tool categories: **Statistical Analysis**
 
 Motivation
 ----------
 
-OPLS-DA\ :superscript:`®`, generally, and the SIMCA\ :superscript:`®` S-PLOT\ :superscript:`®` (Wiklund *et al.*, 2008), in particular, are employed (e.g. in Sun *et al.*, 2016) to identify features that are potiential biomarkers, i.e. features that are potentially useful to discriminate to which of two classes a sample should be assigned.  W4M does not (as of release 3.0) include a tool for making the equivalent of an S-PLOT.
+OPLS-DA\ :superscript:`®` and the SIMCA\ :superscript:`®` S-PLOT\ :superscript:`®` (Wiklund *et al.*, 2008) may be employed (e.g. Sun *et al.*, 2016) to identify features that are potential biomarkers, i.e. features that are potentially useful to discriminate to which class a sample should be assigned.  Workflow4Metabolomics (W4M, Giacomoni *et al.*, 2014, Guitton *et al.*, 2017) provides a suite of tools for preprocessing and statistical analysis of LC-MS, GC-MS, and NMR metabolomics data; however, it does not (as of release 3.0) include a tool for making the equivalent of an S-PLOT.
 
 The S-PLOT is computed from mean-centered, pareto-scaled data.  This plot presents the correlation of the first score vector from an OPLS-DA model with the sample-variables used to produce that model versus the covariance of the scores with the sample-variables.  For OPLS-DA, the first score vector represents the variation among the sample-variables that is explained by the contrasting factor.
 
@@ -349,6 +323,31 @@ The principal aims of this tool are:
 - To compute multiple contrasts with OPLS-DA and the covariance vs. correlation plot.
 - To visualize multiple contrasts compactly yet informatively.
 - To write the results to data files for use in further multivariate analysis or visualization.
+
+
+Description
+-----------
+
+The purpose of the 'PLS-DA Contrasts' tool is to identify and visualize GC-MS or LC-MS features that are possible biomarkers.
+
+The W4M 'Univariate' tool (Thévenot *et al.*, 2015) adds the results of family-wise corrected pairwise significance-tests as columns of the **variableMetadata** dataset.
+For instance, suppose that you ran Kruskal-Wallis testing for a column named 'cluster' in sampleMetadata that has values 'k1' and 'k2' and at least one other value.
+
+- A column of variableMetadata would be labeled 'cluster_kruskal_sig' and would have values '1' and '0', where '1' means that, when the samples are grouped by 'cluster', there is strong evidence against the hypothesis that there is no difference among the intensities for the feature across all sample-groups.
+- A column of variableMetadata would be labeled 'cluster_kruskal_k1.k2_sig' and would have values '1' and '0', where '1' means that there is significant evidence against the hypothesis that samples from sampleMetadata whose 'cluster' column contains 'k1' or 'k2' have the same intensity for that feature.
+
+The 'PLS-DA Contrasts' tool produces graphics and data for OPLS-DA contrasts of feature-intensities between significantly different pairs of factor-levels.  For each factor-level, the tool performs a contrast with all other factor-levels combined and then separately with each other factor-level.
+
+This tool can be used in a purely exploratory manner by supplying the variableMetadata file without the columns added by the W4M 'Univariate' tool.  However, the preferred workflow (Thévenot *et al.*, 2015) is to use univariate testing to exclude features that are not significantly different and use OPLS-DA to visualize the differences identified in univariate testing; an appropriate exception would be to visualize contrasts of a specific list of metabolites.
+
+It must be stressed that there may be no definitive computational approach to select features that are guaranteed to be reliable biomarkers.  Possible methods are examining extreme values on S-PLOTs, examining "variable importance in projection VIP for OPLS-DA" (Galindo-Prieto *et al.* 2014), or examining a feature's "selectivity ratio" (Rajalahti *et al.*, 2009).  In this spirit, this tool reports the S-PLOT covariance and correlation (Wiklund *op. cit.*) and VIP metrics, and it introduces an informal "salience" metric to flag features that may merit attention without dimensional reduction; future versions may add selectivity ratio.  Regardless of how any potential biomarker is identified, it should be subjected to further validation analysis before it is recommended for general application.
+
+
+W4M Workflow Position
+---------------------
+
+- Upstream tool: **Univariate** (category: Statistical Analysis) or (not generally recommended) any **Preprocessing** tool that produces or updates a 'variableMetadata' file.
+- Downstream tool categories: **Statistical Analysis**
 
 Input files
 -----------
@@ -539,6 +538,12 @@ Trademarks
 OPLS-DA\ :superscript:`®`, SIMCA\ :superscript:`®`, and S-PLOT\ :superscript:`®` are registered trademarks of the Umetrics company.  http://umetrics.com/about-us/trademarks
 
 
+Release notes
+-------------
+
+v0.98.2 - first release
+
+
   ]]></help>
   <citations>
     <!-- Galindo_Prieto_2014 Variable influence on projection (VIP) for OPLS -->
@@ -549,6 +554,8 @@ OPLS-DA\ :superscript:`®`, SIMCA\ :superscript:`®`, and S-PLOT\ :superscript:`
     <citation type="doi">10.1016/j.biocel.2017.07.002</citation>
     <!-- Mehmood_2012 PLS-based variable-selection -->
     <citation type="doi">10.1186/1748-7188-6-27</citation>
+    <!-- Rajalahti_2009 Biomarker discovery using selectivity ratio -->
+    <citation type="doi">10.1016/j.chemolab.2008.08.004</citation>
     <!-- Sun_2016 Urinary Biomarkers for adolescent idiopathic scoliosis -->
     <citation type="doi">10.1038/srep22274</citation>
     <!-- Th_venot_2015 Urinary metabolome statistics -->

@@ -9,7 +9,7 @@ algoC <- "nipals"
 
 do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_prefix, x_show_labels, x_progress = print, x_env) {
   off <- function(x) if (x_show_labels) x else 0
-  salience_lookup <- x_env$salience_lookup
+  # salience_lookup <- x_env$salience_lookup
   salient_rcv_lookup <- x_env$salient_rcv_lookup
   # x_progress("head(salience_df): ", head(salience_df))
   # x_progress("head(salience): ", head(salience))
@@ -162,6 +162,14 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
     return ( FALSE )
   }
 
+  mz             <- vrbl_metadata$mz
+  names(mz)      <- vrbl_metadata$variableMetadata
+  mz_lookup      <- function(feature) unname(mz[feature])
+  
+  rt             <- vrbl_metadata$rt
+  names(rt)      <- vrbl_metadata$variableMetadata
+  rt_lookup      <- function(feature) unname(rt[feature])
+  
   # calculate salience_df as data.frame(feature, max_level, max_median, max_rcv, mean_median, salience, salient_rcv)
   salience_df <- calc_env$salience_df <- w4msalience(
     data_matrix    = data_matrix
@@ -174,27 +182,21 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
     , salientLevel = salience_df$max_level
     , salientRCV   = salience_df$salient_rcv
     , salience     = salience_df$salience
+    , mz           = mz_lookup(salience_df$feature)
+    , rt           = rt_lookup(salience_df$feature)
     )
     my_df[order(-my_df$salience),]
   })
-  salience             <- salience_df$salience
-  names(salience)      <- salience_df$feature
-  salience_lookup      <- calc_env$salience_lookup <- function(feature) unname(salience[feature])
-  salient_rcv          <- salience_df$salient_rcv
-  names(salient_rcv)   <- salience_df$feature
-  salient_rcv_lookup   <- calc_env$salient_rcv_lookup <- function(feature) unname(salient_rcv[feature])
-  salient_level        <- salience_df$max_level
-  names(salient_level) <- salience_df$feature
-  salient_level_lookup <- calc_env$salient_level_lookup <- function(feature) unname(salient_level[feature])
+  # salience             <- salience_df$salience
+  # names(salience)      <- salience_df$feature
+  # salience_lookup      <- calc_env$salience_lookup <- function(feature) unname(salience[feature])
+  # salient_rcv          <- salience_df$salient_rcv
+  # names(salient_rcv)   <- salience_df$feature
+  # salient_rcv_lookup   <- calc_env$salient_rcv_lookup <- function(feature) unname(salient_rcv[feature])
+  # salient_level        <- salience_df$max_level
+  # names(salient_level) <- salience_df$feature
+  # salient_level_lookup <- calc_env$salient_level_lookup <- function(feature) unname(salient_level[feature])
 
-  mz             <- vrbl_metadata$mz
-  names(mz)      <- vrbl_metadata$variableMetadata
-  mz_lookup      <- function(feature) unname(mz[feature])
-  
-  rt             <- vrbl_metadata$rt
-  names(rt)      <- vrbl_metadata$variableMetadata
-  rt_lookup      <- function(feature) unname(rt[feature])
-  
   # transform wildcards to regexen
   if (matchingC == "wildcard") {
     # strsplit(x = "hello,wild,world", split = ",")

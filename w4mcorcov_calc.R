@@ -281,8 +281,8 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
       }
     }
     level_union <- unique(sort(level_union))
-    overall_significant <- 1 == vrbl_metadata[,intersample_sig_col]
-    if ( length(level_union) > 1 ) {
+    overall_significant <- 1 == ( if (intersample_sig_col %in% colnames(vrbl_metadata)) vrbl_metadata[,intersample_sig_col] else TRUE )
+    if ( length(level_union) > 2 ) {
       chosen_samples <- smpl_metadata_facC %in% level_union
       chosen_facC <- as.character(smpl_metadata_facC[chosen_samples])
       col_selector <- vrbl_metadata_names[ overall_significant ]
@@ -325,50 +325,52 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
       }
     }
 
-    ## next, contrast each selected level with each of the other levels individually ##
-    # process columns matching the pattern
-    for (i in 1:length(col_matches)) {
-      # for each potential match of the pattern
-      col_match <- col_matches[[i]]
-      if (length(col_match) > 0) {
-        # it's an actual match; extract the pieces, e.g., k10_kruskal_k4.k3_sig
-        vrbl_metadata_col <- col_match[1]               # ^^^^^^^^^^^^^^^^^^^^^  # Column name
-        fctr_lvl_1        <- col_match[2]               #             ^^         # Factor-level 1
-        fctr_lvl_2        <- col_match[3]               #                ^^      # Factor-level 2
-        # only process this column if both factors are members of lvlCSV
-        is_match <- isLevelSelected(fctr_lvl_1) && isLevelSelected(fctr_lvl_2)
-        progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))
-        # TODO delete next line displaying currently-processed column
-        # cat(sprintf("%s %s %s %s\n", vrbl_metadata_col, fctr_lvl_1, fctr_lvl_2, is_match))
-        # choose only samples with one of the two factors for this column
-        chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
-        predictor <- smpl_metadata_facC[chosen_samples]
-        # extract only the significantly-varying features and the chosen samples
-        fully_significant   <- 1 == vrbl_metadata[,vrbl_metadata_col] * vrbl_metadata[,intersample_sig_col]
-        col_selector <- vrbl_metadata_names[ if ( pairSigFeatOnly ) fully_significant else overall_significant ]
-        my_matrix <- scdm[ chosen_samples, col_selector, drop = FALSE ]
-        my_cor_cov <- do_detail_plot(
-          x_dataMatrix  = my_matrix
-        , x_predictor   = predictor
-        , x_is_match    = is_match
-        , x_algorithm   = algoC
-        , x_prefix      = if (pairSigFeatOnly) "Significantly contrasting features" else "Significant features"
-        , x_show_labels = labelFeatures
-        , x_progress    = progress_action
-        , x_env         = calc_env
-        )
-        if ( is.null(my_cor_cov) ) {
-          progress_action("NOTHING TO PLOT.")
-        } else {
-          tsv <- my_cor_cov$tsv1
-          tsv$mz <- mz_lookup(tsv$featureID)
-          tsv$rt <- rt_lookup(tsv$featureID)
-          # tsv$salientLevel <- salient_level_lookup(tsv$featureID)
-          # tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
-          # tsv$salience     <- salience_lookup(tsv$featureID)
-          tsv["level1Level2Sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ] 
-          corcov_tsv_action(tsv)
-          did_plot <- TRUE
+    if ( length(level_union) > 1 ) {
+      ## next, contrast each selected level with each of the other levels individually ##
+      # process columns matching the pattern
+      for (i in 1:length(col_matches)) {
+        # for each potential match of the pattern
+        col_match <- col_matches[[i]]
+        if (length(col_match) > 0) {
+          # it's an actual match; extract the pieces, e.g., k10_kruskal_k4.k3_sig
+          vrbl_metadata_col <- col_match[1]               # ^^^^^^^^^^^^^^^^^^^^^  # Column name
+          fctr_lvl_1        <- col_match[2]               #             ^^         # Factor-level 1
+          fctr_lvl_2        <- col_match[3]               #                ^^      # Factor-level 2
+          # only process this column if both factors are members of lvlCSV
+          is_match <- isLevelSelected(fctr_lvl_1) && isLevelSelected(fctr_lvl_2)
+          progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))
+          # TODO delete next line displaying currently-processed column
+          # cat(sprintf("%s %s %s %s\n", vrbl_metadata_col, fctr_lvl_1, fctr_lvl_2, is_match))
+          # choose only samples with one of the two factors for this column
+          chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
+          predictor <- smpl_metadata_facC[chosen_samples]
+          # extract only the significantly-varying features and the chosen samples
+          fully_significant   <- 1 == vrbl_metadata[,vrbl_metadata_col] * ( if (intersample_sig_col %in% colnames(vrbl_metadata)) vrbl_metadata[,intersample_sig_col] else TRUE )
+          col_selector <- vrbl_metadata_names[ if ( pairSigFeatOnly ) fully_significant else overall_significant ]
+          my_matrix <- scdm[ chosen_samples, col_selector, drop = FALSE ]
+          my_cor_cov <- do_detail_plot(
+            x_dataMatrix  = my_matrix
+          , x_predictor   = predictor
+          , x_is_match    = is_match
+          , x_algorithm   = algoC
+          , x_prefix      = if (pairSigFeatOnly) "Significantly contrasting features" else "Significant features"
+          , x_show_labels = labelFeatures
+          , x_progress    = progress_action
+          , x_env         = calc_env
+          )
+          if ( is.null(my_cor_cov) ) {
+            progress_action("NOTHING TO PLOT.")
+          } else {
+            tsv <- my_cor_cov$tsv1
+            tsv$mz <- mz_lookup(tsv$featureID)
+            tsv$rt <- rt_lookup(tsv$featureID)
+            # tsv$salientLevel <- salient_level_lookup(tsv$featureID)
+            # tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
+            # tsv$salience     <- salience_lookup(tsv$featureID)
+            tsv["level1Level2Sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ] 
+            corcov_tsv_action(tsv)
+            did_plot <- TRUE
+          }
         }
       }
     }

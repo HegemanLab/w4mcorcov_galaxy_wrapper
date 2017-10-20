@@ -1,4 +1,4 @@
-<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.2">
+<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.3">
 
   <description>OPLS-DA Contrasts of Univariate Results</description>
   
@@ -541,7 +541,9 @@ OPLS-DA\ :superscript:`®`, SIMCA\ :superscript:`®`, and S-PLOT\ :superscript:`
 Release notes
 -------------
 
-v0.98.2 - first release
+0.98.3 - simplify output for two-level factors; add mz and rt to output table
+
+0.98.2 - first release
 
 
   ]]></help>

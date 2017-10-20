@@ -186,6 +186,14 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
   salient_level        <- salience_df$max_level
   names(salient_level) <- salience_df$feature
   salient_level_lookup <- calc_env$salient_level_lookup <- function(feature) unname(salient_level[feature])
+
+  mz             <- vrbl_metadata$mz
+  names(mz)      <- vrbl_metadata$variableMetadata
+  mz_lookup      <- function(feature) unname(mz[feature])
+  
+  rt             <- vrbl_metadata$rt
+  names(rt)      <- vrbl_metadata$variableMetadata
+  rt_lookup      <- function(feature) unname(rt[feature])
   
   # transform wildcards to regexen
   if (matchingC == "wildcard") {
@@ -277,8 +285,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
       chosen_facC <- as.character(smpl_metadata_facC[chosen_samples])
       col_selector <- vrbl_metadata_names[ overall_significant ]
       my_matrix <- scdm[ chosen_samples, col_selector, drop = FALSE ]
-      fctr_lvl_2 <- "other"
-      for ( fctr_lvl_1 in level_union[1:length(level_union)] ) {
+      plot_action <- function(fctr_lvl_1, fctr_lvl_2) {
         progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))
         predictor <- sapply( X = chosen_facC, FUN = function(fac) if ( fac == fctr_lvl_1 ) fctr_lvl_1 else fctr_lvl_2 )
         my_cor_cov <- do_detail_plot(
@@ -294,14 +301,25 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
         if ( is.null(my_cor_cov) ) {
           progress_action("NOTHING TO PLOT.")
         } else {
-          tsv <- my_cor_cov$tsv1
+          my_tsv <- my_cor_cov$tsv1
+          my_tsv$mz <- mz_lookup(my_tsv$featureID)
+          my_tsv$rt <- rt_lookup(my_tsv$featureID)
           # tsv$salientLevel <- salient_level_lookup(tsv$featureID)
           # tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
           # tsv$salience     <- salience_lookup(tsv$featureID)
-          tsv["level1Level2Sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ] 
+          my_tsv["level1Level2Sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ] 
+          tsv <<- my_tsv
           corcov_tsv_action(tsv)
-          did_plot <- TRUE
+          did_plot <<- TRUE
         }
+      }
+      if ( length(level_union) != 2 ) {
+        fctr_lvl_2 <- "other"
+        for ( fctr_lvl_1 in level_union[1:length(level_union)] ) {
+          plot_action(fctr_lvl_1, fctr_lvl_2)
+        }
+      } else {
+        plot_action(fctr_lvl_1 = level_union[1], fctr_lvl_2 = level_union[2])
       }
     }
 
@@ -341,6 +359,8 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
           progress_action("NOTHING TO PLOT.")
         } else {
           tsv <- my_cor_cov$tsv1
+          tsv$mz <- mz_lookup(tsv$featureID)
+          tsv$rt <- rt_lookup(tsv$featureID)
           # tsv$salientLevel <- salient_level_lookup(tsv$featureID)
           # tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
           # tsv$salience     <- salience_lookup(tsv$featureID)
@@ -353,56 +373,60 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
   } else { # tesC == "none"
     level_union <- unique(sort(smpl_metadata_facC))
     if ( length(level_union) > 1 ) {
-      ## pass 1 - contrast each selected level with all other levels combined into one "super-level" ##
-      completed <- c()
-      lapply(
-        X = level_union
-      , FUN = function(x) { 
-          fctr_lvl_1 <- x[1]
-          fctr_lvl_2 <- {
-            if ( fctr_lvl_1 %in% completed )
-              return("DUMMY")
-            # strF(completed)
-            completed <<- c(completed, fctr_lvl_1)
-            setdiff(level_union, fctr_lvl_1)
-          }
-          chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
-          fctr_lvl_2 <- "other"
-          # print( sprintf("sum(chosen_samples) %d, factor_level_2 %s", sum(chosen_samples), fctr_lvl_2) )
-          progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))
-          if (length(unique(chosen_samples)) < 1) {
-            progress_action("NOTHING TO PLOT...")
-          } else {
-            chosen_facC <- as.character(smpl_metadata_facC[chosen_samples])
-            predictor <- sapply( X = chosen_facC, FUN = function(fac) if ( fac == fctr_lvl_1 ) fctr_lvl_1 else fctr_lvl_2 )
-            my_matrix <- scdm[ chosen_samples, , drop = FALSE ]
-            # only process this column if both factors are members of lvlCSV
-            is_match <- isLevelSelected(fctr_lvl_1)
-            my_cor_cov <- do_detail_plot(
-              x_dataMatrix  = my_matrix
-            , x_predictor   = predictor
-            , x_is_match    = is_match
-            , x_algorithm   = algoC
-            , x_prefix      = "Features"
-            , x_show_labels = labelFeatures
-            , x_progress    = progress_action
-            , x_env         = calc_env
-            )
-            if ( is.null(my_cor_cov) ) {
-              progress_action("NOTHING TO PLOT")
-            } else {
-              tsv <- my_cor_cov$tsv1
-              # tsv$salientLevel <- salient_level_lookup(tsv$featureID)
-              # tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
-              # tsv$salience     <- salience_lookup(tsv$featureID)
-              corcov_tsv_action(tsv)
-              did_plot <<- TRUE
+      if ( length(level_union) > 2 ) {
+        ## pass 1 - contrast each selected level with all other levels combined into one "super-level" ##
+        completed <- c()
+        lapply(
+          X = level_union
+        , FUN = function(x) { 
+            fctr_lvl_1 <- x[1]
+            fctr_lvl_2 <- {
+              if ( fctr_lvl_1 %in% completed )
+                return("DUMMY")
+              # strF(completed)
+              completed <<- c(completed, fctr_lvl_1)
+              setdiff(level_union, fctr_lvl_1)
             }
+            chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
+            fctr_lvl_2 <- "other"
+            # print( sprintf("sum(chosen_samples) %d, factor_level_2 %s", sum(chosen_samples), fctr_lvl_2) )
+            progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))
+            if (length(unique(chosen_samples)) < 1) {
+              progress_action("NOTHING TO PLOT...")
+            } else {
+              chosen_facC <- as.character(smpl_metadata_facC[chosen_samples])
+              predictor <- sapply( X = chosen_facC, FUN = function(fac) if ( fac == fctr_lvl_1 ) fctr_lvl_1 else fctr_lvl_2 )
+              my_matrix <- scdm[ chosen_samples, , drop = FALSE ]
+              # only process this column if both factors are members of lvlCSV
+              is_match <- isLevelSelected(fctr_lvl_1)
+              my_cor_cov <- do_detail_plot(
+                x_dataMatrix  = my_matrix
+              , x_predictor   = predictor
+              , x_is_match    = is_match
+              , x_algorithm   = algoC
+              , x_prefix      = "Features"
+              , x_show_labels = labelFeatures
+              , x_progress    = progress_action
+              , x_env         = calc_env
+              )
+              if ( is.null(my_cor_cov) ) {
+                progress_action("NOTHING TO PLOT")
+              } else {
+                tsv <- my_cor_cov$tsv1
+                tsv$mz <- mz_lookup(tsv$featureID)
+                tsv$rt <- rt_lookup(tsv$featureID)
+                # tsv$salientLevel <- salient_level_lookup(tsv$featureID)
+                # tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
+                # tsv$salience     <- salience_lookup(tsv$featureID)
+                corcov_tsv_action(tsv)
+                did_plot <<- TRUE
+              }
+            }
+            #print("baz")
+            "dummy" # need to return a value; otherwise combn fails with an error
           }
-          #print("baz")
-          "dummy" # need to return a value; otherwise combn fails with an error
-        }
-      )
+        )
+      }
       ## pass 2 - contrast each selected level with each of the other levels individually ##
       completed <- c()
       utils::combn(
@@ -436,6 +460,8 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
               progress_action("NOTHING TO PLOT")
             } else {
               tsv <- my_cor_cov$tsv1
+              tsv$mz <- mz_lookup(tsv$featureID)
+              tsv$rt <- rt_lookup(tsv$featureID)
               # tsv$salientLevel <- salient_level_lookup(tsv$featureID)
               # tsv$salientRCV   <- salient_rcv_lookup(tsv$featureID)
               # tsv$salience     <- salience_lookup(tsv$featureID)
@@ -512,16 +538,20 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
   result$vip4o     <- as.numeric(ropls_x@orthoVipVn)
   # get the level names
   level_names      <- sort(levels(as.factor(ropls_x@suppLs$y)))
+  fctr_lvl_1       <- level_names[1]
+  fctr_lvl_2       <- level_names[2]
   feature_count    <- length(ropls_x@vipVn)
-  result$level1    <- rep.int(x = level_names[1], times = feature_count)
-  result$level2    <- rep.int(x = level_names[2], times = feature_count)
+  result$level1    <- rep.int(x = fctr_lvl_1, times = feature_count)
+  result$level2    <- rep.int(x = fctr_lvl_2, times = feature_count)
   # print(sprintf("sd(covariance) = %f; sd(correlation) = %f", sd(result$covariance), sd(result$correlation)))
   superresult <- list()
   if (length(result$vip4o) == 0) result$vip4o <- NA
+  greaterLevel <- sapply( X = result$correlation, FUN = function(my_corr) if ( my_corr < 0 ) fctr_lvl_1 else fctr_lvl_2 )
   superresult$tsv1 <- data.frame(
     featureID           = names(ropls_x@vipVn)
   , factorLevel1        = result$level1
   , factorLevel2        = result$level2
+  , greaterLevel        = greaterLevel
   , correlation         = result$correlation
   , covariance          = result$covariance
   , vip4p               = result$vip4p

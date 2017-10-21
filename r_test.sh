@@ -66,6 +66,9 @@ pairSigFeatOnly=FALSE
 contrast_detail=contrast_detail_all.pdf
 contrast_corcov=contrast_corcov_all.tsv
 contrast_salience=contrast_salience_all.tsv
+# how to specify levels generically
+matchingC=wildcard
+levCSV=*
 
 # Run the script
 bash -c " cd $__tool_directory__; \
@@ -92,6 +95,10 @@ labelFeatures=FALSE
 contrast_detail=contrast_detail_global.pdf
 contrast_corcov=contrast_corcov_global.tsv
 contrast_salience=contrast_salience_global.tsv
+# how to specify levels generically
+matchingC=regex
+# comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions
+levCSV=k[12],k[3-4]
 
 # Run the script
 bash -c " cd $__tool_directory__; \

@@ -43,8 +43,8 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
         #   (Mehmood 2012 doi:10.1186/1748-7188-6-27)
         vipco <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
         alpha <- 0.1 + 0.4 * vipco
-        red  <- as.numeric(correlation < 0) * vipco
-        blue <- as.numeric(correlation > 0) * vipco
+        red  <- as.numeric(correlation > 0) * vipco
+        blue <- as.numeric(correlation < 0) * vipco
         plus_cor <- correlation
         plus_cov <- covariance
         cex <- 0.75

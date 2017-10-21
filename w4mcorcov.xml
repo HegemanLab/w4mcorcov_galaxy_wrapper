@@ -79,7 +79,7 @@
       <option value="wildcard">use wild-cards for matching level-names</option>
       <option value="regex">use regular expressions for matching level-names</option>
     </param>
-    <param name="labelFeatures" type="boolean" checked="true" truevalue="TRUE" falsevalue="FALSE" label="Label features on detail plot" help="When true, add feature labels to points on the covariance-versus-correlation plot."/>
+    <param name="labelFeatures" type="text" default="3" label="Extreme loadings to label on detail plot" help="Number of with extreme loadings to label on the detail plot or 'ALL' to label all features."/>
   </inputs>
 
   <outputs>

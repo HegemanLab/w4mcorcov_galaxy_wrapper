@@ -15,7 +15,7 @@ tesC=kruskal
 facC=k10
 # Retain only pairwise-significant features" help="When true, analyze only features that differ significantly for the pair of levels being contrasted; when false, include any feature that varies significantly across all levels.
 pairSigFeatOnly=TRUE
-labelFeatures=TRUE
+labelFeatures=ALL
 # comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions
 levCSV=k[12],k[3-4]
 # how to specify levels generically
@@ -58,8 +58,9 @@ bash -c " cd $__tool_directory__; \
   contrast_salience '${OUTPUT}_$contrast_salience' \
   labelFeatures '$labelFeatures' \
   "
-diff -q ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov
-diff -q ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience
+diff ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov    | head
+diff ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience  | head
+
 
 # Repeat the test with pairSigFeatOnly FALSE
 pairSigFeatOnly=FALSE
@@ -69,6 +70,7 @@ contrast_salience=contrast_salience_all.tsv
 # how to specify levels generically
 matchingC=wildcard
 levCSV=*
+labelFeatures=5
 
 # Run the script
 bash -c " cd $__tool_directory__; \
@@ -86,12 +88,13 @@ bash -c " cd $__tool_directory__; \
   contrast_salience '${OUTPUT}_$contrast_salience' \
   labelFeatures '$labelFeatures' \
   "
-diff -q ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov
-diff -q ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience
+diff ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov    | head
+diff ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience  | head
+
 
 # Repeat the test with test none
 tesC=none
-labelFeatures=FALSE
+labelFeatures=0
 contrast_detail=contrast_detail_global.pdf
 contrast_corcov=contrast_corcov_global.tsv
 contrast_salience=contrast_salience_global.tsv
@@ -116,14 +119,15 @@ bash -c " cd $__tool_directory__; \
   contrast_salience '${OUTPUT}_$contrast_salience' \
   labelFeatures '$labelFeatures' \
   "
-diff -q ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov
-diff -q ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience
+diff ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov    | head
+diff ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience  | head
+
 
 levCSV=low,high
-# Repeat the test with test none
+# Repeat the test with test none and a two-level factor
 facC=lohi
 tesC=none
-labelFeatures=FALSE
+labelFeatures=3
 contrast_detail=contrast_detail_lohi.pdf
 contrast_corcov=contrast_corcov_lohi.tsv
 contrast_salience=contrast_salience_lohi.tsv
@@ -144,5 +148,6 @@ bash -c " cd $__tool_directory__; \
   contrast_salience '${OUTPUT}_$contrast_salience' \
   labelFeatures '$labelFeatures' \
   "
-diff -q ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov
-diff -q ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience
+diff ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov    | head
+diff ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience  | head
+

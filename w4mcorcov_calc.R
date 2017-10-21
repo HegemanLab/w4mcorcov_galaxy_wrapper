@@ -8,7 +8,7 @@ center_colmeans <- function(x) {
 algoC <- "nipals"
 
 do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_prefix, x_show_labels, x_progress = print, x_env) {
-  off <- function(x) if (x_show_labels) x else 0
+  off <- function(x) if (x_show_labels == "0") x else 0
   if (x_is_match && ncol(x_dataMatrix) > 0 && length(unique(x_predictor))> 1) {
     my_oplsda <- opls(
         x      = x_dataMatrix
@@ -35,8 +35,6 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
         covariance <- covariance / lim_x
         lim_x <- 1.2
         main_label <- sprintf("%s for levels %s versus %s", x_prefix, fctr_lvl_1, fctr_lvl_2)
-        # print("main_label")
-        # print(main_label)
         main_cex <- min(1.0, 46.0/nchar(main_label))
         # "It is generally accepted that a variable should be selected if vj>1, [27–29],
         #   but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]."
@@ -64,14 +62,31 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
         )
         low_x <- -0.7 * lim_x
         high_x <- 0.7 * lim_x
-        text(x = low_x, y = -0.15, labels =  fctr_lvl_1)
-        text(x = high_x, y = 0.15, labels =  fctr_lvl_2)
-        if (x_show_labels) {
+        text(x = low_x, y = -0.05, labels =  fctr_lvl_1)
+        text(x = high_x, y = 0.05, labels =  fctr_lvl_2)
+        if ( x_show_labels != "0" ) {
+          my_loadp <- loadp
+          my_loado <- loado
+          names(my_loadp) <- tsv1$featureID
+          names(my_loado) <- tsv1$featureID
+          if ( x_show_labels == "ALL" ) {
+            n_labels <- length(loadp)
+          } else {
+            n_labels <- as.numeric(x_show_labels)
+          }
+          n_labels <- min( n_labels, (1 + length(loadp)) / 2 )
+          labels_to_show <- c(
+            names(head(sort(my_loadp),n = n_labels))
+          , names(head(sort(my_loado),n = n_labels))
+          , names(tail(sort(my_loadp),n = n_labels))
+          , names(tail(sort(my_loado),n = n_labels))
+          )
+          labels <- unname(sapply( X = tsv1$featureID, FUN = function(x) if( x %in% labels_to_show ) x else "" ))
           text(
             y = plus_cor - 0.013
           , x = plus_cov + 0.020
           , cex = 0.3
-          , labels = tsv1$featureID
+          , labels = labels
           , col = rgb(blue = blue, red = red, green = 0, alpha = 0.2 + 0.8 * alpha)
           , srt = -30 # slant 30 degrees downward
           , adj = 0   # left-justified
@@ -513,6 +528,8 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
   #    Length = number of features; labels = feature identifiers.  (The same is true for $correlation and $covariance.)
   result$vip4p     <- as.numeric(ropls_x@vipVn)
   result$vip4o     <- as.numeric(ropls_x@orthoVipVn)
+  result$loadp     <- as.numeric(ropls_x@loadingMN)
+  result$loado     <- as.numeric(ropls_x@orthoLoadingMN)
   # get the level names
   level_names      <- sort(levels(as.factor(ropls_x@suppLs$y)))
   fctr_lvl_1       <- level_names[1]
@@ -533,6 +550,8 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
   , covariance          = result$covariance
   , vip4p               = result$vip4p
   , vip4o               = result$vip4o
+  , loadp               = result$loadp
+  , loado               = result$loado
   , row.names           = NULL
   )
   rownames(superresult$tsv1) <- superresult$tsv1$featureID
@@ -540,6 +559,8 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
   superresult$correlation <- result$correlation
   superresult$vip4p <- result$vip4p
   superresult$vip4o <- result$vip4o
+  superresult$loadp <- result$loadp
+  superresult$loado <- result$loado
   superresult$details <- result
   # #print(superresult$tsv1)
   result$superresult <- superresult

@@ -72,7 +72,25 @@ my_env$facC            <- as.character(argVc["facC"])
 my_env$pairSigFeatOnly <- as.logical(argVc["pairSigFeatOnly"])
 my_env$levCSV          <- as.character(argVc["levCSV"])
 my_env$matchingC       <- as.character(argVc["matchingC"])
-my_env$labelFeatures   <- as.logical(argVc["labelFeatures"])
+my_env$labelFeatures   <- as.character(argVc["labelFeatures"]) # number of features to label at each extreme of the loadings or 'ALL'
+
+label_features <- my_env$labelFeatures
+labelfeatures_check <- TRUE
+if ( is.na(label_features) ) {
+  labelfeatures_check <- FALSE
+} else if ( is.null(label_features) ) {
+  labelfeatures_check <- FALSE
+} else if (label_features != "ALL") {
+  if ( is.na(as.numeric(label_features)) )
+    labelfeatures_check <- FALSE
+  else if ( as.numeric(label_features) < 0 )
+    labelfeatures_check <- FALSE
+}
+if ( !labelfeatures_check ) {
+  my_log("invalid argument: labelFeatures")
+  print(label_features)
+  quit(save = "no", status = 10, runLast = TRUE)
+}
 
 tsv_action_factory <- function(file, colnames, append) {
   return (

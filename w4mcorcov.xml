@@ -541,7 +541,7 @@ OPLS-DA\ :superscript:`®`, SIMCA\ :superscript:`®`, and S-PLOT\ :superscript:`
 Release notes
 -------------
 
-0.98.3 - simplify output for two-level factors; add mz and rt to output table
+0.98.3 - correct output for two-level factors; add adjusted mz and rt to output tables
 
 0.98.2 - first release
 

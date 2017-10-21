@@ -1,5 +1,8 @@
 #!/bin/bash
 __tool_directory__=.
+# constants
+OUTPUT=test-data/output
+EXPECTED=test-data/expected
 # sampleMetadata	k10
 sampleMetadata_in=test-data/input_sampleMetadata.tsv
 # variableMetadata	k10_kruskal_k2.k1_sig	k10_kruskal_k3.k1_sig	k10_kruskal_k4.k1_sig	k10_kruskal_k3.k2_sig	k10_kruskal_k4.k2_sig	k10_kruskal_k4.k3_sig
@@ -21,7 +24,7 @@ matchingC=regex
 #     * with S-PLOTs in the upper triangle
 #     * PLS score-plots in the lower triangle
 #     * with level-labels along the diagonal
-contrast_detail=test-data/output_contrast_detail.pdf
+contrast_detail=contrast_detail.pdf
 #   tsv1: cor and cov dataframe with colums:
 #     * feature-ID
 #     * factor-level 1
@@ -36,8 +39,8 @@ contrast_detail=test-data/output_contrast_detail.pdf
 #     * (When filtering on significance of univariate tests) Significance of test of null hypothesis that there is no difference between the two classes, i.e, the pair-wise test.
 
 
-contrast_corcov=test-data/output_contrast_corcov.tsv
-contrast_salience=test-data/output_contrast_salience.tsv
+contrast_corcov=contrast_corcov.tsv
+contrast_salience=contrast_salience.tsv
 
 # Run the script
 bash -c " cd $__tool_directory__; \
@@ -50,17 +53,19 @@ bash -c " cd $__tool_directory__; \
   pairSigFeatOnly '$pairSigFeatOnly' \
   levCSV '$levCSV' \
   matchingC '$matchingC' \
-  contrast_detail '$contrast_detail' \
-  contrast_corcov '$contrast_corcov' \
-  contrast_salience '$contrast_salience' \
+  contrast_detail '${OUTPUT}_$contrast_detail' \
+  contrast_corcov '${OUTPUT}_$contrast_corcov' \
+  contrast_salience '${OUTPUT}_$contrast_salience' \
   labelFeatures '$labelFeatures' \
   "
+diff -q ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov
+diff -q ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience
 
 # Repeat the test with pairSigFeatOnly FALSE
 pairSigFeatOnly=FALSE
-contrast_detail=test-data/output_contrast_detail_all.pdf
-contrast_corcov=test-data/output_contrast_corcov_all.tsv
-contrast_salience=test-data/output_contrast_salience_all.tsv
+contrast_detail=contrast_detail_all.pdf
+contrast_corcov=contrast_corcov_all.tsv
+contrast_salience=contrast_salience_all.tsv
 
 # Run the script
 bash -c " cd $__tool_directory__; \
@@ -73,18 +78,20 @@ bash -c " cd $__tool_directory__; \
   pairSigFeatOnly '$pairSigFeatOnly' \
   levCSV '$levCSV' \
   matchingC '$matchingC' \
-  contrast_detail '$contrast_detail' \
-  contrast_corcov '$contrast_corcov' \
-  contrast_salience '$contrast_salience' \
+  contrast_detail '${OUTPUT}_$contrast_detail' \
+  contrast_corcov '${OUTPUT}_$contrast_corcov' \
+  contrast_salience '${OUTPUT}_$contrast_salience' \
   labelFeatures '$labelFeatures' \
   "
+diff -q ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov
+diff -q ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience
 
 # Repeat the test with test none
 tesC=none
 labelFeatures=FALSE
-contrast_detail=test-data/output_contrast_detail_global.pdf
-contrast_corcov=test-data/output_contrast_corcov_global.tsv
-contrast_salience=test-data/output_contrast_salience_global.tsv
+contrast_detail=contrast_detail_global.pdf
+contrast_corcov=contrast_corcov_global.tsv
+contrast_salience=contrast_salience_global.tsv
 
 # Run the script
 bash -c " cd $__tool_directory__; \
@@ -97,9 +104,38 @@ bash -c " cd $__tool_directory__; \
   pairSigFeatOnly '$pairSigFeatOnly' \
   levCSV '$levCSV' \
   matchingC '$matchingC' \
-  contrast_detail '$contrast_detail' \
-  contrast_corcov '$contrast_corcov' \
-  contrast_salience '$contrast_salience' \
+  contrast_detail '${OUTPUT}_$contrast_detail' \
+  contrast_corcov '${OUTPUT}_$contrast_corcov' \
+  contrast_salience '${OUTPUT}_$contrast_salience' \
   labelFeatures '$labelFeatures' \
   "
+diff -q ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov
+diff -q ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience
 
+levCSV=low,high
+# Repeat the test with test none
+facC=lohi
+tesC=none
+labelFeatures=FALSE
+contrast_detail=contrast_detail_lohi.pdf
+contrast_corcov=contrast_corcov_lohi.tsv
+contrast_salience=contrast_salience_lohi.tsv
+
+# Run the script
+bash -c " cd $__tool_directory__; \
+  Rscript w4mcorcov_wrapper.R \
+  dataMatrix_in '$dataMatrix_in' \
+  sampleMetadata_in '$sampleMetadata_in' \
+  variableMetadata_in '$variableMetadata_in' \
+  tesC '$tesC' \
+  facC '$facC' \
+  pairSigFeatOnly '$pairSigFeatOnly' \
+  levCSV '$levCSV' \
+  matchingC '$matchingC' \
+  contrast_detail '${OUTPUT}_$contrast_detail' \
+  contrast_corcov '${OUTPUT}_$contrast_corcov' \
+  contrast_salience '${OUTPUT}_$contrast_salience' \
+  labelFeatures '$labelFeatures' \
+  "
+diff -q ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov
+diff -q ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience

@@ -31,9 +31,9 @@
   <inputs>
     <param name="dataMatrix_in" label="Data matrix file" type="data" format="tabular" help="Features x samples (tabular data - decimal: '.'; missing: NA; mode: numerical; separator: tab character)" />
     <param name="sampleMetadata_in" label="Sample metadata file" type="data" format="tabular" help="Samples x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
-    <param name="variableMetadata_in" label="Variable metadata file (from Univariate)" type="data" format="tabular" help="Features x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
-    <param name="facC" label="Factor of interest" type="text" help="The name of the column of sampleMetadata corresponding to the qualitative variable used to define the contrasts.  This also must be a portion of the column names in the variableMetadata file except when the 'Univariate Significance-test' is set to 'none'."/>
-    <param name="tesC" label="Univariate Significance-Test" type="select" help="Either 'none' or the name of the statistical test that was run by the 'Univariate' tool to produce the variableMetadata file; that name must also be a portion of the column names in that file">
+    <param name="variableMetadata_in" label="Variable metadata file (ideally from Univariate)" type="data" format="tabular" help="Features x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
+    <param name="facC" label="Factor of interest" type="text" help="REQUIRED - The name of the column of sampleMetadata corresponding to the qualitative variable used to define the contrasts.  Except when the 'Univariate Significance-test' is set to 'none', this also must be a portion of the column names in the variableMetadata file."/>
+    <param name="tesC" label="Univariate Significance-Test" type="select" help="Either 'none' or the name of the statistical test that was run by the 'Univariate' tool to produce the variableMetadata file; that name must also be a portion of the column names in that file.">
       <option value="none">none - Display all features from variableMetadata (rather than choosing a subset based on significance in univariate testing)</option>
       <option value="ttest">ttest - Student's t-test (parametric test, qualitative factor with exactly 2 levels)</option>
       <option value="anova">anova - Analysis of variance (parametric test, qualitative factor with more than 2 levels)</option>
@@ -47,8 +47,8 @@
       truevalue="TRUE"
       falsevalue="FALSE"
       label="Retain only pairwise-significant features"
-      help="Ignored when 'none' is chosen.  Otherwise, when 'Yes', analyze only features that differ significantly for the pair of levels being contrasted; when 'No', include any feature that varies significantly across all levels."/>
-    <param name="levCSV" label="Levels of interest" type="text" value = "" help="Comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions">
+      help="When 'none' is chosen, all features are included in the analysis.  Otherwise, when this option is set to 'Yes', analysis will be performed including only features that differ significantly for the pair of levels being contrasted; when set to 'No', any feature that varies significantly across all levels will be included (i.e., exclude any feature that is not significantly different across all levels).  See examples below."/>
+    <param name="levCSV" label="Levels of interest" type="text" value = "*" help="Comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; levels must be non-numeric; may include wild cards or regular expressions.  Note that extra space characters will affect results - 'a,b' is correct, but 'a , b' is not and may fail or give different results.">
       <sanitizer>
         <valid initial="string.letters">
           <add preset="string.digits"/>
@@ -74,12 +74,12 @@
         </valid>
       </sanitizer>
     </param>
-    <param name="matchingC" label="Level-name matching" type="select" help="How to specify levels generically">
-      <option value="none"  selected="true">do no generic matching (default)</option>
-      <option value="wildcard">use wild-cards for matching level-names</option>
+    <param name="matchingC" label="Level-name matching" type="select" help="How to specify level-names generically (if at all).">
+      <option value="none">do no generic matching (default)</option>
+      <option value="wildcard" selected="true">use wild-cards for matching level-names</option>
       <option value="regex">use regular expressions for matching level-names</option>
     </param>
-    <param name="labelFeatures" type="text" default="3" label="Extreme loadings to label on detail plot" help="Number of with extreme loadings to label on the detail plot or 'ALL' to label all features."/>
+    <param name="labelFeatures" type="text" value="3" label="Number of features having extreme loadings to label on cov-vs.-cor plot" help="Specify the number of features at each of the four loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features; this choice has no effect on the OPLS-DA loadings plot."/>
   </inputs>
 
   <outputs>
@@ -314,9 +314,9 @@
 Motivation
 ----------
 
-OPLS-DA\ :superscript:`®` and the SIMCA\ :superscript:`®` S-PLOT\ :superscript:`®` (Wiklund *et al.*, 2008) may be employed (e.g. Sun *et al.*, 2016) to identify features that are potential biomarkers, i.e. features that are potentially useful to discriminate to which class a sample should be assigned.  Workflow4Metabolomics (W4M, Giacomoni *et al.*, 2014, Guitton *et al.*, 2017) provides a suite of tools for preprocessing and statistical analysis of LC-MS, GC-MS, and NMR metabolomics data; however, it does not (as of release 3.0) include a tool for making the equivalent of an S-PLOT.
+OPLS-DA\ :superscript:`®` and the SIMCA\ :superscript:`®` S-PLOT\ :superscript:`®` (Wiklund *et al.*, 2008) may be employed to draw attention to metabolomic features that are potential biomarkers, i.e. features that are potentially useful to discriminate to which class a sample should be assigned (e.g. Sun *et al.*, 2016).  Workflow4Metabolomics (W4M, Giacomoni *et al.*, 2014, Guitton *et al.*, 2017) provides a suite of tools for preprocessing and statistical analysis of LC-MS, GC-MS, and NMR metabolomics data; however, it does not (as of release 3.0) include a tool for making the equivalent of an S-PLOT.
 
-The S-PLOT is computed from mean-centered, pareto-scaled data.  This plot presents the correlation of the first score vector from an OPLS-DA model with the sample-variables used to produce that model versus the covariance of the scores with the sample-variables.  For OPLS-DA, the first score vector represents the variation among the sample-variables that is explained by the contrasting factor.
+The S-PLOT is computed from mean-centered, pareto-scaled data.  This plot presents the correlation of the first score vector from an OPLS-DA model with the sample-variables used to produce that model versus the covariance of the scores with the sample-variables.  For OPLS-DA, the first score vector represents the variation among the sample-variables that is related to the predictor (i.e., the contrasting factor).
 
 The principal aims of this tool are:
 
@@ -324,6 +324,7 @@ The principal aims of this tool are:
 - To visualize multiple contrasts compactly yet informatively.
 - To write the results to data files for use in further multivariate analysis or visualization.
 
+This tool only supports categorical factors with non-numeric level-names.
 
 Description
 -----------
@@ -336,11 +337,15 @@ For instance, suppose that you ran Kruskal-Wallis testing for a column named 'cl
 - A column of variableMetadata would be labeled 'cluster_kruskal_sig' and would have values '1' and '0', where '1' means that, when the samples are grouped by 'cluster', there is strong evidence against the hypothesis that there is no difference among the intensities for the feature across all sample-groups.
 - A column of variableMetadata would be labeled 'cluster_kruskal_k1.k2_sig' and would have values '1' and '0', where '1' means that there is significant evidence against the hypothesis that samples from sampleMetadata whose 'cluster' column contains 'k1' or 'k2' have the same intensity for that feature.
 
-The 'PLS-DA Contrasts' tool produces graphics and data for OPLS-DA contrasts of feature-intensities between significantly different pairs of factor-levels.  For each factor-level, the tool performs a contrast with all other factor-levels combined and then separately with each other factor-level.
+The 'PLS-DA Contrasts' tool produces graphics and data for OPLS-DA contrasts of feature-intensities between significantly different pairs of factor-levels.  For each factor-level, the tool performs a contrast with all other factor-levels combined and then separately with each other factor-level.  
 
-This tool can be used in a purely exploratory manner by supplying the variableMetadata file without the columns added by the W4M 'Univariate' tool.  However, the preferred workflow (Thévenot *et al.*, 2015) is to use univariate testing to exclude features that are not significantly different and use OPLS-DA to visualize the differences identified in univariate testing; an appropriate exception would be to visualize contrasts of a specific list of metabolites.
+**Along the left-to-right axis, the plots show the supervised projection of the variation explained by the predictor** (i.e., the factor specified when invoking the tool); **the top-to-bottom axis displays the variation that is orthogonal to the predictor level** (i.e., independent of it).
 
-It must be stressed that there may be no definitive computational approach to select features that are guaranteed to be reliable biomarkers.  Possible methods are examining extreme values on S-PLOTs, examining "variable importance in projection VIP for OPLS-DA" (Galindo-Prieto *et al.* 2014), or examining a feature's "selectivity ratio" (Rajalahti *et al.*, 2009).  In this spirit, this tool reports the S-PLOT covariance and correlation (Wiklund *op. cit.*) and VIP metrics, and it introduces an informal "salience" metric to flag features that may merit attention without dimensional reduction; future versions may add selectivity ratio.  Regardless of how any potential biomarker is identified, it should be subjected to further validation analysis before it is recommended for general application.
+Although this tool can be used in a purely exploratory manner by supplying the variableMetadata file without the columns added by the W4M 'Univariate' tool, **the preferred workflow is to use univariate testing to exclude features that are not significantly different and use OPLS-DA to visualize the differences identified in univariate testing** (Thévenot *et al.*, 2015); an appropriate exception would be to visualize contrasts of a specific list of metabolites.
+
+It must be stressed **that there may be no definitive computational approach to select features that are guaranteed to be reliable biomarkers, especially from a small number of samples or experiments**.  Possible methods are examining extreme values on S-PLOTs, examining "variable importance in projection VIP for OPLS-DA" (Galindo-Prieto *et al.* 2014), or examining a feature's "selectivity ratio" (Rajalahti *et al.*, 2009).  In this spirit, this tool reports the S-PLOT covariance and correlation (Wiklund *op. cit.*) and VIP metrics, and it introduces an informal "salience" metric to flag features that may merit attention without dimensional reduction; future versions may add selectivity ratio.  
+
+Regardless of how any potential biomarker is identified, it should be subjected to further validation analysis before it is recommended for general application.
 
 
 W4M Workflow Position
@@ -402,14 +407,15 @@ Parameters
 [IN] Retain only pairwise-significant features
   | When true, for each contrast of two levels, include only those features which pass the significance threshold for that contrast.  Choosing true results in an OPLS-DA model that better reflects and visualizes the difference detected by univariate analysis, with somewhat increased reliability of prediction (as assessed by cross-validation).
   | When false, include all features that pass the significance threshold when testing for difference across all factor-levels.  This choice produces a plot that displays more features but is not necessarily more informative.
+  | Note that when 'Test' is 'none', all features are included in the analysis and this parameter has no effect.
   |
 
 [IN] Levels of interest
-  | comma-separated **level-names** (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions
+  | comma-separated **level-names** (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions.
   |
 
 [IN] Level-name matching
-  | How to **specify levels generically** - wild cards, regular expressions, or none (no generic matching)
+  | Indicator of **how levels are to be specified generically** (if at all) - wild cards, regular expressions, or none (no generic matching).
   |
 
 [OUT] Contrast-detail output PDF
@@ -421,15 +427,19 @@ Parameters
 - (bottom-right) OPLS-DA **loadings-plot** for the two projections (*ibid.*)
 
 [OUT] Contrast Correlation-Covarinace data TABULAR
-  | A tab-separated values file having the following columns:
+  | A tab-separated values file of metadata for each feature for each contrast in which it was included.
+  | Thus, a given feature may appear many times, but *the combination of featureID, factorLevel1, and factorLevel2 will be unique.*
+  | This file has the following columns:
 
 - **featureID** - feature-identifier
 - **factorLevel1** - factor-level 1
 - **factorLevel2** - factor-level 2 (or "other" when contrasting factor-level 1 with all other levels)
 - **correlation** - correlation of the features projection explaining the difference between the features, < 0 when intensity for level 1 is greater (from formula in Supplement to Wiklund, *op. cit.*)
 - **covariance** - covariance of the features projection explaining the difference between the features, < 0 when intensity for level 1 is greater (from formula in *ibid.*)
-- **vip4p** - "variable importance in projection" to the predictive components (VIP\ :subscript:`4,p` from Galindo-Prieto *op. cit.*)
-- **vip4o** - "variable importance in projection" to the orthogonal components (VIP\ :subscript:`4,o` from Galindo-Prieto *op. cit.*)
+- **vip4p** - "variable importance in projection" to the predictive projection, VIP\ :subscript:`4,p` (Galindo-Prieto *op. cit.*)
+- **vip4o** - "variable importance in projection" to the orthogonal projection, VIP\ :subscript:`4,o` (*ibid.*)
+- **loadp** - variable loading for the predictive projection (Wiklund *op. cit.*)
+- **loado** - variable loading for the orthogonal projection (*ibid.*)
 - **level1Level2Sig** - (Only present when a test other than "none" is chosen) '1' when feature varies significantly across all classes (i.e., not pair-wise); '0' otherwise
 
 [OUT] Feature "Salience" data TABULAR
@@ -469,14 +479,12 @@ However, only a few basic building blocks of regular expressions need to be mast
 - '``$``' matches the end of a level-name
 - '``.``' outside of square brackets matches a single character
 - '``*``' matches character specified immediately before zero or more times
-- square brackets specify a set of characters to be matched.
+- Square brackets specify a set of characters to be matched.  Within square brackets:
 
-Within square brackets
+  - '``^``' as the first character specifies that the list of characters are those that should **not** be matched.
+  - '``-``' is used to specify ranges of characters
 
-- '``^``' as the first character specifies that the list of characters are those that should **not** be matched.
-- '``-``' is used to specify ranges of characters
-
-Caveat: The tool wrapper uses the comma ('``,``') to split a list of sample-level names, so **commas may not be used within regular expressions for this tool**
+Caveat: The tool wrapper uses the comma ('``,``') to split a list of sample-level names, so **commas may not be used within regular expressions for this tool.**
 
 First Example: Consider a field of level-names consisting of '``marq3,marq6,marq9,marq12,front3,front6,front9,front12``'
 
@@ -509,7 +517,7 @@ Working examples
   | Variable metadata | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/input_variableMetadata.tsv |
   +-------------------+-------------------------------------------------------------------------------------------------------------------+
 
-**Example 1**
+**Example 1:** Include in the analysis only features identified as pair-wise significant in the Univariate test.
 
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Input Parameter or Result                 | Value                                                                                                                                  |
@@ -531,7 +539,7 @@ Working examples
   | Output salience table                     | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience.tsv                  |
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
 
-**Example 2**
+**Example 2:** Include in the analysis only features identified as overall-significant in the Univariate test.  Note that this even includes these features in contrasts where they were not determined to be pair-wise significant in the Univariate test.  Thus, more features are included than in Example 1.
 
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Input Parameter or Result                 | Value                                                                                                                                  |
@@ -553,7 +561,7 @@ Working examples
   | Output salience table                     | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience_all.tsv              |
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
 
-**Example 3**
+**Example 3:** Include all features in the analysis without regard to Univariate testing.  Univariate testing is not even a pre-requisite to using the tool when 'none' is selected for the test.  Thus, more features are included than in Example 2.
 
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Input Parameter or Result                 | Value                                                                                                                                  |
@@ -575,7 +583,7 @@ Working examples
   | Output salience table                     | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience_global.tsv           |
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
 
-**Example 4**
+**Example 4:** Analysis of a two-level factor (including all features).  This suppresses the contrasts of "each factor vs. the aggregate of all the others".
 
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Input Parameter or Result                 | Value                                                                                                                                  |
@@ -609,7 +617,7 @@ Release notes
 
 0.98.3
 
-- correct output for two-level factors
+- correct support for two-level factors
 - add adjusted mz and rt to output tables
 - allow explicitly setting the number of features with extreme loadings to be labeled on the correlation vs. covariance plot
 
@@ -636,15 +644,15 @@ Release notes
     <citation type="doi">10.1021/acs.jproteome.5b00354</citation>
     <!-- ropls package -->
     <citation type="bibtex"><![CDATA[
-@incollection{Thevenot_ropls_2017,
-    author = {Th{\'{e}}venot, Etienne A.},
-    title = {ropls: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and feature selection of omics data},
-    publisher = {bioconductor.org},
-    year = {2017},
-    doi = {10.18129/B9.bioc.ropls},
-    booktitle = {Bioconductor: Open source software for bioinformatics},
-    address = {Roswell Park Cancer Institute},
-}
+    @incollection{Thevenot_ropls_2017,
+      author = {Th{\'{e}}venot, Etienne A.},
+      title = {ropls: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and feature selection of omics data},
+      publisher = {bioconductor.org},
+      year = {2017},
+      doi = {10.18129/B9.bioc.ropls},
+      booktitle = {Bioconductor: Open source software for bioinformatics},
+      address = {Roswell Park Cancer Institute},
+    }
     ]]></citation>
     <!-- Wiklund_2008 OPLS PLS-DA and S-PLOT -->
     <citation type="doi">10.1021/ac0713510</citation>

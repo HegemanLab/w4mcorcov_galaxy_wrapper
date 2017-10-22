@@ -318,23 +318,22 @@ OPLS-DA\ :superscript:`®` and the SIMCA\ :superscript:`®` S-PLOT\ :superscript
 
 The S-PLOT is computed from mean-centered, pareto-scaled data.  This plot presents the correlation of the first score vector from an OPLS-DA model with the sample-variables used to produce that model versus the covariance of the scores with the sample-variables.  For OPLS-DA, the first score vector represents the variation among the sample-variables that is related to the predictor (i.e., the contrasting factor).
 
-The principal aims of this tool are:
+The primary aims of this tool are:
 
-- To compute multiple contrasts with OPLS-DA and the covariance vs. correlation plot.
-- To visualize multiple contrasts compactly yet informatively.
+- To compute and visualize multiple contrasts with OPLS-DA and the covariance vs. correlation plot.
 - To write the results to data files for use in further multivariate analysis or visualization.
 
-This tool only supports categorical factors with non-numeric level-names.
+Note: This tool only supports categorical factors with non-numeric level-names.
 
 Description
 -----------
 
-The purpose of the 'PLS-DA Contrasts' tool is to identify and visualize GC-MS or LC-MS features that are possible biomarkers.
+The purpose of the 'PLS-DA Contrasts' tool is to visualize GC-MS or LC-MS features that are possible biomarkers.
 
 The W4M 'Univariate' tool (Thévenot *et al.*, 2015) adds the results of family-wise corrected pairwise significance-tests as columns of the **variableMetadata** dataset.
 For instance, suppose that you ran Kruskal-Wallis testing for a column named 'cluster' in sampleMetadata that has values 'k1' and 'k2' and at least one other value.
 
-- A column of variableMetadata would be labeled 'cluster_kruskal_sig' and would have values '1' and '0', where '1' means that, when the samples are grouped by 'cluster', there is strong evidence against the hypothesis that there is no difference among the intensities for the feature across all sample-groups.
+- A column of variableMetadata would be labeled 'cluster_kruskal_sig' and would have values '1' and '0'; when the samples are grouped by 'cluster', '1' means that there is strong evidence against the hypothesis that there is no difference among the intensities for the feature across all sample-groups.
 - A column of variableMetadata would be labeled 'cluster_kruskal_k1.k2_sig' and would have values '1' and '0', where '1' means that there is significant evidence against the hypothesis that samples from sampleMetadata whose 'cluster' column contains 'k1' or 'k2' have the same intensity for that feature.
 
 The 'PLS-DA Contrasts' tool produces graphics and data for OPLS-DA contrasts of feature-intensities between significantly different pairs of factor-levels.  For each factor-level, the tool performs a contrast with all other factor-levels combined and then separately with each other factor-level.  
@@ -343,9 +342,11 @@ The 'PLS-DA Contrasts' tool produces graphics and data for OPLS-DA contrasts of 
 
 Although this tool can be used in a purely exploratory manner by supplying the variableMetadata file without the columns added by the W4M 'Univariate' tool, **the preferred workflow is to use univariate testing to exclude features that are not significantly different and use OPLS-DA to visualize the differences identified in univariate testing** (Thévenot *et al.*, 2015); an appropriate exception would be to visualize contrasts of a specific list of metabolites.
 
-It must be stressed **that there may be no definitive computational approach to select features that are guaranteed to be reliable biomarkers, especially from a small number of samples or experiments**.  Possible methods are examining extreme values on S-PLOTs, examining "variable importance in projection VIP for OPLS-DA" (Galindo-Prieto *et al.* 2014), or examining a feature's "selectivity ratio" (Rajalahti *et al.*, 2009).  In this spirit, this tool reports the S-PLOT covariance and correlation (Wiklund *op. cit.*) and VIP metrics, and it introduces an informal "salience" metric to flag features that may merit attention without dimensional reduction; future versions may add selectivity ratio.  
+It must be stressed that there may be no *single* definitive computational approach to select features that are reliable biomarkers, especially from a small number of samples or experiments.  A few possible choices are examining extreme values on S-PLOTs, examining "variable importance in projection VIP for OPLS-DA" (Galindo-Prieto *et al.* 2014), and examining a feature's "selectivity ratio" (Rajalahti *et al.*, 2009).  In this spirit, this tool reports the S-PLOT covariance and correlation (Wiklund *op. cit.*) and VIP metrics, and it introduces an informal "salience" metric to flag features that may merit attention without dimensional reduction; future versions may add selectivity ratio.  
 
-Regardless of how any potential biomarker is identified, it should be subjected to further validation analysis before it is recommended for general application.
+For a more systematic approach to biomarker identification, please consider the W4M 'biosigner' tool (Rinuardo *et al.* 2016), which applies three different identification metrics to the selection process.
+
+Regardless of how any potential biomarker is identified, further validation analysis (e.g., independent confirmatory experiments) is needed before it is recommended for general application.
 
 
 W4M Workflow Position
@@ -384,15 +385,15 @@ Parameters
 ----------
 
 [IN] Data matrix file
-  | variable x sample **dataMatrix** (tabular separated values) file of the numeric data matrix, with . as decimal, and NA for missing values; the table must not contain metadata apart from row and column names; the row and column names must be identical to the rownames of the sample and variable metadata, respectively (see below)
+  | variable x sample **dataMatrix** (tabular separated values) file of the numeric data matrix, with '.' as decimal, and 'NA' for missing values; the table must not contain metadata apart from row and column names; the row and column names must be identical to the rownames of the sample and variable metadata, respectively (see below)
   |
 
 [IN] Sample metadata file
-  | sample x metadata **sampleMetadata** (tabular separated values) file of the numeric and/or character sample metadata, with . as decimal and NA for missing values
+  | sample x metadata **sampleMetadata** (tabular separated values) file of the numeric and/or character sample metadata, with '.' as decimal and 'NA' for missing values
   |
 
 [IN] Variable metadata file
-  | variable x metadata **variableMetadata** (tabular separated values) file of the numeric and/or character variable metadata, with . as decimal and NA for missing values
+  | variable x metadata **variableMetadata** (tabular separated values) file of the numeric and/or character variable metadata, with '.' as decimal and 'NA' for missing values
   |
 
 [IN] Test
@@ -405,13 +406,13 @@ Parameters
   |
 
 [IN] Retain only pairwise-significant features
-  | When true, for each contrast of two levels, include only those features which pass the significance threshold for that contrast.  Choosing true results in an OPLS-DA model that better reflects and visualizes the difference detected by univariate analysis, with somewhat increased reliability of prediction (as assessed by cross-validation).
-  | When false, include all features that pass the significance threshold when testing for difference across all factor-levels.  This choice produces a plot that displays more features but is not necessarily more informative.
-  | Note that when 'Test' is 'none', all features are included in the analysis and this parameter has no effect.
+  | When **true**, for each contrast of two levels, include only those features which pass the significance threshold for that contrast.  Choosing true results in an OPLS-DA model that better reflects and visualizes the difference detected by univariate analysis, with somewhat increased reliability of prediction (as assessed by cross-validation).
+  | When **false**, include all features that pass the significance threshold when testing for difference across all factor-levels.  This choice produces a plot that displays more features but is not necessarily more informative.
+  | *Note that when 'Test' is 'none', all features are included in the analysis and this parameter has no effect.*
   |
 
 [IN] Levels of interest
-  | comma-separated **level-names** (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions.
+  | Comma-separated **level-names** (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions.
   |
 
 [IN] Level-name matching
@@ -519,99 +520,99 @@ Working examples
 
 **Example 1:** Include in the analysis only features identified as pair-wise significant in the Univariate test.
 
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Input Parameter or Result                 | Value                                                                                                                                  |
-  +===========================================+========================================================================================================================================+
-  | Factor of interest                        | k10                                                                                                                                    |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Univariate Significance-Test              | kruskal                                                                                                                                |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Retain only pairwise-significant features | Yes                                                                                                                                    |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Levels of interest                        | k[12],k[3-4]                                                                                                                           |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Level-name matching                       | use regular expressions for matching level-names                                                                                       |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Label features on detail plot             | Yes                                                                                                                                    |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Output primary table                      | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_corcov.tsv                    |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Output salience table                     | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience.tsv                  |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Output figures PDF                        | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_detail.pdf                    |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Input Parameter or Result                  | Value                                                                                                                                  |
+  +============================================+========================================================================================================================================+
+  | Factor of interest                         | k10                                                                                                                                    |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Univariate Significance-Test               | kruskal                                                                                                                                |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Retain only pairwise-significant features  | Yes                                                                                                                                    |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Levels of interest                         | k[12],k[3-4]                                                                                                                           |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Level-name matching                        | use regular expressions for matching level-names                                                                                       |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Number of features having extreme loadings | ALL                                                                                                                                    |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Output primary table                       | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_corcov.tsv                    |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Output salience table                      | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience.tsv                  |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Output figures PDF                         | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_detail.pdf                    |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
 
 **Example 2:** Include in the analysis only features identified as overall-significant in the Univariate test.  Note that this even includes these features in contrasts where they were not determined to be pair-wise significant in the Univariate test.  Thus, more features are included than in Example 1.
 
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Input Parameter or Result                 | Value                                                                                                                                  |
-  +===========================================+========================================================================================================================================+
-  | Factor of interest                        | k10                                                                                                                                    |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Univariate Significance-Test              | kruskal                                                                                                                                |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Retain only pairwise-significant features | No                                                                                                                                     |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Levels of interest                        | ``*``                                                                                                                                  |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Level-name matching                       | use wild cards for matching level-names                                                                                                |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Label features on detail plot             | Yes                                                                                                                                    |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Output primary table                      | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_corcov_all.tsv                |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Output salience table                     | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience_all.tsv              |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Output figures PDF                        | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_detail_all.pdf                |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Input Parameter or Result                  | Value                                                                                                                                  |
+  +============================================+========================================================================================================================================+
+  | Factor of interest                         | k10                                                                                                                                    |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Univariate Significance-Test               | kruskal                                                                                                                                |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Retain only pairwise-significant features  | No                                                                                                                                     |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Levels of interest                         | ``*``                                                                                                                                  |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Level-name matching                        | use wild cards for matching level-names                                                                                                |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Number of features having extreme loadings | 5                                                                                                                                      |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Output primary table                       | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_corcov_all.tsv                |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Output salience table                      | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience_all.tsv              |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Output figures PDF                         | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_detail_all.pdf                |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
 
 **Example 3:** Include all features in the analysis without regard to Univariate testing.  Univariate testing is not even a pre-requisite to using the tool when 'none' is selected for the test.  Thus, more features are included than in Example 2.
 
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Input Parameter or Result                 | Value                                                                                                                                  |
-  +===========================================+========================================================================================================================================+
-  | Factor of interest                        | k10                                                                                                                                    |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Univariate Significance-Test              | none                                                                                                                                   |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Retain only pairwise-significant features | No                                                                                                                                     |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Levels of interest                        | k[12],k[3-4]                                                                                                                           |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Level-name matching                       | use regular expressions for matching level-names                                                                                       |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Label features on detail plot             | No                                                                                                                                     |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Output primary table                      | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_corcov_global.tsv             |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Output salience table                     | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience_global.tsv           |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Output figures PDF                        | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_detail_global.pdf             |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Input Parameter or Result                  | Value                                                                                                                                  |
+  +============================================+========================================================================================================================================+
+  | Factor of interest                         | k10                                                                                                                                    |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Univariate Significance-Test               | none                                                                                                                                   |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Retain only pairwise-significant features  | No                                                                                                                                     |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Levels of interest                         | k[12],k[3-4]                                                                                                                           |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Level-name matching                        | use regular expressions for matching level-names                                                                                       |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Number of features having extreme loadings | 0                                                                                                                                      |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Output primary table                       | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_corcov_global.tsv             |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Output salience table                      | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience_global.tsv           |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Output figures PDF                         | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_detail_global.pdf             |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
 
 **Example 4:** Analysis of a two-level factor (including all features).  This suppresses the contrasts of "each factor vs. the aggregate of all the others".
 
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Input Parameter or Result                 | Value                                                                                                                                  |
-  +===========================================+========================================================================================================================================+
-  | Factor of interest                        | lohi                                                                                                                                   |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Univariate Significance-Test              | none                                                                                                                                   |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Retain only pairwise-significant features | No                                                                                                                                     |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Levels of interest                        | low,high                                                                                                                               |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Level-name matching                       | use regular expressions for matching level-names                                                                                       |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Label features on detail plot             | No                                                                                                                                     |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Output primary table                      | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_corcov_lohi.tsv               |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Output salience table                     | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience_lohi.tsv             |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Output figures PDF                        | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_detail_lohi.pdf               |
-  +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Input Parameter or Result                  | Value                                                                                                                                  |
+  +============================================+========================================================================================================================================+
+  | Factor of interest                         | lohi                                                                                                                                   |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Univariate Significance-Test               | none                                                                                                                                   |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Retain only pairwise-significant features  | No                                                                                                                                     |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Levels of interest                         | low,high                                                                                                                               |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Level-name matching                        | use regular expressions for matching level-names                                                                                       |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Number of features having extreme loadings | 3                                                                                                                                      |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Output primary table                       | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_corcov_lohi.tsv               |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Output salience table                      | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience_lohi.tsv             |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | Output figures PDF                         | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_detail_lohi.pdf               |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
 
 
 Trademarks
@@ -647,6 +648,8 @@ Release notes
     <citation type="doi">10.1186/1748-7188-6-27</citation>
     <!-- Rajalahti_2009 Biomarker discovery using selectivity ratio -->
     <citation type="doi">10.1016/j.chemolab.2008.08.004</citation>
+    <!-- Rinuardo 2016 -->
+    <citation type="doi">10.3389/fmolb.2016.00026</citation>
     <!-- Sun_2016 Urinary Biomarkers for adolescent idiopathic scoliosis -->
     <citation type="doi">10.1038/srep22274</citation>
     <!-- Th_venot_2015 Urinary metabolome statistics -->

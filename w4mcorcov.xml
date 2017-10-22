@@ -562,7 +562,7 @@ Working examples
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Output salience table                     | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience_all.tsv              |
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Output figures PDF                        | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_detail.pdf                    |
+  | Output figures PDF                        | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_detail_all.pdf                |
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
 
 **Example 3:** Include all features in the analysis without regard to Univariate testing.  Univariate testing is not even a pre-requisite to using the tool when 'none' is selected for the test.  Thus, more features are included than in Example 2.
@@ -586,7 +586,7 @@ Working examples
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Output salience table                     | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience_global.tsv           |
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Output figures PDF                        | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_detail.pdf                    |
+  | Output figures PDF                        | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_detail_global.pdf             |
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
 
 **Example 4:** Analysis of a two-level factor (including all features).  This suppresses the contrasts of "each factor vs. the aggregate of all the others".
@@ -610,7 +610,7 @@ Working examples
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Output salience table                     | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience_lohi.tsv             |
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Output figures PDF                        | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_detail.pdf                    |
+  | Output figures PDF                        | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_detail_lohi.pdf               |
   +-------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
 
 

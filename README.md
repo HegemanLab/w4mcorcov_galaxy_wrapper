@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/106058128.svg)](https://zenodo.org/badge/latestdoi/106058128)
+
 # w4mcorcov_galaxy_wrapper
 
 Planemo-based galaxy-tool-wrapper to wrap a SIMCA® OPLS-DA® S-PLOT® "work-alike" tool.

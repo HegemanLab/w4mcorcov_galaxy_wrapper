@@ -435,7 +435,7 @@ Parameters
 - **featureID** - feature-identifier
 - **factorLevel1** - factor-level 1
 - **factorLevel2** - factor-level 2 (or "other" when contrasting factor-level 1 with all other levels)
-- **correlation** - correlation of the features projection explaining the difference between the features, < 0 when intensity for level 1 is greater (from formula in Supplement to Wiklund, *op. cit.*)
+- **correlation** - correlation of the features projection explaining the difference between the features, < 0 when intensity for level 1 is greater (from formula in Supplement to Wiklund, *op. cit.*).  Note that, for a given contrast, there is a linear relationship between 'loadp' and 'correlation'.
 - **covariance** - covariance of the features projection explaining the difference between the features, < 0 when intensity for level 1 is greater (from formula in *ibid.*)
 - **vip4p** - "variable importance in projection" to the predictive projection, VIP\ :subscript:`4,p` (Galindo-Prieto *op. cit.*)
 - **vip4o** - "variable importance in projection" to the orthogonal projection, VIP\ :subscript:`4,o` (*ibid.*)

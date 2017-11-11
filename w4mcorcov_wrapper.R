@@ -67,12 +67,13 @@ my_env$contrast_salience    <- as.character(argVc["contrast_salience"])
 
 # other parameters
 
-my_env$tesC            <- as.character(argVc["tesC"])
-my_env$facC            <- as.character(argVc["facC"])
-my_env$pairSigFeatOnly <- as.logical(argVc["pairSigFeatOnly"])
-my_env$levCSV          <- as.character(argVc["levCSV"])
-my_env$matchingC       <- as.character(argVc["matchingC"])
-my_env$labelFeatures   <- as.character(argVc["labelFeatures"]) # number of features to label at each extreme of the loadings or 'ALL'
+my_env$tesC               <- as.character(argVc["tesC"])
+my_env$facC               <- as.character(argVc["facC"])
+my_env$pairSigFeatOnly    <- as.logical(argVc["pairSigFeatOnly"])
+my_env$levCSV             <- as.character(argVc["levCSV"])
+my_env$matchingC          <- as.character(argVc["matchingC"])
+my_env$labelFeatures      <- as.character(argVc["labelFeatures"]) # number of features to label at each extreme of the loadings or 'ALL'
+my_env$labelOrthoFeatures <- as.logical(argVc["labelOrthoFeatures"])
 
 label_features <- my_env$labelFeatures
 labelfeatures_check <- TRUE

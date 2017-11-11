@@ -7,8 +7,8 @@ center_colmeans <- function(x) {
 #### OPLS-DA
 algoC <- "nipals"
 
-do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_prefix, x_show_labels, x_progress = print, x_env) {
-  off <- function(x) if (x_show_labels == "0") x else 0
+do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_prefix, x_show_labels, x_show_loado_labels, x_progress = print, x_env) {
+  off <- function(x) if (x_show_labels == "0") 0 else x
   if (x_is_match && ncol(x_dataMatrix) > 0 && length(unique(x_predictor))> 1) {
     my_oplsda <- opls(
         x      = x_dataMatrix
@@ -50,8 +50,8 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
           y = plus_cor
         , x = plus_cov
         , type="p"
-        , xlim=c(-lim_x, lim_x + off(0.1))
-        , ylim=c(-1.0 - off(0.1), 1.0)
+        , xlim=c(-lim_x, lim_x + off(0.2))
+        , ylim=c(-1.0 - off(0.2), 1.0)
         , xlab = sprintf("relative covariance(feature,t1)")
         , ylab = sprintf("correlation(feature,t1)")
         , main = main_label
@@ -62,8 +62,8 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
         )
         low_x <- -0.7 * lim_x
         high_x <- 0.7 * lim_x
-        text(x = low_x, y = -0.05, labels =  fctr_lvl_1)
-        text(x = high_x, y = 0.05, labels =  fctr_lvl_2)
+        text(x = low_x, y = -0.05, labels =  fctr_lvl_1, col = "blue")
+        text(x = high_x, y = 0.05, labels =  fctr_lvl_2, col = "red")
         if ( x_show_labels != "0" ) {
           my_loadp <- loadp
           my_loado <- loado
@@ -77,10 +77,15 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
           n_labels <- min( n_labels, (1 + length(loadp)) / 2 )
           labels_to_show <- c(
             names(head(sort(my_loadp),n = n_labels))
-          , names(head(sort(my_loado),n = n_labels))
           , names(tail(sort(my_loadp),n = n_labels))
-          , names(tail(sort(my_loado),n = n_labels))
           )
+          if ( x_show_loado_labels ) {
+            labels_to_show <- c(
+              labels_to_show
+            , names(head(sort(my_loado),n = n_labels))
+            , names(tail(sort(my_loado),n = n_labels))
+            )
+          }
           labels <- unname(sapply( X = tsv1$featureID, FUN = function(x) if( x %in% labels_to_show ) x else "" ))
           text(
             y = plus_cor - 0.013
@@ -164,6 +169,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
   # matchingC is one of { "none", "wildcard", "regex" }
   matchingC <- calc_env$matchingC
   labelFeatures <- calc_env$labelFeatures
+  labelOrthoFeatures <- calc_env$labelOrthoFeatures
 
   # arg/env checking
   if (!(facC %in% names(smpl_metadata))) {
@@ -297,6 +303,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
         , x_algorithm   = algoC
         , x_prefix      = if (pairSigFeatOnly) "Significantly contrasting features" else "Significant features"
         , x_show_labels = labelFeatures
+        , x_show_loado_labels = labelOrthoFeatures
         , x_progress    = progress_action
         , x_env         = calc_env
         )
@@ -352,6 +359,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
           , x_algorithm   = algoC
           , x_prefix      = if (pairSigFeatOnly) "Significantly contrasting features" else "Significant features"
           , x_show_labels = labelFeatures
+          , x_show_loado_labels = labelOrthoFeatures
           , x_progress    = progress_action
           , x_env         = calc_env
           )
@@ -404,6 +412,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
               , x_algorithm   = algoC
               , x_prefix      = "Features"
               , x_show_labels = labelFeatures
+              , x_show_loado_labels = labelOrthoFeatures
               , x_progress    = progress_action
               , x_env         = calc_env
               )
@@ -448,6 +457,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
             , x_algorithm   = algoC
             , x_prefix      = "Features"
             , x_show_labels = labelFeatures
+            , x_show_loado_labels = labelOrthoFeatures
             , x_progress    = progress_action
             , x_env         = calc_env
             )

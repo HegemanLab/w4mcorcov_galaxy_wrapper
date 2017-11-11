@@ -1,4 +1,4 @@
-<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.3">
+<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.4">
 
   <description>OPLS-DA Contrasts of Univariate Results</description>
   
@@ -23,6 +23,7 @@
     levCSV '$levCSV'
     matchingC '$matchingC'
     labelFeatures '$labelFeatures'
+    labelOrthoFeatures '$labelOrthoFeatures'
     contrast_detail '$contrast_detail'
     contrast_corcov '$contrast_corcov'
     contrast_salience '$contrast_salience'
@@ -79,7 +80,15 @@
       <option value="wildcard" selected="true">use wild-cards for matching level-names</option>
       <option value="regex">use regular expressions for matching level-names</option>
     </param>
-    <param name="labelFeatures" type="text" value="3" label="Number of features having extreme loadings to label on cov-vs.-cor plot" help="Specify the number of features at each of the four loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features; this choice has no effect on the OPLS-DA loadings plot."/>
+    <param name="labelFeatures" type="text" value="3" label="Number of features having extreme loadings to label on cov-vs.-cor plot" help="Specify the number of features at each of the loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features; this choice has no effect on the OPLS-DA loadings plot."/>
+    <param
+      name="labelOrthoFeatures"
+      type="boolean"
+      checked="false"
+      truevalue="TRUE"
+      falsevalue="FALSE"
+      label="label orthogonal features"
+      help="When labeling only extreme features in the cor-vs.-cov plot, use 'yes' to label extreme orthogonal features (both loado and loadp); the default value 'no' labels only extreme features along the parallel projection (loadp).  Choosing 'yes' may clutter the plot."/>
   </inputs>
 
   <outputs>
@@ -120,7 +129,8 @@
       <param name="tesC" value="kruskal"/>
       <param name="facC" value="k10"/>
       <param name="pairSigFeatOnly" value="FALSE"/>
-      <param name="labelFeatures" value="TRUE"/>
+      <param name="labelFeatures" value="3"/>
+      <param name="labelOrthogonalFeatures" value="FALSE"/>
       <param name="levCSV" value="k[12],k[3-4]"/>
       <param name="matchingC" value="regex"/>
       <output name="contrast_corcov">
@@ -183,7 +193,8 @@
       <param name="tesC" value="kruskal"/>
       <param name="facC" value="k10"/>
       <param name="pairSigFeatOnly" value="TRUE"/>
-      <param name="labelFeatures" value="TRUE"/>
+      <param name="labelFeatures" value="3"/>
+      <param name="labelOrthogonalFeatures" value="TRUE"/>
       <param name="levCSV" value="k[12],k[3-4]"/>
       <param name="matchingC" value="regex"/>
       <output name="contrast_corcov">
@@ -244,7 +255,8 @@
       <param name="tesC" value="none"/>
       <param name="facC" value="k10"/>
       <param name="pairSigFeatOnly" value="TRUE"/>
-      <param name="labelFeatures" value="FALSE"/>
+      <param name="labelFeatures" value="3"/>
+      <param name="labelOrthogonalFeatures" value="FALSE"/>
       <param name="levCSV" value="k[12],k[3-4]"/>
       <param name="matchingC" value="regex"/>
       <output name="contrast_corcov">
@@ -417,6 +429,14 @@ Parameters
 
 [IN] Level-name matching
   | Indicator of **how levels are to be specified generically** (if at all) - wild cards, regular expressions, or none (no generic matching).
+  |
+
+[IN] Label how many extreme features
+  | Specify the number of features at each of the loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features; this choice has no effect on the OPLS-DA loadings plot.
+  |
+
+[IN] Label features with extreme loado
+  | If the previous parameter has limited the the number of features to be labeled at each of the loading-extremes, then the extreme values for both loado and loadp will be labeled when this parameter is set to 'yes'; otherwise (in the default case) only extreme values for loadp will be lableld.  The default was chosen to make the plot less cluttered.
   |
 
 [OUT] Contrast-detail output PDF
@@ -623,6 +643,11 @@ OPLS-DA\ :superscript:`®`, SIMCA\ :superscript:`®`, and S-PLOT\ :superscript:`
 
 Release notes
 -------------
+
+0.98.4
+
+- bug fix: fit feature-labels within clipping region of cor-vs.cov plot
+- new feature: optionally (and by default) suppress labels for features with extreme orthogonal loadings
 
 0.98.3
 

@@ -34,7 +34,7 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
         lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
         covariance <- covariance / lim_x
         lim_x <- 1.2
-        main_label <- sprintf("%s for levels %s versus %s", x_prefix, fctr_lvl_1, fctr_lvl_2)
+        main_label <- sprintf("%s for level %s versus %s", x_prefix, fctr_lvl_1, fctr_lvl_2)
         main_cex <- min(1.0, 46.0/nchar(main_label))
         # "It is generally accepted that a variable should be selected if vj>1, [27–29],
         #   but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]."
@@ -50,8 +50,8 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
           y = plus_cor
         , x = plus_cov
         , type="p"
-        , xlim=c(-lim_x, lim_x + off(0.2))
-        , ylim=c(-1.0 - off(0.2), 1.0)
+        , xlim=c( -lim_x - off(0.2), lim_x + off(0.2) )
+        , ylim=c( -1.0   - off(0.2), 1.0   + off(0.2) )
         , xlab = sprintf("relative covariance(feature,t1)")
         , ylab = sprintf("correlation(feature,t1)")
         , main = main_label
@@ -90,9 +90,9 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
           text(
             y = plus_cor - 0.013
           , x = plus_cov + 0.020
-          , cex = 0.3
+          , cex = 0.4
           , labels = labels
-          , col = rgb(blue = blue, red = red, green = 0, alpha = 0.2 + 0.8 * alpha)
+          , col = rgb(blue = 0, red = 0, green = 0, alpha = 0.5) # rgb(blue = blue, red = red, green = 0, alpha = 0.2 + 0.8 * alpha)
           , srt = -30 # slant 30 degrees downward
           , adj = 0   # left-justified
           )

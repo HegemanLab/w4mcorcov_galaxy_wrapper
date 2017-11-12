@@ -1,4 +1,4 @@
-<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.4">
+<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.5">
 
   <description>OPLS-DA Contrasts of Univariate Results</description>
   
@@ -34,7 +34,7 @@
     <param name="sampleMetadata_in" label="Sample metadata file" type="data" format="tabular" help="Samples x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
     <param name="variableMetadata_in" label="Variable metadata file (ideally from Univariate)" type="data" format="tabular" help="Features x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
     <param name="facC" label="Factor of interest" type="text" help="REQUIRED - The name of the column of sampleMetadata corresponding to the qualitative variable used to define the contrasts.  Except when the 'Univariate Significance-test' is set to 'none', this also must be a portion of the column names in the variableMetadata file."/>
-    <param name="tesC" label="Univariate Significance-Test" type="select" help="Either 'none' or the name of the statistical test that was run by the 'Univariate' tool to produce the variableMetadata file; that name must also be a portion of the column names in that file.">
+    <param name="tesC" label="Univariate significance-test" type="select" help="Either 'none' or the name of the statistical test that was run by the 'Univariate' tool to produce the variableMetadata file; that name must also be a portion of the column names in that file.">
       <option value="none">none - Display all features from variableMetadata (rather than choosing a subset based on significance in univariate testing)</option>
       <option value="ttest">ttest - Student's t-test (parametric test, qualitative factor with exactly 2 levels)</option>
       <option value="anova">anova - Analysis of variance (parametric test, qualitative factor with more than 2 levels)</option>
@@ -48,7 +48,7 @@
       truevalue="TRUE"
       falsevalue="FALSE"
       label="Retain only pairwise-significant features"
-      help="When 'none' is chosen, all features are included in the analysis.  Otherwise, when this option is set to 'Yes', analysis will be performed including only features that differ significantly for the pair of levels being contrasted; when set to 'No', any feature that varies significantly across all levels will be included (i.e., exclude any feature that is not significantly different across all levels).  See examples below."/>
+      help="When 'none' is chosen as the test, all features are included in the analysis (i. e., this parameter is ignored).  Otherwise, when this option is set to 'Yes', analysis will be performed including only features that differ significantly for the pair of levels being contrasted; when set to 'No', any feature that varies significantly across all levels will be included (i.e., exclude any feature that is not significantly different across all levels).  See examples below."/>
     <param name="levCSV" label="Levels of interest" type="text" value = "*" help="Comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; levels must be non-numeric; may include wild cards or regular expressions.  Note that extra space characters will affect results - 'a,b' is correct, but 'a , b' is not and may fail or give different results.">
       <sanitizer>
         <valid initial="string.letters">
@@ -75,25 +75,25 @@
         </valid>
       </sanitizer>
     </param>
-    <param name="matchingC" label="Level-name matching" type="select" help="How to specify level-names generically (if at all).">
+    <param name="matchingC" label="Level-name matching" type="select" help="How to specify level-names generically. (See help below for details on using wild cards or regular expressions.)">
       <option value="none">do no generic matching (default)</option>
       <option value="wildcard" selected="true">use wild-cards for matching level-names</option>
       <option value="regex">use regular expressions for matching level-names</option>
     </param>
-    <param name="labelFeatures" type="text" value="3" label="Number of features having extreme loadings to label on cov-vs.-cor plot" help="Specify the number of features at each of the loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features; this choice has no effect on the OPLS-DA loadings plot."/>
+    <param name="labelFeatures" type="text" value="3" label="How many features having extreme loadings should be labelled on cov-vs.-cor plot" help="Specify the number of features at each of the loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features or '0' to label no features; this choice has no effect on the OPLS-DA loadings plot."/>
     <param
       name="labelOrthoFeatures"
       type="boolean"
       checked="false"
       truevalue="TRUE"
       falsevalue="FALSE"
-      label="label orthogonal features"
-      help="When labeling only extreme features in the cor-vs.-cov plot, use 'yes' to label extreme orthogonal features (both loado and loadp); the default value 'no' labels only extreme features along the parallel projection (loadp).  Choosing 'yes' may clutter the plot."/>
+      label="Label features having extreme orthogonal loadings"
+      help="When using the preceding parameter to label only features at the loading-extremess in the cor-vs.-cov plot, use 'no' here to label only features having extreme parallel loadings (loadp); this is the default.  Choose 'yes' to add labels also to features having extreme orthogonal loadings (both loado and loadp); this may clutter the plot."/>
   </inputs>
 
   <outputs>
     <!--
-      pdf1: summaries of each contrasts, clearly labeled by level=pair name
+      pdf1: summaries of each contrasts, clearly labelled by level=pair name
         * first PCA score-plot
         * then PLS score-plot
         * then PLS S-PLOT; color in red features with VIP > 1; color in grey any non-pairwise-significant features, if these are included
@@ -345,8 +345,8 @@ The purpose of the 'PLS-DA Contrasts' tool is to visualize GC-MS or LC-MS featur
 The W4M 'Univariate' tool (Thévenot *et al.*, 2015) adds the results of family-wise corrected pairwise significance-tests as columns of the **variableMetadata** dataset.
 For instance, suppose that you ran Kruskal-Wallis testing for a column named 'cluster' in sampleMetadata that has values 'k1' and 'k2' and at least one other value.
 
-- A column of variableMetadata would be labeled 'cluster_kruskal_sig' and would have values '1' and '0'; when the samples are grouped by 'cluster', '1' means that there is strong evidence against the hypothesis that there is no difference among the intensities for the feature across all sample-groups.
-- A column of variableMetadata would be labeled 'cluster_kruskal_k1.k2_sig' and would have values '1' and '0', where '1' means that there is significant evidence against the hypothesis that samples from sampleMetadata whose 'cluster' column contains 'k1' or 'k2' have the same intensity for that feature.
+- A column of variableMetadata would be labelled 'cluster_kruskal_sig' and would have values '1' and '0'; when the samples are grouped by 'cluster', '1' means that there is strong evidence against the hypothesis that there is no difference among the intensities for the feature across all sample-groups.
+- A column of variableMetadata would be labelled 'cluster_kruskal_k1.k2_sig' and would have values '1' and '0', where '1' means that there is significant evidence against the hypothesis that samples from sampleMetadata whose 'cluster' column contains 'k1' or 'k2' have the same intensity for that feature.
 
 The 'PLS-DA Contrasts' tool produces graphics and data for OPLS-DA contrasts of feature-intensities between significantly different pairs of factor-levels.  For each factor-level, the tool performs a contrast with all other factor-levels combined and then separately with each other factor-level.  
 
@@ -354,7 +354,14 @@ The 'PLS-DA Contrasts' tool produces graphics and data for OPLS-DA contrasts of 
 
 Although this tool can be used in a purely exploratory manner by supplying the variableMetadata file without the columns added by the W4M 'Univariate' tool, **the preferred workflow is to use univariate testing to exclude features that are not significantly different and use OPLS-DA to visualize the differences identified in univariate testing** (Thévenot *et al.*, 2015); an appropriate exception would be to visualize contrasts of a specific list of metabolites.
 
-It must be stressed that there may be no *single* definitive computational approach to select features that are reliable biomarkers, especially from a small number of samples or experiments.  A few possible choices are examining extreme values on S-PLOTs, examining "variable importance in projection VIP for OPLS-DA" (Galindo-Prieto *et al.* 2014), and examining a feature's "selectivity ratio" (Rajalahti *et al.*, 2009).  In this spirit, this tool reports the S-PLOT covariance and correlation (Wiklund *op. cit.*) and VIP metrics, and it introduces an informal "salience" metric to flag features that may merit attention without dimensional reduction; future versions may add selectivity ratio.  
+It must be stressed that there may be no *single* definitive computational approach to select features that are reliable biomarkers, especially from a small number of samples or experiments.  A few possible choices are:
+
+- picking features with maximum loadings along the projection parallel to the predictor (loadp),
+- examining extreme values on S-PLOTs (for which covariance is linearly related to loadp),
+- examining "variable importance in projection VIP for OPLS-DA" (Galindo-Prieto *et al.* 2014), and
+- examining a feature's "selectivity ratio" (Rajalahti *et al.*, 2009).
+
+In this spirit, this tool reports the S-PLOT covariance and correlation (Wiklund *op. cit.*) and VIP metrics, and it introduces an informal "salience" metric to flag features that may merit attention without dimensional reduction; future versions may add selectivity ratio.  
 
 For a more systematic approach to biomarker identification, please consider the W4M 'biosigner' tool (Rinuardo *et al.* 2016), which applies three different identification metrics to the selection process.
 
@@ -436,7 +443,7 @@ Parameters
   |
 
 [IN] Label features with extreme loado
-  | If the previous parameter has limited the the number of features to be labeled at each of the loading-extremes, then the extreme values for both loado and loadp will be labeled when this parameter is set to 'yes'; otherwise (in the default case) only extreme values for loadp will be lableld.  The default was chosen to make the plot less cluttered.
+  | If the previous parameter has limited the the number of features to be labelled at each of the loading-extremes, then the extreme values for both loado and loadp will be labelled when this parameter is set to 'yes'; otherwise (in the default case) only extreme values for loadp will be lableld.  The default was chosen to make the plot less cluttered.
   |
 
 [OUT] Contrast-detail output PDF
@@ -644,7 +651,7 @@ OPLS-DA\ :superscript:`®`, SIMCA\ :superscript:`®`, and S-PLOT\ :superscript:`
 Release notes
 -------------
 
-0.98.4
+0.98.5
 
 - bug fix: fit feature-labels within clipping region of cor-vs.cov plot
 - new feature: optionally (and by default) suppress labels for features with extreme orthogonal loadings
@@ -653,7 +660,7 @@ Release notes
 
 - add support for two-level factors
 - add adjusted mz and rt to output tables
-- allow explicitly setting the number of features with extreme loadings to be labeled on the correlation vs. covariance plot
+- allow explicitly setting the number of features with extreme loadings to be labelled on the correlation vs. covariance plot
 - add loadings to corcov table
 
 0.98.2
@@ -663,6 +670,7 @@ Release notes
 
   ]]></help>
   <citations>
+    <citation type="doi">10.5281/zenodo.1034784</citation>
     <!-- Galindo_Prieto_2014 Variable influence on projection (VIP) for OPLS -->
     <citation type="doi">10.1002/cem.2627</citation>
     <!-- Giacomoni_2014 W4M 2.5 -->

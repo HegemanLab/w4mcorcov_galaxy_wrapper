@@ -7,7 +7,7 @@ center_colmeans <- function(x) {
 #### OPLS-DA
 algoC <- "nipals"
 
-do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_prefix, x_show_labels, x_show_loado_labels, x_progress = print, x_env) {
+do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_prefix, x_show_labels, x_show_loado_labels, x_progress = print, x_env, x_crossval_i) {
   off <- function(x) if (x_show_labels == "0") 0 else x
   if (x_is_match && ncol(x_dataMatrix) > 0 && length(unique(x_predictor))> 1) {
     my_oplsda <- opls(
@@ -18,6 +18,7 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
       , orthoI = if (ncol(x_dataMatrix) > 1) 1 else 0
       , printL = FALSE
       , plotL  = FALSE
+      , crossvalI = x_crossval_i
       )
     my_oplsda_suppLs_y_levels <- levels(as.factor(my_oplsda@suppLs$y))
     fctr_lvl_1 <- my_oplsda_suppLs_y_levels[1]
@@ -305,6 +306,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
         , x_show_labels = labelFeatures
         , x_show_loado_labels = labelOrthoFeatures
         , x_progress    = progress_action
+	, x_crossval_i  = min(7, length(chosen_samples))
         , x_env         = calc_env
         )
         if ( is.null(my_cor_cov) ) {
@@ -361,6 +363,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
           , x_show_labels = labelFeatures
           , x_show_loado_labels = labelOrthoFeatures
           , x_progress    = progress_action
+	  , x_crossval_i  = min(7, length(chosen_samples))
           , x_env         = calc_env
           )
           if ( is.null(my_cor_cov) ) {
@@ -414,6 +417,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
               , x_show_labels = labelFeatures
               , x_show_loado_labels = labelOrthoFeatures
               , x_progress    = progress_action
+	      , x_crossval_i  = min(7, length(chosen_samples))
               , x_env         = calc_env
               )
               if ( is.null(my_cor_cov) ) {
@@ -459,6 +463,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
             , x_show_labels = labelFeatures
             , x_show_loado_labels = labelOrthoFeatures
             , x_progress    = progress_action
+	    , x_crossval_i  = min(7, length(chosen_samples))
             , x_env         = calc_env
             )
             if ( is.null(my_cor_cov) ) {

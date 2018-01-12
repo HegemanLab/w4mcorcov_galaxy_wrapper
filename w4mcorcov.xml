@@ -1,4 +1,4 @@
-<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.5">
+﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.6">
 
   <description>OPLS-DA Contrasts of Univariate Results</description>
   
@@ -650,6 +650,10 @@ OPLS-DA\ :superscript:`®`, SIMCA\ :superscript:`®`, and S-PLOT\ :superscript:`
 
 Release notes
 -------------
+
+0.98.6
+
+- bug fix: set crossvalI to the number of samples when the there are fewer than seven samples.
 
 0.98.5
 

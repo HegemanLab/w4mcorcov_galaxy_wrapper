@@ -653,7 +653,7 @@ Release notes
 
 0.98.6
 
-- bug fix: set crossvalI to the number of samples when the there are fewer than seven samples.
+- bug fix: set 'crossvalI' param (of R function 'ropls::opls') to the number of samples when the there are fewer than seven samples.
 
 0.98.5
 

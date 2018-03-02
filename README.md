@@ -3,9 +3,9 @@
 [Repository 'w4mcorcov' in Galaxy Toolshed](https://toolshed.g2.bx.psu.edu/repository?repository_id=96046af0e175c57d)
 
 
-# w4mcorcov_galaxy_wrapper
+# w4mcorcov\_galaxy\_wrapper
 
-This Galaxy tool presents the SIMCA® OPLS-DA® S-PLOT® along with several plots from [the Bioconductor `ropls` package](https://dx.doi.org/10.18129/B9.bioc.ropls).
+This Galaxy tool presents an emulation of the SIMCA® OPLS-DA® S-PLOT® along with several plots from [the Bioconductor `ropls` package](https://dx.doi.org/10.18129/B9.bioc.ropls).
 (OPLS-DA®, SIMCA®, and S-PLOT® are registered trademarks of the Umetrics company, [http://umetrics.com/about-us/trademarks](http://umetrics.com/about-us/trademarks).)
 This tool plots the correlation of each feature with the OPLS-DA projection of multivariate data for two classes of data against the covariance of the same.
 

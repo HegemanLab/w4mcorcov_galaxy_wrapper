@@ -9,7 +9,7 @@ algoC <- "nipals"
 
 do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_prefix, x_show_labels, x_show_loado_labels, x_progress = print, x_env, x_crossval_i) {
   off <- function(x) if (x_show_labels == "0") 0 else x
-  if (x_is_match && ncol(x_dataMatrix) > 0 && length(unique(x_predictor))> 1) {
+  if ( x_is_match && ncol(x_dataMatrix) > 0 && length(unique(x_predictor))> 1 && x_crossval_i < nrow(x_dataMatrix) ) {
     my_oplsda <- opls(
         x      = x_dataMatrix
       , y      = x_predictor
@@ -121,14 +121,18 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
     for (my_type in my_typevc) {
       if (my_type %in% typeVc) {
         # print(sprintf("plotting type %s", my_type))
-        plot(
-          x            = my_oplsda
-        , typeVc       = my_type
-        , parCexN      = 0.4
-        , parDevNewL   = FALSE
-        , parLayL      = TRUE
-        , parEllipsesL = TRUE
+        tryCatch({
+          plot(
+            x            = my_oplsda
+          , typeVc       = my_type
+          , parCexN      = 0.4
+          , parDevNewL   = FALSE
+          , parLayL      = TRUE
+          , parEllipsesL = TRUE
         )
+        }, error = function(e) {
+          x_progress(sprintf("factor level %s or %s may have only one sample", fctr_lvl_1, fctr_lvl_2))
+        })
       } else {
         # print("plotting dummy graph")
         plot(x=1, y=1, xaxt="n", yaxt="n", xlab="", ylab="", type="n")
@@ -306,7 +310,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
         , x_show_labels = labelFeatures
         , x_show_loado_labels = labelOrthoFeatures
         , x_progress    = progress_action
-	, x_crossval_i  = min(7, length(chosen_samples))
+        , x_crossval_i  = min(7, length(chosen_samples))
         , x_env         = calc_env
         )
         if ( is.null(my_cor_cov) ) {
@@ -363,7 +367,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
           , x_show_labels = labelFeatures
           , x_show_loado_labels = labelOrthoFeatures
           , x_progress    = progress_action
-	  , x_crossval_i  = min(7, length(chosen_samples))
+          , x_crossval_i  = min(7, length(chosen_samples))
           , x_env         = calc_env
           )
           if ( is.null(my_cor_cov) ) {
@@ -417,7 +421,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
               , x_show_labels = labelFeatures
               , x_show_loado_labels = labelOrthoFeatures
               , x_progress    = progress_action
-	      , x_crossval_i  = min(7, length(chosen_samples))
+              , x_crossval_i  = min(7, length(chosen_samples))
               , x_env         = calc_env
               )
               if ( is.null(my_cor_cov) ) {
@@ -463,7 +467,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
             , x_show_labels = labelFeatures
             , x_show_loado_labels = labelOrthoFeatures
             , x_progress    = progress_action
-	    , x_crossval_i  = min(7, length(chosen_samples))
+            , x_crossval_i  = min(7, length(chosen_samples))
             , x_env         = calc_env
             )
             if ( is.null(my_cor_cov) ) {

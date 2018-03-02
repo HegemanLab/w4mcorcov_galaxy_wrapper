@@ -6,7 +6,6 @@
 # w4mcorcov\_galaxy\_wrapper
 
 This Galaxy tool presents an emulation of the SIMCA® OPLS-DA® S-PLOT® along with several plots from [the Bioconductor `ropls` package](https://dx.doi.org/10.18129/B9.bioc.ropls).
-(OPLS-DA®, SIMCA®, and S-PLOT® are registered trademarks of the Umetrics company, [http://umetrics.com/about-us/trademarks](http://umetrics.com/about-us/trademarks).)
 This tool plots the correlation of each feature with the OPLS-DA projection of multivariate data for two classes of data against the covariance of the same.
 
 The original plot which this tool emulates is described in:
@@ -15,3 +14,4 @@ The original plot which this tool emulates is described in:
 # notes and thoughts
 
 1. For lines from the corcov dataset for a single contrast (i.e., with a common combination of factorLevel1 and factorLevel2), there is a linear relationship between correlation and loadp; correlation has the advantage that it is more directly interpretable regarding how consistently a feature varies with the predictor.
+2. OPLS-DA®, SIMCA®, and S-PLOT® are registered trademarks of the Umetrics company, [http://umetrics.com/about-us/trademarks](http://umetrics.com/about-us/trademarks).

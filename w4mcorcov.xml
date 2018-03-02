@@ -1,4 +1,4 @@
-﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.6">
+﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.7">
 
   <description>OPLS-DA Contrasts of Univariate Results</description>
   
@@ -326,7 +326,7 @@
 Motivation
 ----------
 
-OPLS-DA\ :superscript:`®` and the SIMCA\ :superscript:`®` S-PLOT\ :superscript:`®` (Wiklund *et al.*, 2008) may be employed to draw attention to metabolomic features that are potential biomarkers, i.e. features that are potentially useful to discriminate to which class a sample should be assigned (e.g. Sun *et al.*, 2016).  Workflow4Metabolomics (W4M, Giacomoni *et al.*, 2014, Guitton *et al.*, 2017) provides a suite of tools for preprocessing and statistical analysis of LC-MS, GC-MS, and NMR metabolomics data; however, it does not (as of release 3.0) include a tool for making the equivalent of an S-PLOT.
+OPLS-DA and the SIMCA S-PLOT (Wiklund *et al.*, 2008) may be employed to draw attention to metabolomic features that are potential biomarkers, i.e. features that are potentially useful to discriminate to which class a sample should be assigned (e.g. Sun *et al.*, 2016).  Workflow4Metabolomics (W4M, Giacomoni *et al.*, 2014, Guitton *et al.*, 2017) provides a suite of tools for preprocessing and statistical analysis of LC-MS, GC-MS, and NMR metabolomics data; however, it does not (as of release 3.0) include a tool for making the equivalent of an S-PLOT.
 
 The S-PLOT is computed from mean-centered, pareto-scaled data.  This plot presents the correlation of the first score vector from an OPLS-DA model with the sample-variables used to produce that model versus the covariance of the scores with the sample-variables.  For OPLS-DA, the first score vector represents the variation among the sample-variables that is related to the predictor (i.e., the contrasting factor).
 
@@ -645,11 +645,15 @@ Working examples
 Trademarks
 ----------
 
-OPLS-DA\ :superscript:`®`, SIMCA\ :superscript:`®`, and S-PLOT\ :superscript:`®` are registered trademarks of the Umetrics company.  http://umetrics.com/about-us/trademarks
+OPLS-DA, SIMCA, and S-PLOT are registered trademarks of the Umetrics company.  http://umetrics.com/about-us/trademarks
 
 
 Release notes
 -------------
+
+0.98.7
+
+- bug fix: handle case of a treatment level with only one sample.
 
 0.98.6
 

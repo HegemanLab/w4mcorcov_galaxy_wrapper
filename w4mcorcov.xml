@@ -342,7 +342,7 @@ Description
 
 The purpose of the 'PLS-DA Contrasts' tool is to visualize GC-MS or LC-MS features that are possible biomarkers.
 
-The W4M 'Univariate' tool (Thévenot *et al.*, 2015) adds the results of family-wise corrected pairwise significance-tests as columns of the **variableMetadata** dataset.
+The W4M 'Univariate' tool (Th]]>&#233;<![CDATA[venot *et al.*, 2015) adds the results of family-wise corrected pairwise significance-tests as columns of the **variableMetadata** dataset.
 For instance, suppose that you ran Kruskal-Wallis testing for a column named 'cluster' in sampleMetadata that has values 'k1' and 'k2' and at least one other value.
 
 - A column of variableMetadata would be labelled 'cluster_kruskal_sig' and would have values '1' and '0'; when the samples are grouped by 'cluster', '1' means that there is strong evidence against the hypothesis that there is no difference among the intensities for the feature across all sample-groups.
@@ -352,7 +352,7 @@ The 'PLS-DA Contrasts' tool produces graphics and data for OPLS-DA contrasts of 
 
 **Along the left-to-right axis, the plots show the supervised projection of the variation explained by the predictor** (i.e., the factor specified when invoking the tool); **the top-to-bottom axis displays the variation that is orthogonal to the predictor level** (i.e., independent of it).
 
-Although this tool can be used in a purely exploratory manner by supplying the variableMetadata file without the columns added by the W4M 'Univariate' tool, **the preferred workflow is to use univariate testing to exclude features that are not significantly different and use OPLS-DA to visualize the differences identified in univariate testing** (Thévenot *et al.*, 2015); an appropriate exception would be to visualize contrasts of a specific list of metabolites.
+Although this tool can be used in a purely exploratory manner by supplying the variableMetadata file without the columns added by the W4M 'Univariate' tool, **the preferred workflow is to use univariate testing to exclude features that are not significantly different and use OPLS-DA to visualize the differences identified in univariate testing** (Th]]>&#233;<![CDATA[venot *et al.*, 2015); an appropriate exception would be to visualize contrasts of a specific list of metabolites.
 
 It must be stressed that there may be no *single* definitive computational approach to select features that are reliable biomarkers, especially from a small number of samples or experiments.  A few possible choices are:
 
@@ -450,8 +450,8 @@ Parameters
   | Several plots for each two-projection OPLS-DA analysis:
 
 - (top-left) **correlation-versus-covariance plot** of OPLS-DA results (a work-alike for the S-PLOT, computed using formula in Supplement to Wiklund, *op. cit.*); point-color becomes saturated as the "variable importance in projection to the predictive components" (VIP\ :subscript:`4,p` from Galindo-Prieto *et al.* 2014) ranges from 0.83 and 1.21 (Mehmood *et al.* 2012)
-- (bottom-left) **model-overview plot** for the two projections; grey bars are the correlation coefficient for the fitted data; black bars indicate performance in cross-validation tests (Thévenot, 2017)
-- (top-right) OPLS-DA **scores-plot** for the two projections (Thévenot *et al.*, 2015)
+- (bottom-left) **model-overview plot** for the two projections; grey bars are the correlation coefficient for the fitted data; black bars indicate performance in cross-validation tests (Th]]>&#233;<![CDATA[venot, 2017)
+- (top-right) OPLS-DA **scores-plot** for the two projections (Th]]>&#233;<![CDATA[venot *et al.*, 2015)
 - (bottom-right) OPLS-DA **loadings-plot** for the two projections (*ibid.*)
 
 [OUT] Contrast Correlation-Covarinace data TABULAR
@@ -693,7 +693,7 @@ Release notes
     <citation type="doi">10.3389/fmolb.2016.00026</citation>
     <!-- Sun_2016 Urinary Biomarkers for adolescent idiopathic scoliosis -->
     <citation type="doi">10.1038/srep22274</citation>
-    <!-- Th_venot_2015 Urinary metabolome statistics -->
+    <!-- Thevenot_2015 Urinary metabolome statistics -->
     <citation type="doi">10.1021/acs.jproteome.5b00354</citation>
     <!-- ropls package -->
     <citation type="bibtex"><![CDATA[

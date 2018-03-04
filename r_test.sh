@@ -15,9 +15,12 @@ tesC=kruskal
 facC=k10
 # Retain only pairwise-significant features" help="When true, analyze only features that differ significantly for the pair of levels being contrasted; when false, include any feature that varies significantly across all levels.
 pairSigFeatOnly=TRUE
+# Number of features having extreme loadings
 labelFeatures=ALL
+# la bel features having extreme orthogonal loadings
+labelOrthoFeatures=TRUE
 # comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions
-levCSV=k[12],k[3-4]
+levCSV="k[12],k[3-4]"
 # how to specify levels generically
 matchingC=regex
 #   pdf1: contrast grid
@@ -53,13 +56,16 @@ bash -c " cd $__tool_directory__; \
   pairSigFeatOnly '$pairSigFeatOnly' \
   levCSV '$levCSV' \
   matchingC '$matchingC' \
-  contrast_detail '${OUTPUT}_$contrast_detail' \
-  contrast_corcov '${OUTPUT}_$contrast_corcov' \
-  contrast_salience '${OUTPUT}_$contrast_salience' \
+  contrast_detail '${OUTPUT}_${contrast_detail}' \
+  contrast_corcov '${OUTPUT}_${contrast_corcov}' \
+  contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
+  labelOrthoFeatures '$labelOrthoFeatures' \
   "
-diff ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov    | head
-diff ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience  | head
+echo diff corcov
+diff ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov}    | sed -n -e '1,30 p'
+echo diff salience
+diff ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}  | sed -n -e '1,30 p'
 
 
 # Repeat the test with pairSigFeatOnly FALSE
@@ -71,6 +77,7 @@ contrast_salience=contrast_salience_all.tsv
 matchingC=wildcard
 levCSV=*
 labelFeatures=5
+labelOrthoFeatures=FALSE
 
 # Run the script
 bash -c " cd $__tool_directory__; \
@@ -83,13 +90,16 @@ bash -c " cd $__tool_directory__; \
   pairSigFeatOnly '$pairSigFeatOnly' \
   levCSV '$levCSV' \
   matchingC '$matchingC' \
-  contrast_detail '${OUTPUT}_$contrast_detail' \
-  contrast_corcov '${OUTPUT}_$contrast_corcov' \
-  contrast_salience '${OUTPUT}_$contrast_salience' \
+  contrast_detail '${OUTPUT}_${contrast_detail}' \
+  contrast_corcov '${OUTPUT}_${contrast_corcov}' \
+  contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
+  labelOrthoFeatures '$labelOrthoFeatures' \
   "
-diff ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov    | head
-diff ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience  | head
+echo diff corcov
+diff ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov}    | sed -n -e '1,30 p'
+echo diff salience
+diff ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}  | sed -n -e '1,30 p'
 
 
 # Repeat the test with test none
@@ -102,6 +112,7 @@ contrast_salience=contrast_salience_global.tsv
 matchingC=regex
 # comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions
 levCSV=k[12],k[3-4]
+labelOrthoFeatures=TRUE
 
 # Run the script
 bash -c " cd $__tool_directory__; \
@@ -114,13 +125,16 @@ bash -c " cd $__tool_directory__; \
   pairSigFeatOnly '$pairSigFeatOnly' \
   levCSV '$levCSV' \
   matchingC '$matchingC' \
-  contrast_detail '${OUTPUT}_$contrast_detail' \
-  contrast_corcov '${OUTPUT}_$contrast_corcov' \
-  contrast_salience '${OUTPUT}_$contrast_salience' \
+  contrast_detail '${OUTPUT}_${contrast_detail}' \
+  contrast_corcov '${OUTPUT}_${contrast_corcov}' \
+  contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
+  labelOrthoFeatures '$labelOrthoFeatures' \
   "
-diff ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov    | head
-diff ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience  | head
+echo diff corcov
+diff ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov}    | sed -n -e '1,30 p'
+echo diff salience
+diff ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}  | sed -n -e '1,30 p'
 
 
 levCSV=low,high
@@ -143,11 +157,15 @@ bash -c " cd $__tool_directory__; \
   pairSigFeatOnly '$pairSigFeatOnly' \
   levCSV '$levCSV' \
   matchingC '$matchingC' \
-  contrast_detail '${OUTPUT}_$contrast_detail' \
-  contrast_corcov '${OUTPUT}_$contrast_corcov' \
-  contrast_salience '${OUTPUT}_$contrast_salience' \
+  contrast_detail '${OUTPUT}_${contrast_detail}' \
+  contrast_corcov '${OUTPUT}_${contrast_corcov}' \
+  contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
+  labelOrthoFeatures '$labelOrthoFeatures' \
   "
-diff ${EXPECTED}_$contrast_corcov   ${OUTPUT}_$contrast_corcov    | head
-diff ${EXPECTED}_$contrast_salience ${OUTPUT}_$contrast_salience  | head
+echo diff corcov
+diff ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov}    | sed -n -e '1,30 p'
+echo diff salience
+diff ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}  | sed -n -e '1,30 p'
+
 

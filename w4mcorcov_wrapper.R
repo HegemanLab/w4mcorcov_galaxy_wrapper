@@ -93,22 +93,6 @@ if ( !labelfeatures_check ) {
   quit(save = "no", status = 10, runLast = TRUE)
 }
 
-tsv_action_factory <- function(file, colnames, append) {
-  return (
-    function(tsv) {
-      write.table(
-        x = tsv
-      , file = file
-      , sep = "\t"
-      , quote = FALSE
-      , row.names = FALSE
-      , col.names = colnames
-      , append = append
-      )
-    }
-  )
-}
-
 corcov_tsv_colnames <- TRUE
 corcov_tsv_append   <- FALSE
 corcov_tsv_action <- function(tsv) {

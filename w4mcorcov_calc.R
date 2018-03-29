@@ -23,83 +23,105 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
     my_oplsda_suppLs_y_levels <- levels(as.factor(my_oplsda@suppLs$y))
     fctr_lvl_1 <- my_oplsda_suppLs_y_levels[1]
     fctr_lvl_2 <- my_oplsda_suppLs_y_levels[2]
-    my_cor_vs_cov <- cor_vs_cov(
-        matrix_x = x_dataMatrix
-      , ropls_x  = my_oplsda
-      )
-    with(
-      my_cor_vs_cov
-    , {
-        min_x <- min(covariance)
-        max_x <- max(covariance)
-        lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
-        covariance <- covariance / lim_x
-        lim_x <- 1.2
-        main_label <- sprintf("%s for level %s versus %s", x_prefix, fctr_lvl_1, fctr_lvl_2)
-        main_cex <- min(1.0, 46.0/nchar(main_label))
-        # "It is generally accepted that a variable should be selected if vj>1, [27–29],
-        #   but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]."
-        #   (Mehmood 2012 doi:10.1186/1748-7188-6-27)
-        vipco <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
-        alpha <- 0.1 + 0.4 * vipco
-        red  <- as.numeric(correlation > 0) * vipco
-        blue <- as.numeric(correlation < 0) * vipco
-        plus_cor <- correlation
-        plus_cov <- covariance
-        cex <- 0.75
-        plot(
-          y = plus_cor
-        , x = plus_cov
-        , type="p"
-        , xlim=c( -lim_x - off(0.2), lim_x + off(0.2) )
-        , ylim=c( -1.0   - off(0.2), 1.0   + off(0.2) )
-        , xlab = sprintf("relative covariance(feature,t1)")
-        , ylab = sprintf("correlation(feature,t1)")
-        , main = main_label
-        , cex.main = main_cex
-        , cex = cex
-        , pch = 16
-        , col = rgb(blue = blue, red = red, green = 0, alpha = alpha)
+    do_s_plot <- function(parallel_x) {
+      my_cor_vs_cov <- cor_vs_cov(
+          matrix_x   = x_dataMatrix
+        , ropls_x    = my_oplsda
+        , parallel_x = parallel_x
         )
-        low_x <- -0.7 * lim_x
-        high_x <- 0.7 * lim_x
-        text(x = low_x, y = -0.05, labels =  fctr_lvl_1, col = "blue")
-        text(x = high_x, y = 0.05, labels =  fctr_lvl_2, col = "red")
-        if ( x_show_labels != "0" ) {
-          my_loadp <- loadp
-          my_loado <- loado
-          names(my_loadp) <- tsv1$featureID
-          names(my_loado) <- tsv1$featureID
-          if ( x_show_labels == "ALL" ) {
-            n_labels <- length(loadp)
+      with(
+        my_cor_vs_cov
+      , {
+          min_x <- min(covariance)
+          max_x <- max(covariance)
+          lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
+          covariance <- covariance / lim_x
+          lim_x <- 1.2
+          main_label <- sprintf("%s for level %s versus %s", x_prefix, fctr_lvl_1, fctr_lvl_2)
+          main_cex <- min(1.0, 46.0/nchar(main_label))
+          # "It is generally accepted that a variable should be selected if vj>1, [27–29],
+          #   but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]."
+          #   (Mehmood 2012 doi:10.1186/1748-7188-6-27)
+          vipco <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
+          alpha <- 0.1 + 0.4 * vipco
+          red  <- as.numeric(correlation > 0) * vipco
+          blue <- as.numeric(correlation < 0) * vipco
+          plus_cor <- correlation
+          plus_cov <- covariance
+          cex <- 0.75
+          which_projection <- if (projection == 1) "t1" else "o1"
+          which_loading <- if (projection == 1) "parallel" else "orthogonal"
+          if (projection == 1) {
+            my_xlab <- "relative covariance(feature,t1)"
+            my_x <- plus_cov
+            my_ylab <- "correlation(feature,t1) [~ parallel loading]"
+            my_y <- plus_cor
+            my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
+            my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
           } else {
-            n_labels <- as.numeric(x_show_labels)
+            my_ylab <- "relative covariance(feature,to1)"
+            my_y <- plus_cov
+            my_ylim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
+            my_xlab <- "correlation(feature,to1) [~ orthogonal loading]"
+            my_x <- plus_cor
+            my_xlim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
           }
-          n_labels <- min( n_labels, (1 + length(loadp)) / 2 )
-          labels_to_show <- c(
-            names(head(sort(my_loadp),n = n_labels))
-          , names(tail(sort(my_loadp),n = n_labels))
+          plot(
+            y = my_y
+          , x = my_x
+          , type = "p"
+          , xlim = my_xlim
+          , ylim = my_ylim
+          , xlab = my_xlab
+          , ylab = my_ylab
+          , main = main_label
+          , cex.main = main_cex
+          , cex = cex
+          , pch = 16
+          , col = rgb(blue = blue, red = red, green = 0, alpha = alpha)
           )
-          if ( x_show_loado_labels ) {
+          low_x <- -0.7 * lim_x
+          high_x <- 0.7 * lim_x
+          text(x = low_x, y = -0.05, labels =  fctr_lvl_1, col = "blue")
+          text(x = high_x, y = 0.05, labels =  fctr_lvl_2, col = "red")
+          if ( x_show_labels != "0" ) {
+            my_loadp <- loadp
+            my_loado <- loado
+            names(my_loadp) <- tsv1$featureID
+            names(my_loado) <- tsv1$featureID
+            if ( x_show_labels == "ALL" ) {
+              n_labels <- length(loadp)
+            } else {
+              n_labels <- as.numeric(x_show_labels)
+            }
+            n_labels <- min( n_labels, (1 + length(loadp)) / 2 )
             labels_to_show <- c(
-              labels_to_show
-            , names(head(sort(my_loado),n = n_labels))
-            , names(tail(sort(my_loado),n = n_labels))
+              names(head(sort(my_loadp),n = n_labels))
+            , names(tail(sort(my_loadp),n = n_labels))
+            )
+            if ( x_show_loado_labels ) {
+              labels_to_show <- c(
+                labels_to_show
+              , names(head(sort(my_loado),n = n_labels))
+              , names(tail(sort(my_loado),n = n_labels))
+              )
+            }
+            labels <- unname(sapply( X = tsv1$featureID, FUN = function(x) if( x %in% labels_to_show ) x else "" ))
+            text(
+              y = plus_cor - 0.013
+            , x = plus_cov + 0.020
+            , cex = 0.4
+            , labels = labels
+            , col = rgb(blue = 0, red = 0, green = 0, alpha = 0.5) # rgb(blue = blue, red = red, green = 0, alpha = 0.2 + 0.8 * alpha)
+            , srt = -30 # slant 30 degrees downward
+            , adj = 0   # left-justified
             )
           }
-          labels <- unname(sapply( X = tsv1$featureID, FUN = function(x) if( x %in% labels_to_show ) x else "" ))
-          text(
-            y = plus_cor - 0.013
-          , x = plus_cov + 0.020
-          , cex = 0.4
-          , labels = labels
-          , col = rgb(blue = 0, red = 0, green = 0, alpha = 0.5) # rgb(blue = blue, red = red, green = 0, alpha = 0.2 + 0.8 * alpha)
-          , srt = -30 # slant 30 degrees downward
-          , adj = 0   # left-justified
-          )
         }
-      }
-    )
+      )
+      return (my_cor_vs_cov)
+    }
+    my_cor_vs_cov <- do_s_plot( parallel_x = TRUE )
     typeVc <- c("correlation",      # 1
                 "outlier",          # 2
                 "overview",         # 3
@@ -500,12 +522,13 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
 #     Wiklund_2008 doi:10.1021/ac0713510
 #     Galindo_Prieto_2014 doi:10.1002/cem.2627
 #     https://github.com/HegemanLab/extra_tools/blob/master/generic_PCA.R
-cor_vs_cov <- function(matrix_x, ropls_x) {
+cor_vs_cov <- function(matrix_x, ropls_x, parallel_x = TRUE) {
   x_class <- class(ropls_x)
   if ( !( as.character(x_class) == "opls" ) ) { # || !( attr(class(x_class),"package") == "ropls" ) ) 
     stop( "cor_vs_cov: Expected ropls_x to be of class ropls::opls but instead it was of class ", as.character(x_class) )
   }
   result <- list()
+  result$projection <- projection <- if (parallel_x) 1 else 2
   # suppLs$algoC - Character: algorithm used - "svd" for singular value decomposition; "nipals" for NIPALS
   if ( ropls_x@suppLs$algoC == "nipals") {
     # Equations (1) and (2) from *Supplement to* Wiklund 2008, doi:10.1021/ac0713510
@@ -540,8 +563,8 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
       }
     )
   }
-  result$correlation <- result$correlation[1,,drop = TRUE]
-  result$covariance  <- result$covariance[1,,drop = TRUE]
+  result$correlation <- result$correlation[ projection, , drop = TRUE ]
+  result$covariance  <- result$covariance [ projection, , drop = TRUE ]
 
   # Variant 4 of Variable Influence on Projection for OPLS from Galindo_Prieto_2014
   #    Length = number of features; labels = feature identifiers.  (The same is true for $correlation and $covariance.)
@@ -565,6 +588,7 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
   , factorLevel1        = result$level1
   , factorLevel2        = result$level2
   , greaterLevel        = greaterLevel
+  , projection          = result$projection
   , correlation         = result$correlation
   , covariance          = result$covariance
   , vip4p               = result$vip4p
@@ -574,6 +598,7 @@ cor_vs_cov <- function(matrix_x, ropls_x) {
   , row.names           = NULL
   )
   rownames(superresult$tsv1) <- superresult$tsv1$featureID
+  superresult$projection <- result$projection
   superresult$covariance <- result$covariance
   superresult$correlation <- result$correlation
   superresult$vip4p <- result$vip4p

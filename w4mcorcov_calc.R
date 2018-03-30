@@ -7,7 +7,7 @@ center_colmeans <- function(x) {
 #### OPLS-DA
 algoC <- "nipals"
 
-do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_prefix, x_show_labels, x_show_loado_labels, x_progress = print, x_env, x_crossval_i) {
+do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_prefix, x_show_labels, x_show_loado_labels = FALSE, x_progress = print, x_env, x_crossval_i) {
   off <- function(x) if (x_show_labels == "0") 0 else x
   if ( x_is_match && ncol(x_dataMatrix) > 0 && length(unique(x_predictor))> 1 && x_crossval_i < nrow(x_dataMatrix) ) {
     my_oplsda <- opls(
@@ -56,7 +56,6 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
             my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
             my_load_distal <- loadp
             my_load_proximal <- loado
-            my_feature_label_slant <- -30 # slant feature labels 30 degrees downward
             vipcp <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
             red  <- as.numeric(correlation > 0) * vipcp
             blue <- as.numeric(correlation < 0) * vipcp
@@ -72,13 +71,13 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
             my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
             my_load_distal <- loado
             my_load_proximal <- loadp
-            my_feature_label_slant <- -30 # -60 # slant feature labels 60 degrees downward
             vipco <- pmax(0, pmin(1,(vip4o-0.83)/(1.21-0.83)))
             alpha <- 0.1 + 0.4 * vipco
             my_col = rgb(blue = 0, red = 0, green = 0, alpha = alpha)
             main_label <- sprintf("Features influencing orthogonal projection for level %s versus %s", fctr_lvl_1, fctr_lvl_2)
           }
           main_cex <- min(1.0, 46.0/nchar(main_label))
+          my_feature_label_slant <- -30 # slant feature labels 30 degrees downward
           plot(
             y = my_y
           , x = my_x
@@ -120,6 +119,8 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
               )
             }
             labels <- unname(sapply( X = tsv1$featureID, FUN = function(x) if( x %in% labels_to_show ) x else "" ))
+            x_text_offset <- 0.024
+            y_text_offset <- (if (projection == 1) 1 else -1) * -0.017
             label_features <- function(x_arg, y_arg, labels_arg, slant_arg) {
               print("str(x_arg)")
               print(str(x_arg))
@@ -128,8 +129,8 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
               print("str(labels_arg)")
               print(str(labels_arg))
               text(
-                y = y_arg - 0.013 # plus_cor - 0.013
-              , x = x_arg + 0.020 #  plus_cov + 0.020
+                y = y_arg
+              , x = x_arg + x_text_offset
               , cex = 0.4
               , labels = labels_arg
               , col = rgb(blue = 0, red = 0, green = 0, alpha = 0.5) # grey semi-transparent labels
@@ -141,20 +142,20 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
             if (length(my_x) > 1) {
               label_features( 
                 x_arg      = my_x  [my_x > 0]
-              , y_arg      = my_y  [my_x > 0]
+              , y_arg      = my_y  [my_x > 0] - y_text_offset
               , labels_arg = labels[my_x > 0]
               , slant_arg = -my_slant
               )
               label_features( 
                 x_arg      = my_x  [my_x < 0]
-              , y_arg      = my_y  [my_x < 0]
+              , y_arg      = my_y  [my_x < 0] + y_text_offset
               , labels_arg = labels[my_x < 0]
               , slant_arg = my_slant
               )
             } else {
               label_features( 
                 x_arg = my_x
-              , y_arg = my_y
+              , y_arg = my_y + (if (my_x > 1) -1 else 1) * y_text_offset
               , labels_arg = labels
               , slant_arg = (if (my_x > 1) -1 else 1) * my_slant
               )
@@ -253,7 +254,6 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
   # matchingC is one of { "none", "wildcard", "regex" }
   matchingC <- calc_env$matchingC
   labelFeatures <- calc_env$labelFeatures
-  labelOrthoFeatures <- calc_env$labelOrthoFeatures
 
   # arg/env checking
   if (!(facC %in% names(smpl_metadata))) {
@@ -387,7 +387,6 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
         , x_algorithm   = algoC
         , x_prefix      = if (pairSigFeatOnly) "Significantly contrasting features" else "Significant features"
         , x_show_labels = labelFeatures
-        , x_show_loado_labels = labelOrthoFeatures
         , x_progress    = progress_action
         , x_crossval_i  = min(7, length(chosen_samples))
         , x_env         = calc_env
@@ -444,7 +443,6 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
           , x_algorithm   = algoC
           , x_prefix      = if (pairSigFeatOnly) "Significantly contrasting features" else "Significant features"
           , x_show_labels = labelFeatures
-          , x_show_loado_labels = labelOrthoFeatures
           , x_progress    = progress_action
           , x_crossval_i  = min(7, length(chosen_samples))
           , x_env         = calc_env
@@ -498,7 +496,6 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
               , x_algorithm   = algoC
               , x_prefix      = "Features"
               , x_show_labels = labelFeatures
-              , x_show_loado_labels = labelOrthoFeatures
               , x_progress    = progress_action
               , x_crossval_i  = min(7, length(chosen_samples))
               , x_env         = calc_env
@@ -544,7 +541,6 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
             , x_algorithm   = algoC
             , x_prefix      = "Features"
             , x_show_labels = labelFeatures
-            , x_show_loado_labels = labelOrthoFeatures
             , x_progress    = progress_action
             , x_crossval_i  = min(7, length(chosen_samples))
             , x_env         = calc_env

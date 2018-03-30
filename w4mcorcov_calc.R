@@ -7,7 +7,7 @@ center_colmeans <- function(x) {
 #### OPLS-DA
 algoC <- "nipals"
 
-do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_prefix, x_show_labels, x_show_loado_labels = FALSE, x_progress = print, x_env, x_crossval_i) {
+do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_prefix, x_show_labels, x_progress = print, x_env, x_crossval_i) {
   off <- function(x) if (x_show_labels == "0") 0 else x
   if ( x_is_match && ncol(x_dataMatrix) > 0 && length(unique(x_predictor))> 1 && x_crossval_i < nrow(x_dataMatrix) ) {
     my_oplsda <- opls(
@@ -24,13 +24,11 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
     fctr_lvl_1 <- my_oplsda_suppLs_y_levels[1]
     fctr_lvl_2 <- my_oplsda_suppLs_y_levels[2]
     do_s_plot <- function(parallel_x) {
-      #print("computing cor_vs_cov")
       my_cor_vs_cov <- cor_vs_cov(
           matrix_x   = x_dataMatrix
         , ropls_x    = my_oplsda
         , parallel_x = parallel_x
         )
-      #print("plotting cor_vs_cov")
       with(
         my_cor_vs_cov
       , {
@@ -111,13 +109,6 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
               names(head(sort(my_load_distal),n = n_labels))
             , names(tail(sort(my_load_distal),n = n_labels))
             )
-            if ( x_show_loado_labels ) {
-              labels_to_show <- c(
-                labels_to_show
-              , names(head(sort(my_load_proximal),n = n_labels))
-              , names(tail(sort(my_load_proximal),n = n_labels))
-              )
-            }
             labels <- unname(sapply( X = tsv1$featureID, FUN = function(x) if( x %in% labels_to_show ) x else "" ))
             x_text_offset <- 0.024
             y_text_offset <- (if (projection == 1) 1 else -1) * -0.017
@@ -186,18 +177,7 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
     }
     for (my_type in my_typevc) {
       if (my_type %in% typeVc) {
-        # print(sprintf("plotting type %s", my_type))
         tryCatch({
-          # if ( my_type == "overview" ) {
-          #    plot(
-          #      x            = my_oplsda
-          #    , typeVc       = "x-loading"
-          #    , parCexN      = 0.4
-          #    , parDevNewL   = FALSE
-          #    , parLayL      = TRUE
-          #    , parEllipsesL = TRUE
-          #    )
-          # } else
           if ( my_type != "x-loading" ) {
              plot(
                x            = my_oplsda
@@ -214,14 +194,12 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
           x_progress( sprintf( "factor level %s or %s may have only one sample - %s", fctr_lvl_1, fctr_lvl_2, e$message ) )
         })
       } else {
-        # print("plotting dummy graph")
         plot(x=1, y=1, xaxt="n", yaxt="n", xlab="", ylab="", type="n")
         text(x=1, y=1, labels="no orthogonal projection is possible")
       }
     }
     return (my_cor_vs_cov)
   } else {
-    # x_progress(sprintf("x_is_match = %s, ncol(x_dataMatrix) = %d, length(unique(x_predictor)) = %d",x_is_match, ncol(x_dataMatrix), length(unique(x_predictor))))
     return (NULL)
   }
 }
@@ -427,8 +405,6 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
           # only process this column if both factors are members of lvlCSV
           is_match <- isLevelSelected(fctr_lvl_1) && isLevelSelected(fctr_lvl_2)
           progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))
-          # TODO delete next line displaying currently-processed column
-          # cat(sprintf("%s %s %s %s\n", vrbl_metadata_col, fctr_lvl_1, fctr_lvl_2, is_match))
           # choose only samples with one of the two factors for this column
           chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
           predictor <- smpl_metadata_facC[chosen_samples]
@@ -479,7 +455,6 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
             }
             chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
             fctr_lvl_2 <- "other"
-            # print( sprintf("sum(chosen_samples) %d, factor_level_2 %s", sum(chosen_samples), fctr_lvl_2) )
             progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))
             if (length(unique(chosen_samples)) < 1) {
               progress_action("NOTHING TO PLOT...")
@@ -510,7 +485,6 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
                 did_plot <<- TRUE
               }
             }
-            #print("baz")
             "dummy" # need to return a value; otherwise combn fails with an error
           }
         )
@@ -524,7 +498,6 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
           fctr_lvl_1 <- x[1]
           fctr_lvl_2 <- x[2]
           chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
-          # print( sprintf("sum(chosen_samples) %d, factor_level_2 %s", sum(chosen_samples), fctr_lvl_2) )
           progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))
           if (length(unique(chosen_samples)) < 1) {
             progress_action("NOTHING TO PLOT...")
@@ -555,7 +528,6 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
               did_plot <<- TRUE
             }
           }
-          #print("baz")
           "dummy" # need to return a value; otherwise combn fails with an error
         }
       )
@@ -638,7 +610,6 @@ cor_vs_cov <- function(matrix_x, ropls_x, parallel_x = TRUE) {
   feature_count    <- length(ropls_x@vipVn)
   result$level1    <- rep.int(x = fctr_lvl_1, times = feature_count)
   result$level2    <- rep.int(x = fctr_lvl_2, times = feature_count)
-  # print(sprintf("sd(covariance) = %f; sd(correlation) = %f", sd(result$covariance), sd(result$correlation)))
   superresult <- list()
   if (length(result$vip4o) == 0) result$vip4o <- NA
   greaterLevel <- sapply( X = result$correlation, FUN = function(my_corr) if ( my_corr < 0 ) fctr_lvl_1 else fctr_lvl_2 )
@@ -665,7 +636,6 @@ cor_vs_cov <- function(matrix_x, ropls_x, parallel_x = TRUE) {
   superresult$loadp <- result$loadp
   superresult$loado <- result$loado
   superresult$details <- result
-  # #print(superresult$tsv1)
   result$superresult <- superresult
   # Include thise in case future consumers of this routine want to use it in currently unanticipated ways
   result$oplsda    <- ropls_x          

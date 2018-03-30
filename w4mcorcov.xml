@@ -18,7 +18,6 @@
   <requirements>
     <requirement type="package">r-batch</requirement>
     <requirement type="package">bioconductor-ropls</requirement>
-    <!-- <requirement type="package">r-foreach</requirement> -->
   </requirements>
   
   <stdio>
@@ -324,9 +323,6 @@
       </output>
     </test>
   </tests>
-  <!-- 
-  .. |reg|    unicode:: U+000AE .. REGISTERED SIGN - see http://docutils.sourceforge.net/docutils/parsers/rst/include/isonum.txt or /usr/share/docutils/parsers/rst/include/isonum.txt
-  -->
   <help><![CDATA[
 
 **Run PLS-DA Contrasts of Univariate Results**

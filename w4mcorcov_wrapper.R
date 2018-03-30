@@ -63,7 +63,6 @@ my_env$variableMetadata_in  <- as.character(argVc["variableMetadata_in"])
 my_env$contrast_detail      <- as.character(argVc["contrast_detail"])
 my_env$contrast_corcov      <- as.character(argVc["contrast_corcov"])
 my_env$contrast_salience    <- as.character(argVc["contrast_salience"])
-# print(sprintf("contrast_salience: %s", my_env$contrast_salience))
 
 # other parameters
 

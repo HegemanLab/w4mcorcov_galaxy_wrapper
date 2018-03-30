@@ -36,7 +36,7 @@ read_xcms_data_element <- function(xcms_data_in, xcms_data_type, failure_action 
     my_failure_action( sprintf("bad parameter xcms_data_type '%s'", xcms_data_type) )
     return ( FALSE )
   }
-  if ( is.character(xcms_data_in) ){
+  if ( is.character(xcms_data_in) ) {
     # case: xcms_data_in is a path to a file
     xcms_data_input_env <- read_data_frame( xcms_data_in, sprintf("%s input", xcms_data_type) )
     if (!xcms_data_input_env$success) {
@@ -44,30 +44,6 @@ read_xcms_data_element <- function(xcms_data_in, xcms_data_type, failure_action 
       return ( FALSE )
     }
     return ( xcms_data_input_env$data )
-    # commenting out pasted code that is not tested here
-    # } else if ( is.data.frame(xcms_data_in) || is.matrix(xcms_data_in) ) {
-    #   # case: xcms_data_in is a data.frame or matrix
-    #   return(xcms_data_in)
-    # } else if ( is.list(xcms_data_in) || is.environment(xcms_data_in) ) {
-    #   # NOTE WELL: is.list succeeds for data.frame, so the is.data.frame test must appear before the is.list test
-    #   # case: xcms_data_in is a list
-    #   if ( ! exists(xcms_data_type, where = xcms_data_in) ) {
-    #     my_failure_action(sprintf("%s xcms_data_in is missing member '%s'"), ifelse(is.environment(xcms_data_in),"environment","list"), xcms_data_type)
-    #     return ( FALSE )
-    #   }
-    #   prospect <- getElement(name = xcms_data_type, object = xcms_data_in)
-    #   if ( ! is.data.frame(prospect) && ! is.matrix(prospect) ) {
-    #     utils::str("list - str(prospect)")
-    #     utils::str(prospect)
-    #     if ( is.list(xcms_data_in) ) {
-    #       my_failure_action(sprintf("the first member of xcms_data_in['%s'] is neither a data.frame nor a matrix but is a %s", xcms_data_type, typeof(prospect)))
-    #     } else {
-    #       my_failure_action(sprintf("the first member of xcms_data_in$%s is neither a data.frame nor a matrix but is a %s", xcms_data_type, typeof(prospect)))
-    #     }
-    #     return ( prospect )
-    #   }
-    #   # stop("stopping here for a snapshot")
-    #   return ( prospect ) 
   } else {
     # case: xcms_data_in is invalid
     my_failure_action( sprintf("xcms_data_in has unexpected type %s", typeof(xcms_data_in)) )

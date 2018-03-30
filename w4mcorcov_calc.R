@@ -120,15 +120,45 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
               )
             }
             labels <- unname(sapply( X = tsv1$featureID, FUN = function(x) if( x %in% labels_to_show ) x else "" ))
-            text(
-              y = my_y - 0.013 # plus_cor - 0.013
-            , x = my_x + 0.020 #  plus_cov + 0.020
-            , cex = 0.4
-            , labels = labels
-            , col = rgb(blue = 0, red = 0, green = 0, alpha = 0.5) # grey semi-transparent labels
-            , srt = my_feature_label_slant
-            , adj = 0   # left-justified
-            )
+            label_features <- function(x_arg, y_arg, labels_arg, slant_arg) {
+              print("str(x_arg)")
+              print(str(x_arg))
+              print("str(y_arg)")
+              print(str(y_arg))
+              print("str(labels_arg)")
+              print(str(labels_arg))
+              text(
+                y = y_arg - 0.013 # plus_cor - 0.013
+              , x = x_arg + 0.020 #  plus_cov + 0.020
+              , cex = 0.4
+              , labels = labels_arg
+              , col = rgb(blue = 0, red = 0, green = 0, alpha = 0.5) # grey semi-transparent labels
+              , srt = slant_arg
+              , adj = 0   # left-justified
+              )
+            }
+            my_slant <- (if (projection == 1) 1 else -1) * my_feature_label_slant
+            if (length(my_x) > 1) {
+              label_features( 
+                x_arg      = my_x  [my_x > 0]
+              , y_arg      = my_y  [my_x > 0]
+              , labels_arg = labels[my_x > 0]
+              , slant_arg = -my_slant
+              )
+              label_features( 
+                x_arg      = my_x  [my_x < 0]
+              , y_arg      = my_y  [my_x < 0]
+              , labels_arg = labels[my_x < 0]
+              , slant_arg = my_slant
+              )
+            } else {
+              label_features( 
+                x_arg = my_x
+              , y_arg = my_y
+              , labels_arg = labels
+              , slant_arg = (if (my_x > 1) -1 else 1) * my_slant
+              )
+            }
           }
         }
       )
@@ -558,8 +588,6 @@ cor_vs_cov <- function(matrix_x, ropls_x, parallel_x = TRUE) {
   result$projection <- projection <- if (parallel_x) 1 else 2
   # suppLs$algoC - Character: algorithm used - "svd" for singular value decomposition; "nipals" for NIPALS
   if ( ropls_x@suppLs$algoC == "nipals") {
-    print("matrix_x")
-    str(matrix_x)
     # Equations (1) and (2) from *Supplement to* Wiklund 2008, doi:10.1021/ac0713510
     mag <- function(one_dimensional) sqrt(sum(one_dimensional * one_dimensional))
     mag_xi <- sapply(X = 1:ncol(matrix_x), FUN = function(x) mag(matrix_x[,x]))
@@ -568,8 +596,6 @@ cor_vs_cov <- function(matrix_x, ropls_x, parallel_x = TRUE) {
     else
        score_matrix <- ropls_x@orthoScoreMN
     score_matrix_transposed <- t(score_matrix)
-    print("score_matrix_transposed")
-    str(score_matrix_transposed)
     score_matrix_magnitude <- mag(score_matrix)
     result$covariance <- score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * score_matrix_magnitude )
     result$correlation <- score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * mag_xi )

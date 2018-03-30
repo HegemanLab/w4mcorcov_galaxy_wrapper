@@ -8,8 +8,9 @@
 The OPLS-DA Contrasts Galaxy tool presents an emulation of the SIMCA® OPLS-DA® S-PLOT®.
 
 For each pair of treatment levels, this tool plots:
-- an emulation of the S-PLOT®, i.e., for each feature, the correlation of the treatment level with the first component of the OPLS-DA® projection of multivariate data against the covariance of the same. 
-- three OPLS-DA® plots (scores, loadings, and cross-validation) from [the Bioconductor `ropls` package, doi:10.18129/B9.bioc.ropls](https://dx.doi.org/10.18129/B9.bioc.ropls).    
+- an emulation of the S-PLOT®, i.e., for each feature, the correlation of the treatment level with the "parallel component" of the OPLS-DA® projection of multivariate data against the covariance of the same.  This plots the consistency of the effect of each feature on *the variation **between** the two treatment levels* against the degree to which the feature influences that variation.
+- two OPLS-DA® plots (scores and cross-validation) from [the Bioconductor `ropls` package, doi:10.18129/B9.bioc.ropls](https://dx.doi.org/10.18129/B9.bioc.ropls).    
+- an analog to the S-PLOT® for orthogonal features, i.e., for each feature, the correlation of the treatment level with the "orthogonal component" of the OPLS-DA® projection of multivariate data against the covariance of the same.  This plots the consistency of the effect of each feature on the *variation **within** the two treatment levels* against the degree to which the feature influences that variation.
 
 Optionally, the features plotted may be limited to those found to be significant in a univariate test.
 

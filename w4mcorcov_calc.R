@@ -24,11 +24,13 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
     fctr_lvl_1 <- my_oplsda_suppLs_y_levels[1]
     fctr_lvl_2 <- my_oplsda_suppLs_y_levels[2]
     do_s_plot <- function(parallel_x) {
+      #print("computing cor_vs_cov")
       my_cor_vs_cov <- cor_vs_cov(
           matrix_x   = x_dataMatrix
         , ropls_x    = my_oplsda
         , parallel_x = parallel_x
         )
+      #print("plotting cor_vs_cov")
       with(
         my_cor_vs_cov
       , {
@@ -42,10 +44,6 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
           # "It is generally accepted that a variable should be selected if vj>1, [27–29],
           #   but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]."
           #   (Mehmood 2012 doi:10.1186/1748-7188-6-27)
-          vipco <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
-          alpha <- 0.1 + 0.4 * vipco
-          red  <- as.numeric(correlation > 0) * vipco
-          blue <- as.numeric(correlation < 0) * vipco
           plus_cor <- correlation
           plus_cov <- covariance
           cex <- 0.75
@@ -58,6 +56,14 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
             my_y <- plus_cor
             my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
             my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
+            my_load_distal <- loadp
+            my_load_proximal <- loado
+            my_feature_label_slant <- -30 # slant feature labels 30 degrees downward
+            vipcp <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
+            red  <- as.numeric(correlation > 0) * vipcp
+            blue <- as.numeric(correlation < 0) * vipcp
+            alpha <- 0.1 + 0.4 * vipcp
+            my_col = rgb(blue = blue, red = red, green = 0, alpha = alpha)
           } else {
             my_ylab <- "relative covariance(feature,to1)"
             my_y <- plus_cov
@@ -65,6 +71,12 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
             my_xlab <- "correlation(feature,to1) [~ orthogonal loading]"
             my_x <- plus_cor
             my_xlim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
+            my_load_distal <- loado
+            my_load_proximal <- loadp
+            my_feature_label_slant <- -60 # slant feature labels 60 degrees downward
+            vipco <- pmax(0, pmin(1,(vip4o-0.83)/(1.21-0.83)))
+            alpha <- 0.1 + 0.4 * vipco
+            my_col = rgb(blue = 0, red = 0, green = 0, alpha = alpha)
           }
           plot(
             y = my_y
@@ -78,42 +90,42 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
           , cex.main = main_cex
           , cex = cex
           , pch = 16
-          , col = rgb(blue = blue, red = red, green = 0, alpha = alpha)
+          , col = my_col
           )
           low_x <- -0.7 * lim_x
           high_x <- 0.7 * lim_x
-          text(x = low_x, y = -0.05, labels =  fctr_lvl_1, col = "blue")
-          text(x = high_x, y = 0.05, labels =  fctr_lvl_2, col = "red")
+          if (projection == 1) {
+            text(x = low_x, y = -0.05, labels =  fctr_lvl_1, col = "blue")
+            text(x = high_x, y = 0.05, labels =  fctr_lvl_2, col = "red")
+          }
           if ( x_show_labels != "0" ) {
-            my_loadp <- loadp
-            my_loado <- loado
-            names(my_loadp) <- tsv1$featureID
-            names(my_loado) <- tsv1$featureID
+            names(my_load_distal) <- tsv1$featureID
+            names(my_load_proximal) <- tsv1$featureID
             if ( x_show_labels == "ALL" ) {
-              n_labels <- length(loadp)
+              n_labels <- length(my_load_distal)
             } else {
               n_labels <- as.numeric(x_show_labels)
             }
-            n_labels <- min( n_labels, (1 + length(loadp)) / 2 )
+            n_labels <- min( n_labels, (1 + length(my_load_distal)) / 2 )
             labels_to_show <- c(
-              names(head(sort(my_loadp),n = n_labels))
-            , names(tail(sort(my_loadp),n = n_labels))
+              names(head(sort(my_load_distal),n = n_labels))
+            , names(tail(sort(my_load_distal),n = n_labels))
             )
             if ( x_show_loado_labels ) {
               labels_to_show <- c(
                 labels_to_show
-              , names(head(sort(my_loado),n = n_labels))
-              , names(tail(sort(my_loado),n = n_labels))
+              , names(head(sort(my_load_proximal),n = n_labels))
+              , names(tail(sort(my_load_proximal),n = n_labels))
               )
             }
             labels <- unname(sapply( X = tsv1$featureID, FUN = function(x) if( x %in% labels_to_show ) x else "" ))
             text(
-              y = plus_cor - 0.013
-            , x = plus_cov + 0.020
+              y = my_y - 0.013 # plus_cor - 0.013
+            , x = my_x + 0.020 #  plus_cov + 0.020
             , cex = 0.4
             , labels = labels
-            , col = rgb(blue = 0, red = 0, green = 0, alpha = 0.5) # rgb(blue = blue, red = red, green = 0, alpha = 0.2 + 0.8 * alpha)
-            , srt = -30 # slant 30 degrees downward
+            , col = rgb(blue = 0, red = 0, green = 0, alpha = 0.5) # grey semi-transparent labels
+            , srt = my_feature_label_slant
             , adj = 0   # left-justified
             )
           }
@@ -144,16 +156,29 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
       if (my_type %in% typeVc) {
         # print(sprintf("plotting type %s", my_type))
         tryCatch({
-          plot(
-            x            = my_oplsda
-          , typeVc       = my_type
-          , parCexN      = 0.4
-          , parDevNewL   = FALSE
-          , parLayL      = TRUE
-          , parEllipsesL = TRUE
-        )
+          if ( my_type == "overview" ) {
+             plot(
+               x            = my_oplsda
+             , typeVc       = "x-loading"
+             , parCexN      = 0.4
+             , parDevNewL   = FALSE
+             , parLayL      = TRUE
+             , parEllipsesL = TRUE
+             )
+          } else if ( my_type != "x-loading" ) {
+             plot(
+               x            = my_oplsda
+             , typeVc       = my_type
+             , parCexN      = 0.4
+             , parDevNewL   = FALSE
+             , parLayL      = TRUE
+             , parEllipsesL = TRUE
+             )
+          } else {
+            do_s_plot( parallel_x = FALSE )
+          }
         }, error = function(e) {
-          x_progress(sprintf("factor level %s or %s may have only one sample", fctr_lvl_1, fctr_lvl_2))
+          x_progress( sprintf( "factor level %s or %s may have only one sample - %s", fctr_lvl_1, fctr_lvl_2, e$message ) )
         })
       } else {
         # print("plotting dummy graph")
@@ -531,11 +556,18 @@ cor_vs_cov <- function(matrix_x, ropls_x, parallel_x = TRUE) {
   result$projection <- projection <- if (parallel_x) 1 else 2
   # suppLs$algoC - Character: algorithm used - "svd" for singular value decomposition; "nipals" for NIPALS
   if ( ropls_x@suppLs$algoC == "nipals") {
+    print("matrix_x")
+    str(matrix_x)
     # Equations (1) and (2) from *Supplement to* Wiklund 2008, doi:10.1021/ac0713510
     mag <- function(one_dimensional) sqrt(sum(one_dimensional * one_dimensional))
     mag_xi <- sapply(X = 1:ncol(matrix_x), FUN = function(x) mag(matrix_x[,x]))
-    score_matrix <- ropls_x@scoreMN
+    if (parallel_x)
+       score_matrix <- ropls_x@scoreMN
+    else
+       score_matrix <- ropls_x@orthoScoreMN
     score_matrix_transposed <- t(score_matrix)
+    print("score_matrix_transposed")
+    str(score_matrix_transposed)
     score_matrix_magnitude <- mag(score_matrix)
     result$covariance <- score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * score_matrix_magnitude )
     result$correlation <- score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * mag_xi )
@@ -543,7 +575,10 @@ cor_vs_cov <- function(matrix_x, ropls_x, parallel_x = TRUE) {
     # WARNING - untested code - I don't have test data to exercise this branch
     # Equations (1) and (2) from Wiklund 2008, doi:10.1021/ac0713510
     # scoreMN - Numerical matrix of x scores (T; dimensions: nrow(x) x predI) X = TP' + E; Y = TC' + F
-    score_matrix <- ropls_x@scoreMN
+    if (parallel_x)
+       score_matrix <- ropls_x@scoreMN
+    else
+       score_matrix <- ropls_x@orthoScoreMN
     score_matrix_transposed <- t(score_matrix)
     cov_divisor <- nrow(matrix_x) - 1
     result$covariance <- sapply(
@@ -563,8 +598,8 @@ cor_vs_cov <- function(matrix_x, ropls_x, parallel_x = TRUE) {
       }
     )
   }
-  result$correlation <- result$correlation[ projection, , drop = TRUE ]
-  result$covariance  <- result$covariance [ projection, , drop = TRUE ]
+  result$correlation <- result$correlation[ 1, , drop = TRUE ]
+  result$covariance  <- result$covariance [ 1, , drop = TRUE ]
 
   # Variant 4 of Variable Influence on Projection for OPLS from Galindo_Prieto_2014
   #    Length = number of features; labels = feature identifiers.  (The same is true for $correlation and $covariance.)
@@ -614,4 +649,4 @@ cor_vs_cov <- function(matrix_x, ropls_x, parallel_x = TRUE) {
   return (superresult)
 }
 
-
+# vim: sw=2 ts=2 et :

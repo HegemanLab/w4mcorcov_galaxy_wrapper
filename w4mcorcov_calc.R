@@ -39,8 +39,6 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
           lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
           covariance <- covariance / lim_x
           lim_x <- 1.2
-          main_label <- sprintf("%s for level %s versus %s", x_prefix, fctr_lvl_1, fctr_lvl_2)
-          main_cex <- min(1.0, 46.0/nchar(main_label))
           # "It is generally accepted that a variable should be selected if vj>1, [27–29],
           #   but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]."
           #   (Mehmood 2012 doi:10.1186/1748-7188-6-27)
@@ -64,20 +62,23 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
             blue <- as.numeric(correlation < 0) * vipcp
             alpha <- 0.1 + 0.4 * vipcp
             my_col = rgb(blue = blue, red = red, green = 0, alpha = alpha)
+            main_label <- sprintf("%s for level %s versus %s", x_prefix, fctr_lvl_1, fctr_lvl_2)
           } else {
-            my_ylab <- "relative covariance(feature,to1)"
-            my_y <- plus_cov
-            my_ylim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
-            my_xlab <- "correlation(feature,to1) [~ orthogonal loading]"
-            my_x <- plus_cor
-            my_xlim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
+            my_xlab <- "relative covariance(feature,to1)"
+            my_x <- -plus_cov
+            my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
+            my_ylab <- "correlation(feature,to1) [~ orthogonal loading]"
+            my_y <- plus_cor
+            my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
             my_load_distal <- loado
             my_load_proximal <- loadp
-            my_feature_label_slant <- -60 # slant feature labels 60 degrees downward
+            my_feature_label_slant <- -30 # -60 # slant feature labels 60 degrees downward
             vipco <- pmax(0, pmin(1,(vip4o-0.83)/(1.21-0.83)))
             alpha <- 0.1 + 0.4 * vipco
             my_col = rgb(blue = 0, red = 0, green = 0, alpha = alpha)
+            main_label <- sprintf("Features influencing orthogonal projection for level %s versus %s", fctr_lvl_1, fctr_lvl_2)
           }
+          main_cex <- min(1.0, 46.0/nchar(main_label))
           plot(
             y = my_y
           , x = my_x
@@ -156,16 +157,17 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
       if (my_type %in% typeVc) {
         # print(sprintf("plotting type %s", my_type))
         tryCatch({
-          if ( my_type == "overview" ) {
-             plot(
-               x            = my_oplsda
-             , typeVc       = "x-loading"
-             , parCexN      = 0.4
-             , parDevNewL   = FALSE
-             , parLayL      = TRUE
-             , parEllipsesL = TRUE
-             )
-          } else if ( my_type != "x-loading" ) {
+          # if ( my_type == "overview" ) {
+          #    plot(
+          #      x            = my_oplsda
+          #    , typeVc       = "x-loading"
+          #    , parCexN      = 0.4
+          #    , parDevNewL   = FALSE
+          #    , parLayL      = TRUE
+          #    , parEllipsesL = TRUE
+          #    )
+          # } else
+          if ( my_type != "x-loading" ) {
              plot(
                x            = my_oplsda
              , typeVc       = my_type

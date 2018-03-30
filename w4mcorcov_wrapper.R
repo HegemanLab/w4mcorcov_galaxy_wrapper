@@ -73,7 +73,6 @@ my_env$pairSigFeatOnly    <- as.logical(argVc["pairSigFeatOnly"])
 my_env$levCSV             <- as.character(argVc["levCSV"])
 my_env$matchingC          <- as.character(argVc["matchingC"])
 my_env$labelFeatures      <- as.character(argVc["labelFeatures"]) # number of features to label at each extreme of the loadings or 'ALL'
-my_env$labelOrthoFeatures <- as.logical(argVc["labelOrthoFeatures"])
 
 label_features <- my_env$labelFeatures
 labelfeatures_check <- TRUE

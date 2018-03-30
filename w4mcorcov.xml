@@ -1,4 +1,4 @@
-﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.7">
+﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.8">
 
   <description>OPLS-DA Contrasts of Univariate Results</description>
   
@@ -23,7 +23,6 @@
     levCSV '$levCSV'
     matchingC '$matchingC'
     labelFeatures '$labelFeatures'
-    labelOrthoFeatures '$labelOrthoFeatures'
     contrast_detail '$contrast_detail'
     contrast_corcov '$contrast_corcov'
     contrast_salience '$contrast_salience'
@@ -81,14 +80,6 @@
       <option value="regex">use regular expressions for matching level-names</option>
     </param>
     <param name="labelFeatures" type="text" value="3" label="How many features having extreme loadings should be labelled on cov-vs.-cor plot" help="Specify the number of features at each of the loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features or '0' to label no features; this choice has no effect on the OPLS-DA loadings plot."/>
-    <param
-      name="labelOrthoFeatures"
-      type="boolean"
-      checked="false"
-      truevalue="TRUE"
-      falsevalue="FALSE"
-      label="Label features having extreme orthogonal loadings"
-      help="When using the preceding parameter to label only features at the loading-extremess in the cor-vs.-cov plot, use 'no' here to label only features having extreme parallel loadings (loadp); this is the default.  Choose 'yes' to add labels also to features having extreme orthogonal loadings (both loado and loadp); this may clutter the plot."/>
   </inputs>
 
   <outputs>
@@ -130,7 +121,6 @@
       <param name="facC" value="k10"/>
       <param name="pairSigFeatOnly" value="FALSE"/>
       <param name="labelFeatures" value="3"/>
-      <param name="labelOrthogonalFeatures" value="FALSE"/>
       <param name="levCSV" value="k[12],k[3-4]"/>
       <param name="matchingC" value="regex"/>
       <output name="contrast_corcov">
@@ -194,7 +184,6 @@
       <param name="facC" value="k10"/>
       <param name="pairSigFeatOnly" value="TRUE"/>
       <param name="labelFeatures" value="3"/>
-      <param name="labelOrthogonalFeatures" value="TRUE"/>
       <param name="levCSV" value="k[12],k[3-4]"/>
       <param name="matchingC" value="regex"/>
       <output name="contrast_corcov">
@@ -256,7 +245,6 @@
       <param name="facC" value="k10"/>
       <param name="pairSigFeatOnly" value="TRUE"/>
       <param name="labelFeatures" value="3"/>
-      <param name="labelOrthogonalFeatures" value="FALSE"/>
       <param name="levCSV" value="k[12],k[3-4]"/>
       <param name="matchingC" value="regex"/>
       <output name="contrast_corcov">
@@ -425,9 +413,9 @@ Parameters
   |
 
 [IN] Retain only pairwise-significant features
+  | *Note that when 'Test' is 'none', all features are included in the analysis and this parameter has no effect.*
   | When **true**, for each contrast of two levels, include only those features which pass the significance threshold for that contrast.  Choosing true results in an OPLS-DA model that better reflects and visualizes the difference detected by univariate analysis, with somewhat increased reliability of prediction (as assessed by cross-validation).
   | When **false**, include all features that pass the significance threshold when testing for difference across all factor-levels.  This choice produces a plot that displays more features but is not necessarily more informative.
-  | *Note that when 'Test' is 'none', all features are included in the analysis and this parameter has no effect.*
   |
 
 [IN] Levels of interest
@@ -440,10 +428,6 @@ Parameters
 
 [IN] Label how many extreme features
   | Specify the number of features at each of the loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features; this choice has no effect on the OPLS-DA loadings plot.
-  |
-
-[IN] Label features with extreme loado
-  | If the previous parameter has limited the the number of features to be labelled at each of the loading-extremes, then the extreme values for both loado and loadp will be labelled when this parameter is set to 'yes'; otherwise (in the default case) only extreme values for loadp will be lableld.  The default was chosen to make the plot less cluttered.
   |
 
 [OUT] Contrast-detail output PDF
@@ -562,8 +546,6 @@ Working examples
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Number of features having extreme loadings | ALL                                                                                                                                    |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Label feat. having extreme orth. loadings  | Yes                                                                                                                                    |
-  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Output primary table                       | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_corcov.tsv                    |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Output salience table                      | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience.tsv                  |
@@ -587,8 +569,6 @@ Working examples
   | Level-name matching                        | use wild cards for matching level-names                                                                                                |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Number of features having extreme loadings | 5                                                                                                                                      |
-  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Label feat. having extreme orth. loadings  | No                                                                                                                                     |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Output primary table                       | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_corcov_all.tsv                |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
@@ -614,8 +594,6 @@ Working examples
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Number of features having extreme loadings | 0                                                                                                                                      |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Label feat. having extreme orth. loadings  | Yes                                                                                                                                    |
-  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Output primary table                       | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_corcov_global.tsv             |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Output salience table                      | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience_global.tsv           |
@@ -640,8 +618,6 @@ Working examples
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Number of features having extreme loadings | 3                                                                                                                                      |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Label feat. having extreme orth. loadings  | Yes                                                                                                                                    |
-  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Output primary table                       | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_corcov_lohi.tsv               |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Output salience table                      | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/test-data/expected_contrast_salience_lohi.tsv             |
@@ -658,6 +634,10 @@ OPLS-DA, SIMCA, and S-PLOT are registered trademarks of the Umetrics company.  h
 
 Release notes
 -------------
+
+0.98.8
+
+- new feature: replace loadings plot with correlation-versus-covariance plot for orthogonal features, i.e., the consistency of features influencing within-treatment variation (which is linearly related to the loading of the orthogonal projection) versus consistency.
 
 0.98.7
 

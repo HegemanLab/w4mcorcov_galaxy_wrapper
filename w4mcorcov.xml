@@ -2,6 +2,19 @@
 
   <description>OPLS-DA Contrasts of Univariate Results</description>
   
+  <macros>
+    <xml name="paramPairSigFeatOnly">
+			<param
+				name="pairSigFeatOnly"
+				type="boolean"
+				checked="true"
+				truevalue="TRUE"
+				falsevalue="FALSE"
+				label="Retain only pairwise-significant features"
+				help="When this option is set to 'Yes', analysis will be performed including only features that differ significantly for the pair of levels being contrasted; when set to 'No', any feature that varies significantly across all levels will be included (i.e., exclude any feature that is not significantly different across all levels).  See examples below." />
+    </xml>
+	</macros>
+
   <requirements>
     <requirement type="package">r-batch</requirement>
     <requirement type="package">bioconductor-ropls</requirement>
@@ -17,9 +30,14 @@
     dataMatrix_in "$dataMatrix_in"
     sampleMetadata_in "$sampleMetadata_in"
     variableMetadata_in "$variableMetadata_in"
-    tesC "$tesC"
     facC "$facC"
-    pairSigFeatOnly "$pairSigFeatOnly"
+    #if str( $signif_test.tesC ) == "none":
+      tesC "none"
+      pairSigFeatOnly "FALSE"
+    #else:
+      tesC "$signif_test.tesC"
+      pairSigFeatOnly "$signif_test.pairSigFeatOnly"
+    #end if
     levCSV '$levCSV'
     matchingC '$matchingC'
     labelFeatures '$labelFeatures'
@@ -33,21 +51,28 @@
     <param name="sampleMetadata_in" label="Sample metadata file" type="data" format="tabular" help="Samples x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
     <param name="variableMetadata_in" label="Variable metadata file (ideally from Univariate)" type="data" format="tabular" help="Features x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
     <param name="facC" label="Factor of interest" type="text" help="REQUIRED - The name of the column of sampleMetadata corresponding to the qualitative variable used to define the contrasts.  Except when the 'Univariate Significance-test' is set to 'none', this also must be a portion of the column names in the variableMetadata file."/>
-    <param name="tesC" label="Univariate significance-test" type="select" help="Either 'none' or the name of the statistical test that was run by the 'Univariate' tool to produce the variableMetadata file; that name must also be a portion of the column names in that file.">
-      <option value="none">none - Display all features from variableMetadata (rather than choosing a subset based on significance in univariate testing)</option>
-      <option value="ttest">ttest - Student's t-test (parametric test, qualitative factor with exactly 2 levels)</option>
-      <option value="anova">anova - Analysis of variance (parametric test, qualitative factor with more than 2 levels)</option>
-      <option value="wilcoxon">wilcoxon - Wilcoxon rank test (nonparametric test, qualitative factor with exactly 2 levels)</option>      
-      <option value="kruskal">kruskal - Kruskal-Wallis rank test (nonparametric test, qualitative factor with more than 2 levels)</option>
-    </param>
-    <param
-      name="pairSigFeatOnly"
-      type="boolean"
-      checked="true"
-      truevalue="TRUE"
-      falsevalue="FALSE"
-      label="Retain only pairwise-significant features"
-      help="When 'none' is chosen as the test, all features are included in the analysis (i. e., this parameter is ignored).  Otherwise, when this option is set to 'Yes', analysis will be performed including only features that differ significantly for the pair of levels being contrasted; when set to 'No', any feature that varies significantly across all levels will be included (i.e., exclude any feature that is not significantly different across all levels).  See examples below."/>
+    <conditional name="signif_test">
+			<param name="tesC" label="Univariate significance-test" type="select" help="Either 'none' or the name of the statistical test that was run by the 'Univariate' tool to produce the variableMetadata file; that name must also be a portion of the column names in that file.">
+				<option value="none">none - Display all features from variableMetadata (rather than choosing a subset based on significance in univariate testing)</option>
+				<option value="ttest">ttest - Student's t-test (parametric test, qualitative factor with exactly 2 levels)</option>
+				<option value="anova">anova - Analysis of variance (parametric test, qualitative factor with more than 2 levels)</option>
+				<option value="wilcoxon">wilcoxon - Wilcoxon rank test (nonparametric test, qualitative factor with exactly 2 levels)</option>      
+				<option value="kruskal">kruskal - Kruskal-Wallis rank test (nonparametric test, qualitative factor with more than 2 levels)</option>
+			</param>
+			<when value="none" />
+			<when value="ttest">
+				<expand macro="paramPairSigFeatOnly" />
+			</when>
+			<when value="anova">
+				<expand macro="paramPairSigFeatOnly" />
+			</when>
+			<when value="wilcoxon">
+				<expand macro="paramPairSigFeatOnly" />
+			</when>
+			<when value="kruskal">
+				<expand macro="paramPairSigFeatOnly" />
+			</when>
+    </conditional>
     <param name="levCSV" label="Levels of interest" type="text" value = "*" help="Comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; levels must be non-numeric; may include wild cards or regular expressions.  Note that extra space characters will affect results - 'a,b' is correct, but 'a , b' is not and may fail or give different results.">
       <sanitizer>
         <valid initial="string.letters">
@@ -243,7 +268,6 @@
       <param name="variableMetadata_in" value="input_variableMetadata.tsv"/>
       <param name="tesC" value="none"/>
       <param name="facC" value="k10"/>
-      <param name="pairSigFeatOnly" value="TRUE"/>
       <param name="labelFeatures" value="3"/>
       <param name="levCSV" value="k[12],k[3-4]"/>
       <param name="matchingC" value="regex"/>
@@ -413,7 +437,7 @@ Parameters
   |
 
 [IN] Retain only pairwise-significant features
-  | *Note that when 'Test' is 'none', all features are included in the analysis and this parameter has no effect.*
+  | *Note that when 'Test' is 'none', all features are included in the analysis and this parameter is not settable.*
   | When **true**, for each contrast of two levels, include only those features which pass the significance threshold for that contrast.  Choosing true results in an OPLS-DA model that better reflects and visualizes the difference detected by univariate analysis, with somewhat increased reliability of prediction (as assessed by cross-validation).
   | When **false**, include all features that pass the significance threshold when testing for difference across all factor-levels.  This choice produces a plot that displays more features but is not necessarily more informative.
   |
@@ -586,8 +610,6 @@ Working examples
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Univariate Significance-Test               | none                                                                                                                                   |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Retain only pairwise-significant features  | No                                                                                                                                     |
-  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Levels of interest                         | k[12],k[3-4]                                                                                                                           |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Level-name matching                        | use regular expressions for matching level-names                                                                                       |
@@ -609,8 +631,6 @@ Working examples
   | Factor of interest                         | lohi                                                                                                                                   |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Univariate Significance-Test               | none                                                                                                                                   |
-  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
-  | Retain only pairwise-significant features  | No                                                                                                                                     |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Levels of interest                         | low,high                                                                                                                               |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
@@ -637,27 +657,27 @@ Release notes
 
 0.98.8
 
-- new feature: replace loadings plot with correlation-versus-covariance plot for orthogonal features, i.e., the consistency of features influencing within-treatment variation (which is linearly related to the loading of the orthogonal projection) versus consistency.
+- new feature: Replace loadings plot with correlation-versus-covariance plot for orthogonal features, i.e., the consistency of features influencing within-treatment variation (which is linearly related to the loading of the orthogonal projection) versus consistency.  This eliminates the need for the parameter to suppress labels for features with extreme orthogonal loadings
 
 0.98.7
 
-- bug fix: handle case of a treatment level with only one sample.
+- bug fix: Handle case of a treatment level with only one sample.
 
 0.98.6
 
-- bug fix: set 'crossvalI' param (of R function 'ropls::opls') to the number of samples when the there are fewer than seven samples.
+- bug fix: Set 'crossvalI' param (of R function 'ropls::opls') to the number of samples when the there are fewer than seven samples.
 
 0.98.5
 
-- bug fix: fit feature-labels within clipping region of cor-vs.cov plot
+- bug fix: Fit feature-labels within clipping region of cor-vs.cov plot
 - new feature: optionally (and by default) suppress labels for features with extreme orthogonal loadings
 
 0.98.3
 
-- add support for two-level factors
-- add adjusted mz and rt to output tables
-- allow explicitly setting the number of features with extreme loadings to be labelled on the correlation vs. covariance plot
-- add loadings to corcov table
+- Add support for two-level factors
+- Add adjusted mz and rt to output tables
+- Allow explicitly setting the number of features with extreme loadings to be labelled on the correlation vs. covariance plot
+- Add loadings to corcov table
 
 0.98.2
 
@@ -666,6 +686,7 @@ Release notes
 
   ]]></help>
   <citations>
+    <!-- this tool -->
     <citation type="doi">10.5281/zenodo.1034784</citation>
     <!-- Galindo_Prieto_2014 Variable influence on projection (VIP) for OPLS -->
     <citation type="doi">10.1002/cem.2627</citation>
@@ -699,6 +720,6 @@ Release notes
     <citation type="doi">10.1021/ac0713510</citation>
   </citations>
   <!--
-     vim:noet:sw=4:ts=4
+     vim:noet:sw=2:ts=2
 -->
 </tool>

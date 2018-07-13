@@ -29,11 +29,19 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
         , ropls_x    = my_oplsda
         , parallel_x = parallel_x
         )
+      # print("str(my_cor_vs_cov)")
+      # str(my_cor_vs_cov)
+      if (sum(!is.na(my_cor_vs_cov$tsv1$covariance)) < 2) {
+        x_progress("No cor_vs_cov data produced")
+        plot(x=1, y=1, xaxt="n", yaxt="n", xlab="", ylab="", type="n")
+        text(x=1, y=1, labels="too few covariance data")
+        return(my_cor_vs_cov)
+      }
       with(
         my_cor_vs_cov
       , {
-          min_x <- min(covariance)
-          max_x <- max(covariance)
+          min_x <- min(covariance, na.rm = TRUE)
+          max_x <- max(covariance, na.rm = TRUE)
           lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
           covariance <- covariance / lim_x
           lim_x <- 1.2
@@ -57,6 +65,8 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
             vipcp <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
             red  <- as.numeric(correlation > 0) * vipcp
             blue <- as.numeric(correlation < 0) * vipcp
+            red[is.na(red)] <- 0
+            blue[is.na(blue)] <- 0
             alpha <- 0.1 + 0.4 * vipcp
             my_col = rgb(blue = blue, red = red, green = 0, alpha = alpha)
             main_label <- sprintf("%s for level %s versus %s", x_prefix, fctr_lvl_1, fctr_lvl_2)
@@ -113,12 +123,12 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
             x_text_offset <- 0.024
             y_text_offset <- (if (projection == 1) 1 else -1) * -0.017
             label_features <- function(x_arg, y_arg, labels_arg, slant_arg) {
-              print("str(x_arg)")
-              print(str(x_arg))
-              print("str(y_arg)")
-              print(str(y_arg))
-              print("str(labels_arg)")
-              print(str(labels_arg))
+              # print("str(x_arg)")
+              # print(str(x_arg))
+              # print("str(y_arg)")
+              # print(str(y_arg))
+              # print("str(labels_arg)")
+              # print(str(labels_arg))
               text(
                 y = y_arg
               , x = x_arg + x_text_offset
@@ -613,8 +623,16 @@ cor_vs_cov <- function(matrix_x, ropls_x, parallel_x = TRUE) {
   superresult <- list()
   if (length(result$vip4o) == 0) result$vip4o <- NA
   greaterLevel <- sapply( X = result$correlation, FUN = function(my_corr) if ( my_corr < 0 ) fctr_lvl_1 else fctr_lvl_2 )
-  superresult$tsv1 <- data.frame(
-    featureID           = names(ropls_x@vipVn)
+
+  # begin fixes for https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/1
+  featureID          <- names(ropls_x@vipVn)
+  greaterLevel       <- greaterLevel[featureID]
+  result$correlation <- result$correlation[featureID]
+  result$covariance  <- result$covariance[featureID]
+  # end fixes for https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/1
+
+  tsv1 <- data.frame(
+    featureID           = featureID
   , factorLevel1        = result$level1
   , factorLevel2        = result$level2
   , greaterLevel        = greaterLevel
@@ -627,7 +645,10 @@ cor_vs_cov <- function(matrix_x, ropls_x, parallel_x = TRUE) {
   , loado               = result$loado
   , row.names           = NULL
   )
-  rownames(superresult$tsv1) <- superresult$tsv1$featureID
+  tsv1 <- tsv1[!is.na(tsv1$correlation),]
+  tsv1 <- tsv1[!is.na(tsv1$covariance),]
+  superresult$tsv1 <- tsv1
+  rownames(superresult$tsv1) <- tsv1$featureID
   superresult$projection <- result$projection
   superresult$covariance <- result$covariance
   superresult$correlation <- result$correlation

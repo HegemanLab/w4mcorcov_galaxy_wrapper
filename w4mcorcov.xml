@@ -1,4 +1,4 @@
-﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.8">
+﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.9">
 
   <description>OPLS-DA Contrasts of Univariate Results</description>
   
@@ -137,6 +137,7 @@
   </outputs>
 
   <tests>
+    <!-- test #1 -->
     <test>
       <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
       <param name="sampleMetadata_in" value="input_sampleMetadata.tsv"/>
@@ -200,6 +201,7 @@
         </assert_contents>
       </output>
     </test>
+    <!-- test #2 -->
     <test>
       <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
       <param name="sampleMetadata_in" value="input_sampleMetadata.tsv"/>
@@ -222,21 +224,11 @@
           <has_text text="vip4o" />
           <has_text text="level1Level2Sig" />
           <!-- first matched line -->
-          <has_text text="M349.2383T700" />
-          <has_text text="-0.99601577" />
-          <has_text text="-947.55795176" />
-          <!-- second matched line -->
-          <has_text text="M207.9308T206" />
-          <has_text text="0.688549" />
-          <has_text text="58.22352" />
-          <has_text text="1.394687" />
-          <has_text text="0.06049885" />
-          <!-- third matched line -->
-          <has_text text="M211.0607T263" />
-          <has_text text="-0.572018" />
-          <has_text text="-14.57769" />
-          <has_text text="0.7780899" />
-          <has_text text="0.3678166776" />
+          <has_text text="M200.005T296" />
+          <has_text text="-0.205568" />
+          <has_text text="-17.7677077" />
+          <has_text text="0.60780" />
+          <has_text text="0.768954" />
         </assert_contents>
       </output>
       <output name="contrast_salience">
@@ -261,6 +253,7 @@
         </assert_contents>
       </output>
     </test>
+    <!-- test #3 -->
     <test>
       <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
       <param name="sampleMetadata_in" value="input_sampleMetadata.tsv"/>
@@ -319,6 +312,59 @@
           <has_text text="M211.0607T263" />
           <has_text text="9999" />
           <has_text text="12.87766096" />
+        </assert_contents>
+      </output>
+    </test>
+    <!-- test #4 -->
+    <test>
+      <param name="dataMatrix_in" value="issue1_input_dataMatrix.tsv"/>
+      <param name="sampleMetadata_in" value="issue1_input_sampleMetadata.tsv"/>
+      <param name="variableMetadata_in" value="issue1_input_variableMetadata.tsv"/>
+      <param name="tesC" value="none"/>
+      <param name="facC" value="tissue_flowering"/>
+      <param name="labelFeatures" value="3"/>
+      <param name="levCSV" value="*"/>
+      <param name="matchingC" value="wildcard"/>
+      <output name="contrast_corcov">
+        <assert_contents>
+          <!-- column-labels line -->
+          <has_text text="featureID" />
+          <has_text text="factorLevel1" />
+          <has_text text="factorLevel2" />
+          <has_text text="correlation" />
+          <has_text text="covariance" />
+          <has_text text="vip4p" />
+          <has_text text="vip4o" />
+          <!-- first matched line -->
+          <has_text text="NM516T251" />
+          <has_text text="flower_yes" />
+          <has_text text="other" />
+          <has_text text="0.392946" />
+          <has_text text="0.0632120" />
+          <has_text text="0.785661" />
+          <has_text text="0.2272924" />
+          <has_text text="0.04674719" />
+          <has_text text="0.015625" />
+          <has_text text="516.08452" />
+          <has_text text="250.8762" />
+        </assert_contents>
+      </output>
+      <output name="contrast_salience">
+        <assert_contents>
+          <!-- column-labels line -->
+          <has_text text="featureID" />
+          <has_text text="salientLevel" />
+          <has_text text="salientRCV" />
+          <has_text text="salience" />
+          <has_text text="mz" />
+          <has_text text="rt" />
+          <!-- first matched line -->
+          <has_text text="PM518T369" />
+          <has_text text="flower_yes" />
+          <has_text text="0.58655260" />
+          <has_text text="4.414469" />
+          <has_text text="518.1656" />
+          <has_text text="368.59817" />
         </assert_contents>
       </output>
     </test>
@@ -650,6 +696,10 @@ OPLS-DA, SIMCA, and S-PLOT are registered trademarks of the Umetrics company.  h
 
 Release notes
 -------------
+
+0.98.9
+
+- bug fix: Handle issue 1 - features removed by ropls because variance is less than 2.2e-16.
 
 0.98.8
 

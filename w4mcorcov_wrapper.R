@@ -33,7 +33,7 @@ source("w4mcorcov_output.R")
 ##---------
 
 my_log <- function(x, ...) { cat(paste(iso8601.znow(), " ", x, ..., nl, sep=""))}
-my_fatal <- function(x, ...) { 
+my_fatal <- function(x, ...) {
   my_log("ERROR: ", x, ...)
   quit(save = "no", status = 11, runLast = TRUE)
 }
@@ -139,13 +139,31 @@ if ( is.logical(my_result) && my_result) {
   # , mfrow     = c(2,2)    # two rows by two columns
   , pty       = "s"       # force plots to be square
   )
+    pdf_height <- 8
+    pdf_width  <- 8
+    my_layout <- function() {
+      # lay out 2 columns by 2 rows with extra width at the margin of individual plots
+      layout(
+        matrix(
+          # blank row  plot 1 & 2  blank row  plot 3 & 4  blank row
+          c(0,0,0,0,0, 0,1,0,2,0,  0,0,0,0,0, 0,3,0,4,0,  0,0,0,0,0)
+        , nrow = 5
+        , ncol = 5
+        , byrow = TRUE
+        )
+        # slim columns 1, 3, and 5
+      , widths  = c(0.1, 0.9, 0.1, 0.9, 0.1)
+        # slim rows 1, 3, and 5
+      , heights = c(0.1, 0.9, 0.1, 0.9, 0.1)
+      )
+    }
   plot2pdf(
     file.name = my_env$contrast_detail
-  , width  = 8
-  , height = 8
+  , width  = pdf_width
+  , height = pdf_height
   , plot.function = function() {
       # plot layout four plots per page
-      layout(matrix(1:4, byrow = TRUE, nrow = 2))
+      my_layout()
       my_result <<- corcov_calc(
           calc_env            = my_env
         , failure_action      = my_fatal
@@ -156,7 +174,7 @@ if ( is.logical(my_result) && my_result) {
     }
   )
   par(old_par)
-  
+
   my_log( "--------------------------  Finished data processing  --------------------------")
 }
 

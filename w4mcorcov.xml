@@ -1,4 +1,4 @@
-﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.9">
+﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.10">
 
   <description>OPLS-DA Contrasts of Univariate Results</description>
   
@@ -12,6 +12,24 @@
 				falsevalue="FALSE"
 				label="Retain only pairwise-significant features"
 				help="When this option is set to 'Yes', analysis will be performed including only features that differ significantly for the pair of levels being contrasted; when set to 'No', any feature that varies significantly across all levels will be included (i.e., exclude any feature that is not significantly different across all levels).  See examples below." />
+    </xml>
+    <xml name="cplots">
+			<param
+				name="cplot_p"
+				type="boolean"
+				checked="TRUE"
+				truevalue="TRUE"
+				falsevalue="FALSE"
+				label="Produce predictor C-plot"
+				help="When this option is set to 'Yes', correlation will be plotted against vip4 for predictor loadings." />
+			<param
+				name="cplot_o"
+				type="boolean"
+				checked="TRUE"
+				truevalue="TRUE"
+				falsevalue="FALSE"
+				label="Produce orthogonal C-plot"
+				help="When this option is set to 'Yes', correlation will be plotted against vip4 for orthogonal loadings." />
     </xml>
 	</macros>
 
@@ -40,6 +58,13 @@
     levCSV '$levCSV'
     matchingC '$matchingC'
     labelFeatures '$labelFeatures'
+    #if str( $xplots.expPlot ) == "none":
+      cplot_p "FALSE"
+      cplot_o "FALSE"
+    #else if str( $xplots.expPlot ) == "cplot":
+      cplot_p "$xplots.cplot_p"
+      cplot_o "$xplots.cplot_o"
+    #end if
     contrast_detail '$contrast_detail'
     contrast_corcov '$contrast_corcov'
     contrast_salience '$contrast_salience'
@@ -104,6 +129,16 @@
       <option value="regex">use regular expressions for matching level-names</option>
     </param>
     <param name="labelFeatures" type="text" value="3" label="How many features having extreme loadings should be labelled on cov-vs.-cor plot" help="Specify the number of features at each of the loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features or '0' to label no features; this choice has no effect on the OPLS-DA loadings plot."/>
+    <conditional name="xplots">
+			<param name="expPlot" label="Extra plots to include" type="select" help="Choosing 'none' hides further choices.">
+				<option value="none">none - Do not include additonal extra plots.</option>
+				<option value="cplot">cplot - Include C-plots (predictor-loading vs. 'vip4p' and orthogonal-loading versus 'vip4o')</option>
+			</param>
+			<when value="none" />
+			<when value="cplot">
+				<expand macro="cplots" />
+			</when>
+    </conditional>
   </inputs>
 
   <outputs>
@@ -696,6 +731,10 @@ OPLS-DA, SIMCA, and S-PLOT are registered trademarks of the Umetrics company.  h
 
 Release notes
 -------------
+
+0.98.10
+
+- new feature: C-plots.
 
 0.98.9
 

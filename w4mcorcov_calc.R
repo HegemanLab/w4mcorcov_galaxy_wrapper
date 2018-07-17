@@ -23,12 +23,21 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
     my_oplsda_suppLs_y_levels <- levels(as.factor(my_oplsda@suppLs$y))
     fctr_lvl_1 <- my_oplsda_suppLs_y_levels[1]
     fctr_lvl_2 <- my_oplsda_suppLs_y_levels[2]
-    do_s_plot <- function(parallel_x) {
-      my_cor_vs_cov <- cor_vs_cov(
-          matrix_x   = x_dataMatrix
-        , ropls_x    = my_oplsda
-        , parallel_x = parallel_x
-        )
+    do_s_plot <- function(
+        parallel_x   = TRUE
+      , cplot_x      = FALSE
+      , cor_vs_cov_x = NULL
+      )
+    {
+      if (is.null(cor_vs_cov_x)) {
+        my_cor_vs_cov <- cor_vs_cov(
+            matrix_x   = x_dataMatrix
+          , ropls_x    = my_oplsda
+          , parallel_x = parallel_x
+          )
+      } else {
+        my_cor_vs_cov <- cor_vs_cov_x
+      }
       # print("str(my_cor_vs_cov)")
       # str(my_cor_vs_cov)
       if (sum(!is.na(my_cor_vs_cov$tsv1$covariance)) < 2) {
@@ -53,36 +62,62 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
           cex <- 0.75
           which_projection <- if (projection == 1) "t1" else "o1"
           which_loading <- if (projection == 1) "parallel" else "orthogonal"
-          if (projection == 1) {
-            my_xlab <- "relative covariance(feature,t1)"
-            my_x <- plus_cov
-            my_ylab <- "correlation(feature,t1) [~ parallel loading]"
+          if (projection == 1) { # parallel projection
+            vipcp <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
+            if (!cplot_x) {
+              my_xlab <- "relative covariance(feature,t1)"
+              my_x <- plus_cov
+            } else {
+              my_xlab <- "variable importance in predictor-projection"
+              my_x <- vip4p
+            }
+            my_ylab <- "correlation(feature,t1)"
             my_y <- plus_cor
-            my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
+            if (cplot_x) {
+              min_x <- min(my_x, na.rm = TRUE)
+              max_x <- max(my_x, na.rm = TRUE)
+              lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
+              my_xlim <- c( 0, lim_x + off(0.2) )
+            } else {
+              my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
+            }
             my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
             my_load_distal <- loadp
             my_load_proximal <- loado
-            vipcp <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
             red  <- as.numeric(correlation > 0) * vipcp
             blue <- as.numeric(correlation < 0) * vipcp
+            alpha <- 0.1 + 0.4 * vipcp
             red[is.na(red)] <- 0
             blue[is.na(blue)] <- 0
-            alpha <- 0.1 + 0.4 * vipcp
-            my_col = rgb(blue = blue, red = red, green = 0, alpha = alpha)
+            alpha[is.na(alpha)] <- 0
+            my_col <- rgb(blue = blue, red = red, green = 0, alpha = alpha)
             main_label <- sprintf("%s for level %s versus %s", x_prefix, fctr_lvl_1, fctr_lvl_2)
-          } else {
-            my_xlab <- "relative covariance(feature,to1)"
-            my_x <- -plus_cov
-            my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
-            my_ylab <- "correlation(feature,to1) [~ orthogonal loading]"
+          } else { # orthogonal projection
+            vipco <- pmax(0, pmin(1,(vip4o-0.83)/(1.21-0.83)))
+            if (!cplot_x) {
+              my_xlab <- "relative covariance(feature,to1)"
+              my_x <- -plus_cov
+            } else {
+              my_xlab <- "variable importance in orthogonal projection"
+              my_x <- vip4o
+            }
+            if (cplot_x) {
+              min_x <- min(my_x, na.rm = TRUE)
+              max_x <- max(my_x, na.rm = TRUE)
+              lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
+              my_xlim <- c( 0, lim_x + off(0.2) )
+            } else {
+              my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
+            }
+            my_ylab <- "correlation(feature,to1)"
             my_y <- plus_cor
             my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
             my_load_distal <- loado
             my_load_proximal <- loadp
-            vipco <- pmax(0, pmin(1,(vip4o-0.83)/(1.21-0.83)))
             alpha <- 0.1 + 0.4 * vipco
-            my_col = rgb(blue = 0, red = 0, green = 0, alpha = alpha)
-            main_label <- sprintf("Features influencing orthogonal projection for level %s versus %s", fctr_lvl_1, fctr_lvl_2)
+            alpha[is.na(alpha)] <- 0
+            my_col <- rgb(blue = 0, red = 0, green = 0, alpha = alpha)
+            main_label <- sprintf("Features influencing orthogonal projection for %s versus %s", fctr_lvl_1, fctr_lvl_2)
           }
           main_cex <- min(1.0, 46.0/nchar(main_label))
           my_feature_label_slant <- -30 # slant feature labels 30 degrees downward
@@ -102,7 +137,7 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
           )
           low_x <- -0.7 * lim_x
           high_x <- 0.7 * lim_x
-          if (projection == 1) {
+          if (projection == 1 && !cplot_x) {
             text(x = low_x, y = -0.05, labels =  fctr_lvl_1, col = "blue")
             text(x = high_x, y = 0.05, labels =  fctr_lvl_2, col = "red")
           }
@@ -129,36 +164,69 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
               # print(str(y_arg))
               # print("str(labels_arg)")
               # print(str(labels_arg))
-              text(
-                y = y_arg
-              , x = x_arg + x_text_offset
-              , cex = 0.4
-              , labels = labels_arg
-              , col = rgb(blue = 0, red = 0, green = 0, alpha = 0.5) # grey semi-transparent labels
-              , srt = slant_arg
-              , adj = 0   # left-justified
-              )
+              if (length(labels_arg) > 0) {
+                unique_slant <- unique(slant_arg)
+                if (length(unique_slant) == 1) {
+                  text(
+                    y = y_arg
+                  , x = x_arg + x_text_offset
+                  , cex = 0.4
+                  , labels = labels_arg
+                  , col = rgb(blue = 0, red = 0, green = 0, alpha = 0.5) # grey semi-transparent labels
+                  , srt = slant_arg
+                  , adj = 0   # left-justified
+                  )
+                } else {
+                  for (slant in unique_slant) {
+                    text(
+                      y = y_arg[slant_arg == slant]
+                    , x = x_arg[slant_arg == slant] + x_text_offset
+                    , cex = 0.4
+                    , labels = labels_arg[slant_arg == slant]
+                    , col = rgb(blue = 0, red = 0, green = 0, alpha = 0.5) # grey semi-transparent labels
+                    , srt = slant
+                    , adj = 0   # left-justified
+                    )
+                  }
+                }
+              }
             }
-            my_slant <- (if (projection == 1) 1 else -1) * my_feature_label_slant
+            if (!cplot_x) {
+              my_slant <- (if (projection == 1) 1 else -1) * my_feature_label_slant
+            } else {
+              my_slant <- sapply(
+                            X = (my_y > 0)
+                          , FUN = function(x) if (x) 2 else -2
+                          ) * my_feature_label_slant
+            }
             if (length(my_x) > 1) {
-              label_features( 
+              label_features(
                 x_arg      = my_x  [my_x > 0]
               , y_arg      = my_y  [my_x > 0] - y_text_offset
               , labels_arg = labels[my_x > 0]
-              , slant_arg = -my_slant
+              , slant_arg = (if (!cplot_x) -my_slant else (my_slant))
               )
-              label_features( 
-                x_arg      = my_x  [my_x < 0]
-              , y_arg      = my_y  [my_x < 0] + y_text_offset
-              , labels_arg = labels[my_x < 0]
-              , slant_arg = my_slant
-              )
+              if (!cplot_x) {
+                label_features(
+                  x_arg      = my_x  [my_x < 0]
+                , y_arg      = my_y  [my_x < 0] + y_text_offset
+                , labels_arg = labels[my_x < 0]
+                , slant_arg = my_slant
+                )
+              }
             } else {
-              label_features( 
+              if (!cplot_x) {
+                my_slant <- (if (my_x > 1) -1 else 1) * my_slant
+                my_y_arg = my_y + (if (my_x > 1) -1 else 1) * y_text_offset
+              } else {
+                my_slant <- (if (my_y > 1) -1 else 1) * my_slant
+                my_y_arg = my_y + (if (my_y > 1) -1 else 1) * y_text_offset
+              }
+              label_features(
                 x_arg = my_x
-              , y_arg = my_y + (if (my_x > 1) -1 else 1) * y_text_offset
+              , y_arg = my_y_arg
               , labels_arg = labels
-              , slant_arg = (if (my_x > 1) -1 else 1) * my_slant
+              , slant_arg = my_slant
               )
             }
           }
@@ -166,7 +234,7 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
       )
       return (my_cor_vs_cov)
     }
-    my_cor_vs_cov <- do_s_plot( parallel_x = TRUE )
+    my_cor_vs_cov <- do_s_plot( parallel_x = TRUE, cplot_x = FALSE )
     typeVc <- c("correlation",      # 1
                 "outlier",          # 2
                 "overview",         # 3
@@ -185,6 +253,7 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
     } else {
       my_typevc <- c("(dummy)","overview","(dummy)")
     }
+    my_ortho_cor_vs_cov_exists <- FALSE
     for (my_type in my_typevc) {
       if (my_type %in% typeVc) {
         tryCatch({
@@ -197,8 +266,13 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
              , parLayL      = TRUE
              , parEllipsesL = TRUE
              )
+             if (my_type == "overview") {
+               sub_label <- sprintf("%s versus %s", fctr_lvl_1, fctr_lvl_2)
+               title(sub = sub_label)
+             }
           } else {
-            do_s_plot( parallel_x = FALSE )
+            my_ortho_cor_vs_cov <- do_s_plot( parallel_x = FALSE, cplot_x = FALSE  )
+            my_ortho_cor_vs_cov_exists <- TRUE
           }
         }, error = function(e) {
           x_progress( sprintf( "factor level %s or %s may have only one sample - %s", fctr_lvl_1, fctr_lvl_2, e$message ) )
@@ -208,6 +282,28 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
         text(x=1, y=1, labels="no orthogonal projection is possible")
       }
     }
+    cplot_p <- x_env$cplot_p
+    cplot_o <- x_env$cplot_o
+    if (cplot_p || cplot_o) {
+      if (cplot_p) {
+        do_s_plot( parallel_x = TRUE, cplot_x = TRUE, cor_vs_cov_x = my_cor_vs_cov )
+        did_plots <- 1
+      } else {
+        did_plots <- 0
+      }
+      if (cplot_o) {
+        if (my_ortho_cor_vs_cov_exists) {
+          do_s_plot( parallel_x = FALSE, cplot_x = TRUE, cor_vs_cov_x = my_ortho_cor_vs_cov )
+        } else {
+          plot(x=1, y=1, xaxt="n", yaxt="n", xlab="", ylab="", type="n")
+          text(x=1, y=1, labels="no orthogonal projection is possible")
+        }
+        did_plots <- 1 + did_plots
+      }
+      if (did_plots == 1) {
+        plot(x=1, y=1, xaxt="n", yaxt="n", xlab="", ylab="", type="n", fg = "white")
+      }
+    }
     return (my_cor_vs_cov)
   } else {
     return (NULL)
@@ -215,7 +311,14 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
 }
 
 # S-PLOT and OPLS reference: Wiklund_2008 doi:10.1021/ac0713510
-corcov_calc <- function(calc_env, failure_action = stop, progress_action = function(x){}, corcov_tsv_action = function(t){}, salience_tsv_action = function(t){}) {
+corcov_calc <- function(
+  calc_env
+, failure_action      = stop
+, progress_action     = function(x) { }
+, corcov_tsv_action   = function(t) { }
+, salience_tsv_action = function(t) { }
+, extra_plots         = c()
+) {
   if ( ! is.environment(calc_env) ) {
     failure_action("corcov_calc: fatal error - 'calc_env' is not an environment")
     return ( FALSE )
@@ -252,11 +355,11 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
   mz             <- vrbl_metadata$mz
   names(mz)      <- vrbl_metadata$variableMetadata
   mz_lookup      <- function(feature) unname(mz[feature])
-  
+
   rt             <- vrbl_metadata$rt
   names(rt)      <- vrbl_metadata$variableMetadata
   rt_lookup      <- function(feature) unname(rt[feature])
-  
+
   # calculate salience_df as data.frame(feature, max_level, max_median, max_rcv, mean_median, salience, salient_rcv)
   salience_df <- calc_env$salience_df <- w4msalience(
     data_matrix    = data_matrix
@@ -385,7 +488,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
           my_tsv <- my_cor_cov$tsv1
           my_tsv$mz <- mz_lookup(my_tsv$featureID)
           my_tsv$rt <- rt_lookup(my_tsv$featureID)
-          my_tsv["level1Level2Sig"] <- vrbl_metadata[ match(my_tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ] 
+          my_tsv["level1Level2Sig"] <- vrbl_metadata[ match(my_tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ]
           tsv <<- my_tsv
           corcov_tsv_action(tsv)
           did_plot <<- TRUE
@@ -439,7 +542,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
             tsv <- my_cor_cov$tsv1
             tsv$mz <- mz_lookup(tsv$featureID)
             tsv$rt <- rt_lookup(tsv$featureID)
-            tsv["level1Level2Sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ] 
+            tsv["level1Level2Sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ]
             corcov_tsv_action(tsv)
             did_plot <- TRUE
           }
@@ -454,7 +557,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
         completed <- c()
         lapply(
           X = level_union
-        , FUN = function(x) { 
+        , FUN = function(x) {
             fctr_lvl_1 <- x[1]
             fctr_lvl_2 <- {
               if ( fctr_lvl_1 %in% completed )
@@ -504,7 +607,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
       utils::combn(
         x = level_union
       , m = 2
-      , FUN = function(x) { 
+      , FUN = function(x) {
           fctr_lvl_1 <- x[1]
           fctr_lvl_2 <- x[2]
           chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
@@ -559,7 +662,7 @@ corcov_calc <- function(calc_env, failure_action = stop, progress_action = funct
 #     https://github.com/HegemanLab/extra_tools/blob/master/generic_PCA.R
 cor_vs_cov <- function(matrix_x, ropls_x, parallel_x = TRUE) {
   x_class <- class(ropls_x)
-  if ( !( as.character(x_class) == "opls" ) ) { # || !( attr(class(x_class),"package") == "ropls" ) ) 
+  if ( !( as.character(x_class) == "opls" ) ) { # || !( attr(class(x_class),"package") == "ropls" ) )
     stop( "cor_vs_cov: Expected ropls_x to be of class ropls::opls but instead it was of class ", as.character(x_class) )
   }
   result <- list()
@@ -659,7 +762,7 @@ cor_vs_cov <- function(matrix_x, ropls_x, parallel_x = TRUE) {
   superresult$details <- result
   result$superresult <- superresult
   # Include thise in case future consumers of this routine want to use it in currently unanticipated ways
-  result$oplsda    <- ropls_x          
+  result$oplsda    <- ropls_x
   result$predictor <- ropls_x@suppLs$y   # in case future consumers of this routine want to use it in currently unanticipated ways
   return (superresult)
 }

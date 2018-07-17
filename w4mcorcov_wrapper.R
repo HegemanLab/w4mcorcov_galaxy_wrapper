@@ -72,6 +72,8 @@ my_env$pairSigFeatOnly    <- as.logical(argVc["pairSigFeatOnly"])
 my_env$levCSV             <- as.character(argVc["levCSV"])
 my_env$matchingC          <- as.character(argVc["matchingC"])
 my_env$labelFeatures      <- as.character(argVc["labelFeatures"]) # number of features to label at each extreme of the loadings or 'ALL'
+my_env$cplot_o            <- as.logical(argVc["cplot_o"]) # TRUE if orthogonal C-plot is requested
+my_env$cplot_p            <- as.logical(argVc["cplot_p"]) # TRUE if parallel C-plot is requested
 
 label_features <- my_env$labelFeatures
 labelfeatures_check <- TRUE
@@ -128,17 +130,44 @@ if ( is.logical(my_result) && my_result) {
 
   # compute and plot the correlation_vs_covariance details plot
   #   The parameter settings here are generally taken from bioconductor ropls::plot.opls source.
-  marVn <- c(4.6, 4.1, 2.6, 1.6)
-  old_par <- par(
-    font      = 2         # bold font face
-  , font.axis = 2         # bold font face for axis
-  , font.lab  = 2         # bold font face for x and y labels
-  , lwd       = 2         # line-width - interpretation is device spcific
-  , mar       = marVn     # margins
-  , pch       = 18        # black diamond plot-character, see help for graphics::points
-  # , mfrow     = c(2,2)    # two rows by two columns
-  , pty       = "s"       # force plots to be square
-  )
+  if ( my_env$cplot_p || my_env$cplot_o ) {
+    old_par <- par(
+      font        = 2         # bold font face
+    , font.axis   = 2         # bold font face for axis
+    , font.lab    = 2         # bold font face for x and y labels
+    , lwd         = 2         # line-width - interpretation is device spcific
+    , pch         = 18        # black diamond plot-character, see help for graphics::points
+    , pty         = "m"       # do not force plots to be square
+    , no.readonly = TRUE      # only save writable parameters
+    )
+    pdf_height <- 12
+    pdf_width  <- 8
+    my_layout <- function() {
+      # lay out 2 columns by 3 rows with extra width at the margin of individual plots
+      layout(
+        matrix(
+          # blank row  plot 1 & 2  blank row  plot 3 & 4  blank row  plot 5 & 6 blank row
+          c(0,0,0,0,0, 0,1,0,2,0,  0,0,0,0,0, 0,3,0,4,0,  0,0,0,0,0, 0,5,0,6,0, 0,0,0,0,0)
+        , nrow = 7
+        , ncol = 5
+        , byrow = TRUE
+        )
+        # slim columns 1, 3, and 5
+      , widths  = c(0.1, 0.9, 0.1, 0.9, 0.1)
+        # slim rows 1, 3, 5, and 7
+      , heights = c(0.1, 0.9, 0.1, 0.9, 0.1, 0.9, 0.1)
+      )
+    }
+  } else {
+    old_par <- par(
+      font        = 2         # bold font face
+    , font.axis   = 2         # bold font face for axis
+    , font.lab    = 2         # bold font face for x and y labels
+    , lwd         = 2         # line-width - interpretation is device spcific
+    , pch         = 18        # black diamond plot-character, see help for graphics::points
+    , pty         = "m"       # do not force plots to be square
+    , no.readonly = TRUE      # only save writable parameters
+    )
     pdf_height <- 8
     pdf_width  <- 8
     my_layout <- function() {
@@ -157,12 +186,13 @@ if ( is.logical(my_result) && my_result) {
       , heights = c(0.1, 0.9, 0.1, 0.9, 0.1)
       )
     }
+  }
   plot2pdf(
     file.name = my_env$contrast_detail
   , width  = pdf_width
   , height = pdf_height
   , plot.function = function() {
-      # plot layout four plots per page
+      # plot layout four or six plots per page
       my_layout()
       my_result <<- corcov_calc(
           calc_env            = my_env

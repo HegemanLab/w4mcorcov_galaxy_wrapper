@@ -1,7 +1,7 @@
 ﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.10">
 
   <description>OPLS-DA Contrasts of Univariate Results</description>
-  
+
   <macros>
     <xml name="paramPairSigFeatOnly">
 			<param
@@ -14,6 +14,10 @@
 				help="When this option is set to 'Yes', analysis will be performed including only features that differ significantly for the pair of levels being contrasted; when set to 'No', any feature that varies significantly across all levels will be included (i.e., exclude any feature that is not significantly different across all levels).  See examples below." />
     </xml>
     <xml name="cplots">
+			<param name="cplot_y" label="C-plot Y-axis" type="select" help="Choose the Y-axis for C-plots.">
+				<option value="covariance">Plot VIP versus covariance</option>
+				<option value="correlation">Plot VIP versus correlation</option>
+			</param>
 			<param
 				name="cplot_p"
 				type="boolean"
@@ -37,7 +41,7 @@
     <requirement type="package">r-batch</requirement>
     <requirement type="package">bioconductor-ropls</requirement>
   </requirements>
-  
+
   <stdio>
     <exit_code range="1:" level="fatal" />
   </stdio>
@@ -61,9 +65,11 @@
     #if str( $xplots.expPlot ) == "none":
       cplot_p "FALSE"
       cplot_o "FALSE"
+      cplot_y "correlation"
     #else if str( $xplots.expPlot ) == "cplot":
       cplot_p "$xplots.cplot_p"
       cplot_o "$xplots.cplot_o"
+      cplot_y "$xplots.cplot_y"
     #end if
     contrast_detail '$contrast_detail'
     contrast_corcov '$contrast_corcov'
@@ -80,7 +86,7 @@
 				<option value="none">none - Display all features from variableMetadata (rather than choosing a subset based on significance in univariate testing)</option>
 				<option value="ttest">ttest - Student's t-test (parametric test, qualitative factor with exactly 2 levels)</option>
 				<option value="anova">anova - Analysis of variance (parametric test, qualitative factor with more than 2 levels)</option>
-				<option value="wilcoxon">wilcoxon - Wilcoxon rank test (nonparametric test, qualitative factor with exactly 2 levels)</option>      
+				<option value="wilcoxon">wilcoxon - Wilcoxon rank test (nonparametric test, qualitative factor with exactly 2 levels)</option>
 				<option value="kruskal">kruskal - Kruskal-Wallis rank test (nonparametric test, qualitative factor with more than 2 levels)</option>
 			</param>
 			<when value="none" />
@@ -437,7 +443,7 @@ For instance, suppose that you ran Kruskal-Wallis testing for a column named 'cl
 - A column of variableMetadata would be labelled 'cluster_kruskal_sig' and would have values '1' and '0'; when the samples are grouped by 'cluster', '1' means that there is strong evidence against the hypothesis that there is no difference among the intensities for the feature across all sample-groups.
 - A column of variableMetadata would be labelled 'cluster_kruskal_k1.k2_sig' and would have values '1' and '0', where '1' means that there is significant evidence against the hypothesis that samples from sampleMetadata whose 'cluster' column contains 'k1' or 'k2' have the same intensity for that feature.
 
-The 'PLS-DA Contrasts' tool produces graphics and data for OPLS-DA contrasts of feature-intensities between significantly different pairs of factor-levels.  For each factor-level, the tool performs a contrast with all other factor-levels combined and then separately with each other factor-level.  
+The 'PLS-DA Contrasts' tool produces graphics and data for OPLS-DA contrasts of feature-intensities between significantly different pairs of factor-levels.  For each factor-level, the tool performs a contrast with all other factor-levels combined and then separately with each other factor-level.
 
 **Along the left-to-right axis, the plots show the supervised projection of the variation explained by the predictor** (i.e., the factor specified when invoking the tool); **the top-to-bottom axis displays the variation that is orthogonal to the predictor level** (i.e., independent of it).
 
@@ -450,7 +456,7 @@ It must be stressed that there may be no *single* definitive computational appro
 - examining "variable importance in projection VIP for OPLS-DA" (Galindo-Prieto *et al.* 2014), and
 - examining a feature's "selectivity ratio" (Rajalahti *et al.*, 2009).
 
-In this spirit, this tool reports the S-PLOT covariance and correlation (Wiklund *op. cit.*) and VIP metrics, and it introduces an informal "salience" metric to flag features that may merit attention without dimensional reduction; future versions may add selectivity ratio.  
+In this spirit, this tool reports the S-PLOT covariance and correlation (Wiklund *op. cit.*) and VIP metrics, and it introduces an informal "salience" metric to flag features that may merit attention without dimensional reduction; future versions may add selectivity ratio.
 
 For a more systematic approach to biomarker identification, please consider the W4M 'biosigner' tool (Rinuardo *et al.* 2016), which applies three different identification metrics to the selection process.
 

@@ -7,9 +7,23 @@ center_colmeans <- function(x) {
 #### OPLS-DA
 algoC <- "nipals"
 
-do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x_prefix, x_show_labels, x_progress = print, x_env, x_crossval_i) {
+do_detail_plot <- function(
+  x_dataMatrix
+, x_predictor
+, x_is_match
+, x_algorithm
+, x_prefix
+, x_show_labels
+, x_progress = print
+, x_env
+, x_crossval_i
+) {
   off <- function(x) if (x_show_labels == "0") 0 else x
-  if ( x_is_match && ncol(x_dataMatrix) > 0 && length(unique(x_predictor))> 1 && x_crossval_i < nrow(x_dataMatrix) ) {
+  if ( x_is_match
+      && ncol(x_dataMatrix) > 0
+      && length(unique(x_predictor))> 1
+      && x_crossval_i < nrow(x_dataMatrix)
+  ) {
     my_oplsda <- opls(
         x      = x_dataMatrix
       , y      = x_predictor
@@ -24,16 +38,24 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
     fctr_lvl_1 <- my_oplsda_suppLs_y_levels[1]
     fctr_lvl_2 <- my_oplsda_suppLs_y_levels[2]
     do_s_plot <- function(
-        parallel_x   = TRUE
+        x_env
+      , predictor_projection_x   = TRUE
       , cplot_x      = FALSE
       , cor_vs_cov_x = NULL
       )
     {
+      #print(ls(x_env))               # "cplot_y" etc
+      #print(str(x_env$cplot_y))      # chr "covariance"
+      if (cplot_x) {
+        #print(x_env$cplot_y)         # "covariance"
+        cplot_y_correlation <- (x_env$cplot_y == "correlation")
+        #print(cplot_y_correlation)   # FALSE
+      }
       if (is.null(cor_vs_cov_x)) {
         my_cor_vs_cov <- cor_vs_cov(
             matrix_x   = x_dataMatrix
           , ropls_x    = my_oplsda
-          , parallel_x = parallel_x
+          , predictor_projection_x = predictor_projection_x
           )
       } else {
         my_cor_vs_cov <- cor_vs_cov_x
@@ -62,17 +84,24 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
           cex <- 0.75
           which_projection <- if (projection == 1) "t1" else "o1"
           which_loading <- if (projection == 1) "parallel" else "orthogonal"
-          if (projection == 1) { # parallel projection
+          if (projection == 1) { # predictor-projection
             vipcp <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
-            if (!cplot_x) {
+            if (!cplot_x) { # S-plot predictor-projection
               my_xlab <- "relative covariance(feature,t1)"
               my_x <- plus_cov
-            } else {
+              my_ylab <- "correlation(feature,t1)"
+              my_y <- plus_cor
+            } else { # C-plot predictor-projection
               my_xlab <- "variable importance in predictor-projection"
               my_x <- vip4p
+              if (cplot_y_correlation) {
+                my_ylab <- "correlation(feature,t1)"
+                my_y <- plus_cor
+              } else {
+                my_ylab <- "covariance(feature,t1)"
+                my_y <- plus_cov
+              }
             }
-            my_ylab <- "correlation(feature,t1)"
-            my_y <- plus_cor
             if (cplot_x) {
               min_x <- min(my_x, na.rm = TRUE)
               max_x <- max(my_x, na.rm = TRUE)
@@ -91,7 +120,8 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
             blue[is.na(blue)] <- 0
             alpha[is.na(alpha)] <- 0
             my_col <- rgb(blue = blue, red = red, green = 0, alpha = alpha)
-            main_label <- sprintf("%s for level %s versus %s", x_prefix, fctr_lvl_1, fctr_lvl_2)
+            main_label <- sprintf("%s for level %s versus %s"
+                                 , x_prefix, fctr_lvl_1, fctr_lvl_2)
           } else { # orthogonal projection
             vipco <- pmax(0, pmin(1,(vip4o-0.83)/(1.21-0.83)))
             if (!cplot_x) {
@@ -101,23 +131,32 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
               my_xlab <- "variable importance in orthogonal projection"
               my_x <- vip4o
             }
-            if (cplot_x) {
+            if (!cplot_x) { # S-plot orthogonal projection
+              my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
+              my_ylab <- "correlation(feature,to1)"
+              my_y <- plus_cor
+            } else { # C-plot orthogonal projection
               min_x <- min(my_x, na.rm = TRUE)
               max_x <- max(my_x, na.rm = TRUE)
               lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
               my_xlim <- c( 0, lim_x + off(0.2) )
-            } else {
-              my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
+              if (cplot_y_correlation) {
+                my_ylab <- "correlation(feature,to1)"
+                my_y <- plus_cor
+              } else {
+                my_ylab <- "covariance(feature,to1)"
+                my_y <- plus_cov
+              }
             }
-            my_ylab <- "correlation(feature,to1)"
-            my_y <- plus_cor
             my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
             my_load_distal <- loado
             my_load_proximal <- loadp
             alpha <- 0.1 + 0.4 * vipco
             alpha[is.na(alpha)] <- 0
             my_col <- rgb(blue = 0, red = 0, green = 0, alpha = alpha)
-            main_label <- sprintf("Features influencing orthogonal projection for %s versus %s", fctr_lvl_1, fctr_lvl_2)
+            main_label <- sprintf(
+              "Features influencing orthogonal projection for %s versus %s"
+            , fctr_lvl_1, fctr_lvl_2)
           }
           main_cex <- min(1.0, 46.0/nchar(main_label))
           my_feature_label_slant <- -30 # slant feature labels 30 degrees downward
@@ -154,7 +193,12 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
               names(head(sort(my_load_distal),n = n_labels))
             , names(tail(sort(my_load_distal),n = n_labels))
             )
-            labels <- unname(sapply( X = tsv1$featureID, FUN = function(x) if( x %in% labels_to_show ) x else "" ))
+            labels <- unname(
+              sapply(
+                X = tsv1$featureID
+              , FUN = function(x) if( x %in% labels_to_show ) x else ""
+              )
+            )
             x_text_offset <- 0.024
             y_text_offset <- (if (projection == 1) 1 else -1) * -0.017
             label_features <- function(x_arg, y_arg, labels_arg, slant_arg) {
@@ -234,7 +278,11 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
       )
       return (my_cor_vs_cov)
     }
-    my_cor_vs_cov <- do_s_plot( parallel_x = TRUE, cplot_x = FALSE )
+    my_cor_vs_cov <- do_s_plot(
+      x_env = x_env
+    , predictor_projection_x = TRUE
+    , cplot_x = FALSE
+    )
     typeVc <- c("correlation",      # 1
                 "outlier",          # 2
                 "overview",         # 3
@@ -271,11 +319,22 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
                title(sub = sub_label)
              }
           } else {
-            my_ortho_cor_vs_cov <- do_s_plot( parallel_x = FALSE, cplot_x = FALSE  )
+            my_ortho_cor_vs_cov <- do_s_plot(
+              x_env = x_env
+            , predictor_projection_x = FALSE
+            , cplot_x = FALSE
+            )
             my_ortho_cor_vs_cov_exists <- TRUE
           }
         }, error = function(e) {
-          x_progress( sprintf( "factor level %s or %s may have only one sample - %s", fctr_lvl_1, fctr_lvl_2, e$message ) )
+          x_progress(
+            sprintf(
+              "factor level %s or %s may have only one sample - %s"
+            , fctr_lvl_1
+            , fctr_lvl_2
+            , e$message
+            )
+          )
         })
       } else {
         plot(x=1, y=1, xaxt="n", yaxt="n", xlab="", ylab="", type="n")
@@ -286,14 +345,24 @@ do_detail_plot <- function(x_dataMatrix, x_predictor, x_is_match, x_algorithm, x
     cplot_o <- x_env$cplot_o
     if (cplot_p || cplot_o) {
       if (cplot_p) {
-        do_s_plot( parallel_x = TRUE, cplot_x = TRUE, cor_vs_cov_x = my_cor_vs_cov )
+        do_s_plot(
+          x_env = x_env
+        , predictor_projection_x = TRUE
+        , cplot_x = TRUE
+        , cor_vs_cov_x = my_cor_vs_cov
+        )
         did_plots <- 1
       } else {
         did_plots <- 0
       }
       if (cplot_o) {
         if (my_ortho_cor_vs_cov_exists) {
-          do_s_plot( parallel_x = FALSE, cplot_x = TRUE, cor_vs_cov_x = my_ortho_cor_vs_cov )
+          do_s_plot(
+            x_env = x_env
+          , predictor_projection_x = FALSE
+          , cplot_x = TRUE
+          , cor_vs_cov_x = my_ortho_cor_vs_cov
+          )
         } else {
           plot(x=1, y=1, xaxt="n", yaxt="n", xlab="", ylab="", type="n")
           text(x=1, y=1, labels="no orthogonal projection is possible")
@@ -348,7 +417,9 @@ corcov_calc <- function(
 
   # arg/env checking
   if (!(facC %in% names(smpl_metadata))) {
-    failure_action(sprintf("bad parameter!  Factor name '%s' not found in sampleMetadata", facC))
+    failure_action(
+      sprintf("bad parameter!  Factor name '%s' not found in sampleMetadata"
+             , facC))
     return ( FALSE )
   }
 
@@ -435,7 +506,10 @@ corcov_calc <- function(
     # for each column name, extract the parts of the name matched by 'col_pattern', if any
     the_colnames <- colnames(vrbl_metadata)
     if ( ! Reduce( f = "||", x = grepl(tesC, the_colnames) ) ) {
-      failure_action(sprintf("bad parameter!  variableMetadata must contain results of W4M Univariate test '%s'.", tesC))
+      failure_action(
+        sprintf(
+          "bad parameter!  variableMetadata must contain results of W4M Univariate test '%s'."
+        , tesC))
       return ( FALSE )
     }
     col_matches <- lapply(
@@ -462,21 +536,36 @@ corcov_calc <- function(
       }
     }
     level_union <- unique(sort(level_union))
-    overall_significant <- 1 == ( if (intersample_sig_col %in% colnames(vrbl_metadata)) vrbl_metadata[,intersample_sig_col] else TRUE )
+    overall_significant <- 1 == (
+      if (intersample_sig_col %in% colnames(vrbl_metadata)) {
+        vrbl_metadata[,intersample_sig_col]
+      } else {
+        1
+      }
+    )
     if ( length(level_union) > 2 ) {
       chosen_samples <- smpl_metadata_facC %in% level_union
       chosen_facC <- as.character(smpl_metadata_facC[chosen_samples])
       col_selector <- vrbl_metadata_names[ overall_significant ]
       my_matrix <- scdm[ chosen_samples, col_selector, drop = FALSE ]
       plot_action <- function(fctr_lvl_1, fctr_lvl_2) {
-        progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))
-        predictor <- sapply( X = chosen_facC, FUN = function(fac) if ( fac == fctr_lvl_1 ) fctr_lvl_1 else fctr_lvl_2 )
+        progress_action(
+          sprintf("calculating/plotting contrast of %s vs. %s"
+                 , fctr_lvl_1, fctr_lvl_2))
+        predictor <- sapply(
+          X = chosen_facC
+        , FUN = function(fac) if ( fac == fctr_lvl_1 ) fctr_lvl_1 else fctr_lvl_2
+        )
         my_cor_cov <- do_detail_plot(
           x_dataMatrix  = my_matrix
         , x_predictor   = predictor
         , x_is_match    = is_match
         , x_algorithm   = algoC
-        , x_prefix      = if (pairSigFeatOnly) "Significantly contrasting features" else "Significant features"
+        , x_prefix      = if (pairSigFeatOnly) {
+                            "Significantly contrasting features"
+                          } else {
+                            "Significant features"
+                          }
         , x_show_labels = labelFeatures
         , x_progress    = progress_action
         , x_crossval_i  = min(7, length(chosen_samples))
@@ -488,7 +577,10 @@ corcov_calc <- function(
           my_tsv <- my_cor_cov$tsv1
           my_tsv$mz <- mz_lookup(my_tsv$featureID)
           my_tsv$rt <- rt_lookup(my_tsv$featureID)
-          my_tsv["level1Level2Sig"] <- vrbl_metadata[ match(my_tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ]
+          my_tsv["level1Level2Sig"] <- vrbl_metadata[
+            match(my_tsv$featureID, vrbl_metadata_names)
+          , vrbl_metadata_col
+          ]
           tsv <<- my_tsv
           corcov_tsv_action(tsv)
           did_plot <<- TRUE
@@ -517,20 +609,34 @@ corcov_calc <- function(
           fctr_lvl_2        <- col_match[3]               #                ^^      # Factor-level 2
           # only process this column if both factors are members of lvlCSV
           is_match <- isLevelSelected(fctr_lvl_1) && isLevelSelected(fctr_lvl_2)
-          progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))
+          progress_action(
+            sprintf("calculating/plotting contrast of %s vs. %s"
+                   , fctr_lvl_1, fctr_lvl_2))
           # choose only samples with one of the two factors for this column
           chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
           predictor <- smpl_metadata_facC[chosen_samples]
           # extract only the significantly-varying features and the chosen samples
-          fully_significant   <- 1 == vrbl_metadata[,vrbl_metadata_col] * ( if (intersample_sig_col %in% colnames(vrbl_metadata)) vrbl_metadata[,intersample_sig_col] else TRUE )
-          col_selector <- vrbl_metadata_names[ if ( pairSigFeatOnly ) fully_significant else overall_significant ]
+          fully_significant   <- 1 == vrbl_metadata[,vrbl_metadata_col] *
+            ( if (intersample_sig_col %in% colnames(vrbl_metadata)) {
+                vrbl_metadata[,intersample_sig_col]
+              } else {
+                1
+              }
+            )
+          col_selector <- vrbl_metadata_names[
+            if ( pairSigFeatOnly ) fully_significant else overall_significant
+          ]
           my_matrix <- scdm[ chosen_samples, col_selector, drop = FALSE ]
           my_cor_cov <- do_detail_plot(
             x_dataMatrix  = my_matrix
           , x_predictor   = predictor
           , x_is_match    = is_match
           , x_algorithm   = algoC
-          , x_prefix      = if (pairSigFeatOnly) "Significantly contrasting features" else "Significant features"
+          , x_prefix      = if (pairSigFeatOnly) {
+                              "Significantly contrasting features"
+                            } else {
+                              "Significant features"
+                            }
           , x_show_labels = labelFeatures
           , x_progress    = progress_action
           , x_crossval_i  = min(7, length(chosen_samples))
@@ -542,7 +648,10 @@ corcov_calc <- function(
             tsv <- my_cor_cov$tsv1
             tsv$mz <- mz_lookup(tsv$featureID)
             tsv$rt <- rt_lookup(tsv$featureID)
-            tsv["level1Level2Sig"] <- vrbl_metadata[ match(tsv$featureID, vrbl_metadata_names), vrbl_metadata_col ]
+            tsv["level1Level2Sig"] <- vrbl_metadata[
+              match(tsv$featureID, vrbl_metadata_names)
+            , vrbl_metadata_col
+            ]
             corcov_tsv_action(tsv)
             did_plot <- TRUE
           }
@@ -568,12 +677,20 @@ corcov_calc <- function(
             }
             chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
             fctr_lvl_2 <- "other"
-            progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))
+            progress_action(
+              sprintf("calculating/plotting contrast of %s vs. %s"
+              , fctr_lvl_1, fctr_lvl_2)
+            )
             if (length(unique(chosen_samples)) < 1) {
               progress_action("NOTHING TO PLOT...")
             } else {
               chosen_facC <- as.character(smpl_metadata_facC[chosen_samples])
-              predictor <- sapply( X = chosen_facC, FUN = function(fac) if ( fac == fctr_lvl_1 ) fctr_lvl_1 else fctr_lvl_2 )
+              predictor <- sapply(
+                X = chosen_facC
+              , FUN = function(fac) {
+                  if ( fac == fctr_lvl_1 ) fctr_lvl_1 else fctr_lvl_2
+                }
+              )
               my_matrix <- scdm[ chosen_samples, , drop = FALSE ]
               # only process this column if both factors are members of lvlCSV
               is_match <- isLevelSelected(fctr_lvl_1)
@@ -611,7 +728,9 @@ corcov_calc <- function(
           fctr_lvl_1 <- x[1]
           fctr_lvl_2 <- x[2]
           chosen_samples <- smpl_metadata_facC %in% c(fctr_lvl_1, fctr_lvl_2)
-          progress_action(sprintf("calculating/plotting contrast of %s vs. %s", fctr_lvl_1, fctr_lvl_2))
+          progress_action(
+            sprintf("calculating/plotting contrast of %s vs. %s"
+                   , fctr_lvl_1, fctr_lvl_2))
           if (length(unique(chosen_samples)) < 1) {
             progress_action("NOTHING TO PLOT...")
           } else {
@@ -649,7 +768,10 @@ corcov_calc <- function(
     }
   }
   if (!did_plot) {
-    failure_action(sprintf("bad parameter!  sampleMetadata must have at least two levels of factor '%s' matching '%s'", facC, originalLevCSV))
+    failure_action(
+      sprintf(
+        "bad parameter!  sampleMetadata must have at least two levels of factor '%s' matching '%s'"
+      , facC, originalLevCSV))
     return ( FALSE )
   }
   return ( TRUE )
@@ -660,31 +782,41 @@ corcov_calc <- function(
 #     Wiklund_2008 doi:10.1021/ac0713510
 #     Galindo_Prieto_2014 doi:10.1002/cem.2627
 #     https://github.com/HegemanLab/extra_tools/blob/master/generic_PCA.R
-cor_vs_cov <- function(matrix_x, ropls_x, parallel_x = TRUE) {
+cor_vs_cov <- function(
+  matrix_x, ropls_x
+, predictor_projection_x = TRUE
+) {
   x_class <- class(ropls_x)
   if ( !( as.character(x_class) == "opls" ) ) { # || !( attr(class(x_class),"package") == "ropls" ) )
-    stop( "cor_vs_cov: Expected ropls_x to be of class ropls::opls but instead it was of class ", as.character(x_class) )
+    stop(
+      paste(
+        "cor_vs_cov: Expected ropls_x to be of class ropls::opls but instead it was of class "
+      , as.character(x_class)
+      )
+    )
   }
   result <- list()
-  result$projection <- projection <- if (parallel_x) 1 else 2
+  result$projection <- projection <- if (predictor_projection_x) 1 else 2
   # suppLs$algoC - Character: algorithm used - "svd" for singular value decomposition; "nipals" for NIPALS
   if ( ropls_x@suppLs$algoC == "nipals") {
     # Equations (1) and (2) from *Supplement to* Wiklund 2008, doi:10.1021/ac0713510
     mag <- function(one_dimensional) sqrt(sum(one_dimensional * one_dimensional))
     mag_xi <- sapply(X = 1:ncol(matrix_x), FUN = function(x) mag(matrix_x[,x]))
-    if (parallel_x)
+    if (predictor_projection_x)
        score_matrix <- ropls_x@scoreMN
     else
        score_matrix <- ropls_x@orthoScoreMN
     score_matrix_transposed <- t(score_matrix)
     score_matrix_magnitude <- mag(score_matrix)
-    result$covariance <- score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * score_matrix_magnitude )
-    result$correlation <- score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * mag_xi )
+    result$covariance <-
+      score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * score_matrix_magnitude )
+    result$correlation <-
+      score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * mag_xi )
   } else {
     # WARNING - untested code - I don't have test data to exercise this branch
     # Equations (1) and (2) from Wiklund 2008, doi:10.1021/ac0713510
     # scoreMN - Numerical matrix of x scores (T; dimensions: nrow(x) x predI) X = TP' + E; Y = TC' + F
-    if (parallel_x)
+    if (predictor_projection_x)
        score_matrix <- ropls_x@scoreMN
     else
        score_matrix <- ropls_x@orthoScoreMN
@@ -725,7 +857,10 @@ cor_vs_cov <- function(matrix_x, ropls_x, parallel_x = TRUE) {
   result$level2    <- rep.int(x = fctr_lvl_2, times = feature_count)
   superresult <- list()
   if (length(result$vip4o) == 0) result$vip4o <- NA
-  greaterLevel <- sapply( X = result$correlation, FUN = function(my_corr) if ( my_corr < 0 ) fctr_lvl_1 else fctr_lvl_2 )
+  greaterLevel <- sapply(
+    X = result$correlation
+  , FUN = function(my_corr) if ( my_corr < 0 ) fctr_lvl_1 else fctr_lvl_2
+  )
 
   # begin fixes for https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/1
   featureID          <- names(ropls_x@vipVn)

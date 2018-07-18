@@ -15,8 +15,8 @@
     </xml>
     <xml name="cplots">
 			<param name="cplot_y" label="C-plot Y-axis" type="select" help="Choose the Y-axis for C-plots.">
-				<option value="covariance">Plot VIP versus covariance</option>
 				<option value="correlation">Plot VIP versus correlation</option>
+				<option value="covariance">Plot VIP versus covariance</option>
 			</param>
 			<param
 				name="cplot_p"
@@ -202,22 +202,22 @@
           <has_text text="level1Level2Sig" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
-          <has_text text="-0.05007" />
-          <has_text text="-5.8455" />
-          <has_text text="0.0961269" />
-          <has_text text="0.1848301" />
+          <has_text text="-0.04051509" />
+          <has_text text="-0.001964912" />
+          <has_text text="0.02106343" />
+          <has_text text="0.2446366813" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
-          <has_text text="-0.2967565" />
-          <has_text text="-19.56942" />
-          <has_text text="1.6023" />
-          <has_text text="1.35368" />
+          <has_text text="0.504885262" />
+          <has_text text="0.020749097" />
+          <has_text text="0.207196379" />
+          <has_text text="0.04438632" />
           <!-- third matched line -->
           <has_text text="M211.0607T263" />
-          <has_text text="0.47052" />
-          <has_text text="15.910087" />
-          <has_text text="0.89838" />
-          <has_text text="0.125372" />
+          <has_text text="0.0680900" />
+          <has_text text="0.0020163" />
+          <has_text text="0.0201345" />
+          <has_text text="0.0690773" />
         </assert_contents>
       </output>
       <output name="contrast_salience">
@@ -266,10 +266,10 @@
           <has_text text="level1Level2Sig" />
           <!-- first matched line -->
           <has_text text="M200.005T296" />
-          <has_text text="-0.205568" />
-          <has_text text="-17.7677077" />
-          <has_text text="0.60780" />
-          <has_text text="0.768954" />
+          <has_text text="-0.2803571" />
+          <has_text text="-0.0115899" />
+          <has_text text="0.1157346" />
+          <has_text text="0.0647860" />
         </assert_contents>
       </output>
       <output name="contrast_salience">
@@ -316,22 +316,16 @@
           <has_text text="vip4o" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
-          <has_text text="-0.64331257" />
-          <has_text text="-161.82220" />
-          <has_text text="1.862455" />
-          <has_text text="0.2105143" />
+          <has_text text="-0.4732226" />
+          <has_text text="-0.0506172" />
+          <has_text text="0.5246766" />
+          <has_text text="0.0103341" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
-          <has_text text="-0.313507" />
-          <has_text text="-20.0476" />
-          <has_text text="1.6956987" />
-          <has_text text="1.19247" />
-          <!-- third matched line -->
-          <has_text text="M211.0607T263" />
-          <has_text text="-0.38986114" />
-          <has_text text="-23.747718" />
-          <has_text text="1.064296856" />
-          <has_text text="1.16507455" />
+          <has_text text="0.4927151" />
+          <has_text text="0.0203715" />
+          <has_text text="0.2111623" />
+          <has_text text="0.0488654" />
         </assert_contents>
       </output>
       <output name="contrast_salience">
@@ -380,13 +374,13 @@
           <has_text text="NM516T251" />
           <has_text text="flower_yes" />
           <has_text text="other" />
-          <has_text text="0.392946" />
-          <has_text text="0.0632120" />
-          <has_text text="0.785661" />
-          <has_text text="0.2272924" />
-          <has_text text="0.04674719" />
-          <has_text text="0.015625" />
-          <has_text text="516.08452" />
+          <has_text text="0.3490559" />
+          <has_text text="0.0260147" />
+          <has_text text="0.4377872" />
+          <has_text text="0.5916089" />
+          <has_text text="0.0260147" />
+          <has_text text="0.0438942" />
+          <has_text text="516.0845" />
           <has_text text="250.8762" />
         </assert_contents>
       </output>
@@ -447,7 +441,7 @@ The 'PLS-DA Contrasts' tool produces graphics and data for OPLS-DA contrasts of 
 
 **Along the left-to-right axis, the plots show the supervised projection of the variation explained by the predictor** (i.e., the factor specified when invoking the tool); **the top-to-bottom axis displays the variation that is orthogonal to the predictor level** (i.e., independent of it).
 
-Although this tool can be used in a purely exploratory manner by supplying the variableMetadata file without the columns added by the W4M 'Univariate' tool, **the preferred workflow is to use univariate testing to exclude features that are not significantly different and use OPLS-DA to visualize the differences identified in univariate testing** (Th]]>&#233;<![CDATA[venot *et al.*, 2015); an appropriate exception would be to visualize contrasts of a specific list of metabolites.
+Although this tool can be used in a purely exploratory manner by supplying the variableMetadata file without the columns added by the W4M 'Univariate' tool, **the preferred workflow may be to use univariate testing to exclude features that are not significantly different and then to use OPLS-DA to visualize the differences identified in univariate testing** (Th]]>&#233;<![CDATA[venot *et al.*, 2015); an appropriate exception would be to visualize contrasts of a specific list of metabolites.
 
 It must be stressed that there may be no *single* definitive computational approach to select features that are reliable biomarkers, especially from a small number of samples or experiments.  A few possible choices are:
 
@@ -540,10 +534,12 @@ Parameters
 [OUT] Contrast-detail output PDF
   | Several plots for each two-projection OPLS-DA analysis:
 
-- (top-left) **correlation-versus-covariance plot** of OPLS-DA results (a work-alike for the S-PLOT, computed using formula in Supplement to Wiklund, *op. cit.*); point-color becomes saturated as the "variable importance in projection to the predictive components" (VIP\ :subscript:`4,p` from Galindo-Prieto *et al.* 2014) ranges from 0.83 and 1.21 (Mehmood *et al.* 2012)
-- (bottom-left) **model-overview plot** for the two projections; grey bars are the correlation coefficient for the fitted data; black bars indicate performance in cross-validation tests (Th]]>&#233;<![CDATA[venot, 2017)
-- (top-right) OPLS-DA **scores-plot** for the two projections (Th]]>&#233;<![CDATA[venot *et al.*, 2015)
-- (bottom-right) OPLS-DA **loadings-plot** for the two projections (*ibid.*)
+- (first row, left) **correlation-versus-covariance plot** of OPLS-DA results (a work-alike for the S-PLOT, computed using formula in Supplement to Wiklund, *op. cit.*); point-color becomes saturated as the "variable importance in projection to the predictive components" (VIP\ :subscript:`4,p` from Galindo-Prieto *et al.* 2014) ranges from 0.83 and 1.21 (Mehmood *et al.* 2012), for use to identify features for consideration as biomarkers.
+- (second row, left) **model-overview plot** for the two projections; grey bars are the correlation coefficient for the fitted data; black bars indicate performance in cross-validation tests (Th]]>&#233;<![CDATA[venot, 2017)
+- (first row, right) OPLS-DA **scores-plot** for the two projections (Th]]>&#233;<![CDATA[venot *et al.*, 2015)
+- (second row, right) **correlation-versus-covariance plot** of OPLS-DA results **orthogonal to the predictor** (see section "S-Plot of Orthogonal Component" in Wiklund, *op. cit.*, pp. 120-121; this characterizes features with the greatest variation independent of the predictor).
+- (third row, left, when "**predictor C-plot**" is chosen under "Extra plots to include") plot of the covariance or correlation vs. the VIP for the projection *parallel to the predictor*, for use to identify features for consideration as biomarkers.
+- (third row, right, when "**orthogonal C-plot**" is chosen under "Extra plots to include") plotof the covariance or correlation vs. the VIP for the projection *orthogonal to the predictor*, for use to identify features varying considerably without regard to the predictor.
 
 [OUT] Contrast Correlation-Covarinace data TABULAR
   | A tab-separated values file of metadata for each feature for each contrast in which it was included.
@@ -562,7 +558,7 @@ Parameters
 - **level1Level2Sig** - (Only present when a test other than "none" is chosen) '1' when feature varies significantly across all classes (i.e., not pair-wise); '0' otherwise
 
 [OUT] Feature "Salience" data TABULAR
-  | Metrics for the "salient level" for each feature, i.e., the level at which the feature is more prominent than any other level.  This is *not* at all related to the SIMCA OPLS-DA S-PLOT; rather, it is intended as a potential (and unproven) way to identify features that may suggest potential biomarkers without dimensional reduction of data.  This is a tab-separated values file having the following columns:
+  | Metrics for the "salient level" for each feature, i.e., the level at which the feature is more prominent than any other level.  This is *not* at all related to the SIMCA OPLS-DA S-PLOT; rather, it is intended as a potential way to discover features for consideration as potential biomarkers without dimensionally reducting the data.  This is a tab-separated values file having the following columns:
 
 - **featureID** - feature identifier
 - **salientLevel** - salient level, i.e., for the feature, the class-level having the greatest median intensity
@@ -740,11 +736,12 @@ Release notes
 
 0.98.10
 
-- new feature: C-plots.
+- new feature: C-plots of VIP versus correlation or relative covariance.
+- bug fix: Handle issue 2 - features now are only pareto-scaled per Wikland *op cit.*.
 
 0.98.9
 
-- bug fix: Handle issue 1 - features removed by ropls because variance is less than 2.2e-16.
+- bug fix: Handle issue 1 - handle features removed by ropls because variance is less than 2.2e-16.
 
 0.98.8
 

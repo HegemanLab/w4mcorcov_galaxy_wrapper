@@ -33,6 +33,7 @@ do_detail_plot <- function(
       , printL = FALSE
       , plotL  = FALSE
       , crossvalI = x_crossval_i
+      , scaleC = "none" # data have been pareto scaled outside this routine and must not be scaled again. This line fixes issue #2.
       )
     my_oplsda_suppLs_y_levels <- levels(as.factor(my_oplsda@suppLs$y))
     fctr_lvl_1 <- my_oplsda_suppLs_y_levels[1]
@@ -81,7 +82,7 @@ do_detail_plot <- function(
           #   (Mehmood 2012 doi:10.1186/1748-7188-6-27)
           plus_cor <- correlation
           plus_cov <- covariance
-          cex <- 0.75
+          cex <- 0.65
           which_projection <- if (projection == 1) "t1" else "o1"
           which_loading <- if (projection == 1) "parallel" else "orthogonal"
           if (projection == 1) { # predictor-projection
@@ -98,14 +99,12 @@ do_detail_plot <- function(
                 my_ylab <- "correlation(feature,t1)"
                 my_y <- plus_cor
               } else {
-                my_ylab <- "covariance(feature,t1)"
+                my_ylab <- "relative covariance(feature,t1)"
                 my_y <- plus_cov
               }
             }
             if (cplot_x) {
-              min_x <- min(my_x, na.rm = TRUE)
-              max_x <- max(my_x, na.rm = TRUE)
-              lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
+              lim_x <- max(my_x, na.rm = TRUE) * 1.1
               my_xlim <- c( 0, lim_x + off(0.2) )
             } else {
               my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
@@ -136,15 +135,13 @@ do_detail_plot <- function(
               my_ylab <- "correlation(feature,to1)"
               my_y <- plus_cor
             } else { # C-plot orthogonal projection
-              min_x <- min(my_x, na.rm = TRUE)
-              max_x <- max(my_x, na.rm = TRUE)
-              lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
+              lim_x <- max(my_x, na.rm = TRUE) * 1.1
               my_xlim <- c( 0, lim_x + off(0.2) )
               if (cplot_y_correlation) {
                 my_ylab <- "correlation(feature,to1)"
                 my_y <- plus_cor
               } else {
-                my_ylab <- "covariance(feature,to1)"
+                my_ylab <- "relative covariance(feature,to1)"
                 my_y <- plus_cov
               }
             }
@@ -200,7 +197,16 @@ do_detail_plot <- function(
               )
             )
             x_text_offset <- 0.024
-            y_text_offset <- (if (projection == 1) 1 else -1) * -0.017
+            y_text_off <- 0.017
+            if (!cplot_x) { # S-plot
+              y_text_offset <- if (projection == 1) -y_text_off else y_text_off
+            } else { # C-plot
+              y_text_offset <-
+                sapply(
+                  X = (my_y > 0)
+                , FUN = function(x) { if (x) y_text_off else -y_text_off }
+                )
+            }
             label_features <- function(x_arg, y_arg, labels_arg, slant_arg) {
               # print("str(x_arg)")
               # print(str(x_arg))

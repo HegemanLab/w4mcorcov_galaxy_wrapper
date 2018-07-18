@@ -1,4 +1,7 @@
 #!/bin/bash
+# To run this script you must first install two R packages:
+#   - CRAN package 'batch'
+#   - bioconductor package 'ropls' <http://bioconductor.org/packages/release/bioc/html/ropls.html>
 __tool_directory__=.
 # constants
 OUTPUT=test-data/output
@@ -78,6 +81,9 @@ matchingC=wildcard
 levCSV=*
 labelFeatures=5
 labelOrthoFeatures=FALSE
+cplot_o=FALSE
+cplot_p=FALSE
+cplot_y=correlation
 
 # Run the script
 bash -c " cd $__tool_directory__; \
@@ -95,6 +101,9 @@ bash -c " cd $__tool_directory__; \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
   labelOrthoFeatures '$labelOrthoFeatures' \
+  cplot_p '$cplot_p' \
+  cplot_o '$cplot_o' \
+  cplot_y '$cplot_y' \
   "
 echo diff corcov
 diff ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov}    | sed -n -e '1,30 p'
@@ -130,6 +139,9 @@ bash -c " cd $__tool_directory__; \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
   labelOrthoFeatures '$labelOrthoFeatures' \
+  cplot_p '$cplot_p' \
+  cplot_o '$cplot_o' \
+  cplot_y '$cplot_y' \
   "
 echo diff corcov
 diff ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov}    | sed -n -e '1,30 p'
@@ -162,6 +174,9 @@ bash -c " cd $__tool_directory__; \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
   labelOrthoFeatures '$labelOrthoFeatures' \
+  cplot_p '$cplot_p' \
+  cplot_o '$cplot_o' \
+  cplot_y '$cplot_y' \
   "
 echo diff corcov
 diff ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov}    | sed -n -e '1,30 p'

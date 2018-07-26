@@ -1,4 +1,4 @@
-﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.10">
+﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.11">
 
   <description>OPLS-DA Contrasts of Univariate Results</description>
 
@@ -202,22 +202,16 @@
           <has_text text="level1Level2Sig" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
-          <has_text text="-0.04051509" />
-          <has_text text="-0.001964912" />
-          <has_text text="0.02106343" />
-          <has_text text="0.2446366813" />
+          <has_text text="-0.3704185" />
+          <has_text text="-36.6668927" />
+          <has_text text="0.4914638" />
+          <has_text text="0.01302117" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
-          <has_text text="0.504885262" />
-          <has_text text="0.020749097" />
+          <has_text text="0.3235022" />
+          <has_text text="5.97529097" />
           <has_text text="0.207196379" />
           <has_text text="0.04438632" />
-          <!-- third matched line -->
-          <has_text text="M211.0607T263" />
-          <has_text text="0.0680900" />
-          <has_text text="0.0020163" />
-          <has_text text="0.0201345" />
-          <has_text text="0.0690773" />
         </assert_contents>
       </output>
       <output name="contrast_salience">
@@ -266,8 +260,8 @@
           <has_text text="level1Level2Sig" />
           <!-- first matched line -->
           <has_text text="M200.005T296" />
-          <has_text text="-0.2803571" />
-          <has_text text="-0.0115899" />
+          <has_text text="-0.24533821" />
+          <has_text text="-3.3573953" />
           <has_text text="0.1157346" />
           <has_text text="0.0647860" />
         </assert_contents>
@@ -316,14 +310,14 @@
           <has_text text="vip4o" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
-          <has_text text="-0.4732226" />
-          <has_text text="-0.0506172" />
+          <has_text text="-0.37867079" />
+          <has_text text="-37.71066" />
           <has_text text="0.5246766" />
           <has_text text="0.0103341" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
-          <has_text text="0.4927151" />
-          <has_text text="0.0203715" />
+          <has_text text="0.31570433" />
+          <has_text text="5.86655640" />
           <has_text text="0.2111623" />
           <has_text text="0.0488654" />
         </assert_contents>
@@ -374,12 +368,12 @@
           <has_text text="NM516T251" />
           <has_text text="flower_yes" />
           <has_text text="other" />
-          <has_text text="0.3490559" />
-          <has_text text="0.0260147" />
-          <has_text text="0.4377872" />
-          <has_text text="0.5916089" />
-          <has_text text="0.0260147" />
-          <has_text text="0.0438942" />
+          <has_text text="0.03402807" />
+          <has_text text="0.03526926" />
+          <has_text text="0.43664386" />
+          <has_text text="0.587701897" />
+          <has_text text="0.026082688" />
+          <has_text text="0.0437742145" />
           <has_text text="516.0845" />
           <has_text text="250.8762" />
         </assert_contents>
@@ -733,6 +727,10 @@ OPLS-DA, SIMCA, and S-PLOT are registered trademarks of the Umetrics company.  h
 
 Release notes
 -------------
+
+0.98.11
+
+- bug fix: Readdress issue 2 - features now are pareto-scaled *and centered* per Wikland *op cit.*.
 
 0.98.10
 

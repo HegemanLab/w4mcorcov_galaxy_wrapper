@@ -47,42 +47,9 @@ contrast_detail=contrast_detail.pdf
 
 contrast_corcov=contrast_corcov.tsv
 contrast_salience=contrast_salience.tsv
-
-# Run the script
-bash -c " cd $__tool_directory__; \
-  Rscript w4mcorcov_wrapper.R \
-  dataMatrix_in '$dataMatrix_in' \
-  sampleMetadata_in '$sampleMetadata_in' \
-  variableMetadata_in '$variableMetadata_in' \
-  tesC '$tesC' \
-  facC '$facC' \
-  pairSigFeatOnly '$pairSigFeatOnly' \
-  levCSV '$levCSV' \
-  matchingC '$matchingC' \
-  contrast_detail '${OUTPUT}_${contrast_detail}' \
-  contrast_corcov '${OUTPUT}_${contrast_corcov}' \
-  contrast_salience '${OUTPUT}_${contrast_salience}' \
-  labelFeatures '$labelFeatures' \
-  labelOrthoFeatures '$labelOrthoFeatures' \
-  "
-echo diff corcov
-diff ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov}    | sed -n -e '1,30 p'
-echo diff salience
-diff ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}  | sed -n -e '1,30 p'
-
-
-# Repeat the test with pairSigFeatOnly FALSE
-pairSigFeatOnly=FALSE
-contrast_detail=contrast_detail_all.pdf
-contrast_corcov=contrast_corcov_all.tsv
-contrast_salience=contrast_salience_all.tsv
-# how to specify levels generically
-matchingC=wildcard
-levCSV=*
-labelFeatures=5
-labelOrthoFeatures=FALSE
 cplot_o=FALSE
 cplot_p=FALSE
+#cplot_y=covariance
 cplot_y=correlation
 
 # Run the script
@@ -105,9 +72,48 @@ bash -c " cd $__tool_directory__; \
   cplot_o '$cplot_o' \
   cplot_y '$cplot_y' \
   "
-echo diff corcov
+echo diff corcov ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov} 
 diff ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov}    | sed -n -e '1,30 p'
-echo diff salience
+echo diff salience ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}
+diff ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}  | sed -n -e '1,30 p'
+
+
+# Repeat the test with pairSigFeatOnly FALSE
+pairSigFeatOnly=FALSE
+contrast_detail=contrast_detail_all.pdf
+contrast_corcov=contrast_corcov_all.tsv
+contrast_salience=contrast_salience_all.tsv
+# how to specify levels generically
+matchingC=wildcard
+levCSV=*
+labelFeatures=5
+labelOrthoFeatures=FALSE
+cplot_o=TRUE
+cplot_p=TRUE
+
+# Run the script
+bash -c " cd $__tool_directory__; \
+  Rscript w4mcorcov_wrapper.R \
+  dataMatrix_in '$dataMatrix_in' \
+  sampleMetadata_in '$sampleMetadata_in' \
+  variableMetadata_in '$variableMetadata_in' \
+  tesC '$tesC' \
+  facC '$facC' \
+  pairSigFeatOnly '$pairSigFeatOnly' \
+  levCSV '$levCSV' \
+  matchingC '$matchingC' \
+  contrast_detail '${OUTPUT}_${contrast_detail}' \
+  contrast_corcov '${OUTPUT}_${contrast_corcov}' \
+  contrast_salience '${OUTPUT}_${contrast_salience}' \
+  labelFeatures '$labelFeatures' \
+  labelOrthoFeatures '$labelOrthoFeatures' \
+  cplot_p '$cplot_p' \
+  cplot_o '$cplot_o' \
+  cplot_y '$cplot_y' \
+  "
+echo diff corcov ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov} 
+diff ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov}    | sed -n -e '1,30 p'
+echo diff salience ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}
 diff ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}  | sed -n -e '1,30 p'
 
 
@@ -122,6 +128,8 @@ matchingC=regex
 # comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions
 levCSV=k[12],k[3-4]
 labelOrthoFeatures=TRUE
+cplot_o=FALSE
+cplot_p=FALSE
 
 # Run the script
 bash -c " cd $__tool_directory__; \
@@ -143,9 +151,9 @@ bash -c " cd $__tool_directory__; \
   cplot_o '$cplot_o' \
   cplot_y '$cplot_y' \
   "
-echo diff corcov
+echo diff corcov ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov} 
 diff ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov}    | sed -n -e '1,30 p'
-echo diff salience
+echo diff salience ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}
 diff ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}  | sed -n -e '1,30 p'
 
 
@@ -157,6 +165,8 @@ labelFeatures=3
 contrast_detail=contrast_detail_lohi.pdf
 contrast_corcov=contrast_corcov_lohi.tsv
 contrast_salience=contrast_salience_lohi.tsv
+cplot_o=TRUE
+cplot_p=TRUE
 
 # Run the script
 bash -c " cd $__tool_directory__; \
@@ -178,9 +188,55 @@ bash -c " cd $__tool_directory__; \
   cplot_o '$cplot_o' \
   cplot_y '$cplot_y' \
   "
-echo diff corcov
+echo diff corcov ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov} 
 diff ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov}    | sed -n -e '1,30 p'
-echo diff salience
+echo diff salience ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}
 diff ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}  | sed -n -e '1,30 p'
+
+matchingC=wildcard
+levCSV=*
+# Repeat the test with test none and a two-level factor
+facC=tissue_flowering
+tesC=none
+labelFeatures=3
+contrast_detail=contrast_detail.pdf
+contrast_corcov=contrast_corcov.tsv
+contrast_salience=contrast_salience.tsv
+cplot_o=TRUE
+cplot_p=TRUE
+PREFIX=issue1
+# sampleMetadata	k10
+sampleMetadata_in=test-data/${PREFIX}_input_sampleMetadata.tsv
+# variableMetadata	k10_kruskal_k2.k1_sig	k10_kruskal_k3.k1_sig	k10_kruskal_k4.k1_sig	k10_kruskal_k3.k2_sig	k10_kruskal_k4.k2_sig	k10_kruskal_k4.k3_sig
+variableMetadata_in=test-data/${PREFIX}_input_variableMetadata.tsv
+# rows labeled as first column of variableMetadata; columns, as first column of sampleMetadata
+dataMatrix_in=test-data/${PREFIX}_input_dataMatrix.tsv
+OUTPUT=test-data/${PREFIX}_output
+EXPECTED=test-data/${PREFIX}_expected
+
+# Run the script
+bash -c " cd $__tool_directory__; \
+  Rscript w4mcorcov_wrapper.R \
+  dataMatrix_in '$dataMatrix_in' \
+  sampleMetadata_in '$sampleMetadata_in' \
+  variableMetadata_in '$variableMetadata_in' \
+  tesC '$tesC' \
+  facC '$facC' \
+  pairSigFeatOnly '$pairSigFeatOnly' \
+  levCSV '$levCSV' \
+  matchingC '$matchingC' \
+  contrast_detail '${OUTPUT}_${contrast_detail}' \
+  contrast_corcov '${OUTPUT}_${contrast_corcov}' \
+  contrast_salience '${OUTPUT}_${contrast_salience}' \
+  labelFeatures '$labelFeatures' \
+  labelOrthoFeatures '$labelOrthoFeatures' \
+  cplot_p '$cplot_p' \
+  cplot_o '$cplot_o' \
+  cplot_y '$cplot_y' \
+  "
+echo diff corcov ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov} 
+diff ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov}    | sed -n -e '1,30 p' | head
+echo diff salience ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}
+diff ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}  | sed -n -e '1,30 p' | head
 
 

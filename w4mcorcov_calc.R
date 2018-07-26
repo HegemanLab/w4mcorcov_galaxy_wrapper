@@ -33,9 +33,15 @@ do_detail_plot <- function(
       , printL = FALSE
       , plotL  = FALSE
       , crossvalI = x_crossval_i
-      , scaleC = "none" # data have been pareto scaled outside this routine and must not be scaled again. This line fixes issue #2.
+      , scaleC = "pareto" # data centered and pareto scaled here only. This line fixes issue #2.
       )
+    # strip out variables having negligible variance
+    x_dataMatrix <- x_dataMatrix[,names(my_oplsda@vipVn), drop = FALSE]
     my_oplsda_suppLs_y_levels <- levels(as.factor(my_oplsda@suppLs$y))
+    # x_progress(strF(x_dataMatrix))
+    # x_progress(strF(my_oplsda))
+    #x_progress(head(my_oplsda_suppLs_y_levels))
+    #x_progress(unique(my_oplsda_suppLs_y_levels))
     fctr_lvl_1 <- my_oplsda_suppLs_y_levels[1]
     fctr_lvl_2 <- my_oplsda_suppLs_y_levels[2]
     do_s_plot <- function(
@@ -57,13 +63,14 @@ do_detail_plot <- function(
             matrix_x   = x_dataMatrix
           , ropls_x    = my_oplsda
           , predictor_projection_x = predictor_projection_x
+          , x_progress
           )
       } else {
         my_cor_vs_cov <- cor_vs_cov_x
       }
       # print("str(my_cor_vs_cov)")
       # str(my_cor_vs_cov)
-      if (sum(!is.na(my_cor_vs_cov$tsv1$covariance)) < 2) {
+      if (is.null(my_cor_vs_cov) || sum(!is.na(my_cor_vs_cov$tsv1$covariance)) < 2) {
         x_progress("No cor_vs_cov data produced")
         plot(x=1, y=1, xaxt="n", yaxt="n", xlab="", ylab="", type="n")
         text(x=1, y=1, labels="too few covariance data")
@@ -483,12 +490,9 @@ corcov_calc <- function(
   }
 
   # transpose matrix because ropls matrix is the transpose of XCMS matrix
+  tdm <- t(data_matrix)
   # Wiklund_2008 centers and pareto-scales data before OPLS-DA S-plot
-  # center
-  cdm <- center_colmeans(t(data_matrix))
-  # pareto-scale
-  my_scale <- sqrt(apply(cdm, 2, sd, na.rm=TRUE))
-  scdm <- sweep(cdm, 2, my_scale, "/")
+  # However, data should be neither centered nor pareto scaled here because ropls::opls does that; this fixes issue #2.
 
   # pattern to match column names like k10_kruskal_k4.k3_sig
   col_pattern <- sprintf('^%s_%s_(.*)[.](.*)_sig$', facC, tesC)
@@ -553,7 +557,7 @@ corcov_calc <- function(
       chosen_samples <- smpl_metadata_facC %in% level_union
       chosen_facC <- as.character(smpl_metadata_facC[chosen_samples])
       col_selector <- vrbl_metadata_names[ overall_significant ]
-      my_matrix <- scdm[ chosen_samples, col_selector, drop = FALSE ]
+      my_matrix <- tdm[ chosen_samples, col_selector, drop = FALSE ]
       plot_action <- function(fctr_lvl_1, fctr_lvl_2) {
         progress_action(
           sprintf("calculating/plotting contrast of %s vs. %s"
@@ -632,7 +636,7 @@ corcov_calc <- function(
           col_selector <- vrbl_metadata_names[
             if ( pairSigFeatOnly ) fully_significant else overall_significant
           ]
-          my_matrix <- scdm[ chosen_samples, col_selector, drop = FALSE ]
+          my_matrix <- tdm[ chosen_samples, col_selector, drop = FALSE ]
           my_cor_cov <- do_detail_plot(
             x_dataMatrix  = my_matrix
           , x_predictor   = predictor
@@ -697,7 +701,7 @@ corcov_calc <- function(
                   if ( fac == fctr_lvl_1 ) fctr_lvl_1 else fctr_lvl_2
                 }
               )
-              my_matrix <- scdm[ chosen_samples, , drop = FALSE ]
+              my_matrix <- tdm[ chosen_samples, , drop = FALSE ]
               # only process this column if both factors are members of lvlCSV
               is_match <- isLevelSelected(fctr_lvl_1)
               my_cor_cov <- do_detail_plot(
@@ -742,7 +746,7 @@ corcov_calc <- function(
           } else {
             chosen_facC <- as.character(smpl_metadata_facC[chosen_samples])
             predictor <- chosen_facC
-            my_matrix <- scdm[ chosen_samples, , drop = FALSE ]
+            my_matrix <- tdm[ chosen_samples, , drop = FALSE ]
             # only process this column if both factors are members of lvlCSV
             is_match <- isLevelSelected(fctr_lvl_1) && isLevelSelected(fctr_lvl_2)
             my_cor_cov <- do_detail_plot(
@@ -789,8 +793,31 @@ corcov_calc <- function(
 #     Galindo_Prieto_2014 doi:10.1002/cem.2627
 #     https://github.com/HegemanLab/extra_tools/blob/master/generic_PCA.R
 cor_vs_cov <- function(
-  matrix_x, ropls_x
+  matrix_x
+, ropls_x
 , predictor_projection_x = TRUE
+, x_progress = print
+) {
+  tryCatch({
+    return(
+      cor_vs_cov_try( matrix_x, ropls_x, predictor_projection_x, x_progress)
+    )
+  }, error = function(e) {
+    x_progress(
+      sprintf(
+        "cor_vs_cov fatal error - %s"
+      , as.character(e) # e$message
+      )
+    )
+    return ( NULL )
+  })
+}
+
+cor_vs_cov_try <- function(
+  matrix_x
+, ropls_x
+, predictor_projection_x = TRUE
+, x_progress = print
 ) {
   x_class <- class(ropls_x)
   if ( !( as.character(x_class) == "opls" ) ) { # || !( attr(class(x_class),"package") == "ropls" ) )
@@ -865,7 +892,23 @@ cor_vs_cov <- function(
   if (length(result$vip4o) == 0) result$vip4o <- NA
   greaterLevel <- sapply(
     X = result$correlation
-  , FUN = function(my_corr) if ( my_corr < 0 ) fctr_lvl_1 else fctr_lvl_2
+  , FUN = function(my_corr)
+      tryCatch({
+          if ( is.nan( my_corr ) ) {
+            print("my_corr is NaN")
+            NA 
+          } else {
+            if ( my_corr < 0 ) fctr_lvl_1 else fctr_lvl_2
+          }
+        }, error = function(e) {
+          x_progress(
+            sprintf(
+              "cor_vs_cov -> sapply:  error - substituting NA - %s"
+            , as.character(e)
+            )
+          )
+          NA
+        })
   )
 
   # begin fixes for https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/1

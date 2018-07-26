@@ -165,6 +165,10 @@ read_inputs <- function(input_env, failure_action = print) {
       data_matrix <- as.matrix(data_matrix)
     }
 
+    # Omit any feature not found in variableMetadata and any sample not found in sampleMetadata
+    #   For something more elaborate, see https://github.com/HegemanLab/w4mclassfilter
+    data_matrix <- data_matrix[rownames(data_matrix) %in% rownames(vrbl_metadata),colnames(data_matrix) %in% rownames(smpl_metadata)]
+
     input_env$data_matrix <- data_matrix
     # ...
   } else {

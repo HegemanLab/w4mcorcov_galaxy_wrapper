@@ -30,31 +30,31 @@
     <command><![CDATA[
     Rscript '$__tool_directory__/w4mcorcov_wrapper.R'
         dataMatrix_in '$dataMatrix_in'
-    sampleMetadata_in '$sampleMetadata_in'
-    variableMetadata_in '$variableMetadata_in'
-    facC '$facC'
-    #if str( $signif_test.tesC ) == "none":
-      tesC "none"
-      pairSigFeatOnly "FALSE"
-    #else:
-      tesC '$signif_test.tesC'
-      pairSigFeatOnly '$signif_test.pairSigFeatOnly'
-    #end if
-    levCSV '$levCSV'
-    matchingC '$matchingC'
-    labelFeatures '$labelFeatures'
-    #if str( $xplots.expPlot ) == "none":
-      cplot_p "FALSE"
-      cplot_o "FALSE"
-      cplot_y "correlation"
-    #else if str( $xplots.expPlot ) == "cplot":
-      cplot_p '$xplots.cplot_p'
-      cplot_o '$xplots.cplot_o'
-      cplot_y '$xplots.cplot_y'
-    #end if
-    contrast_detail '$contrast_detail'
-    contrast_corcov '$contrast_corcov'
-    contrast_salience '$contrast_salience'
+        sampleMetadata_in '$sampleMetadata_in'
+        variableMetadata_in '$variableMetadata_in'
+        facC '$facC'
+        #if str( $signif_test.tesC ) == "none":
+            tesC "none"
+            pairSigFeatOnly "FALSE"
+        #else:
+            tesC '$signif_test.tesC'
+            pairSigFeatOnly '$signif_test.pairSigFeatOnly'
+        #end if
+        levCSV '$levCSV'
+        matchingC '$matchingC'
+        labelFeatures '$labelFeatures'
+        #if str( $xplots.expPlot ) == "none":
+            cplot_p "FALSE"
+            cplot_o "FALSE"
+            cplot_y "correlation"
+        #else if str( $xplots.expPlot ) == "cplot":
+            cplot_p '$xplots.cplot_p'
+            cplot_o '$xplots.cplot_o'
+            cplot_y '$xplots.cplot_y'
+        #end if
+        contrast_detail '$contrast_detail'
+        contrast_corcov '$contrast_corcov'
+        contrast_salience '$contrast_salience'
   ]]></command>
 
     <inputs>

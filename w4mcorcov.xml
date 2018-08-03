@@ -1,7 +1,5 @@
 ﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.11">
-
   <description>OPLS-DA Contrasts of Univariate Results</description>
-
   <macros>
     <xml name="paramPairSigFeatOnly">
             <param
@@ -36,7 +34,6 @@
                 help="When this option is set to 'Yes', correlation will be plotted against vip4 for orthogonal loadings." />
     </xml>
     </macros>
-
   <requirements>
     <requirement type="package">r-batch</requirement>
     <requirement type="package">bioconductor-ropls</requirement>
@@ -146,7 +143,6 @@
             </when>
     </conditional>
   </inputs>
-
   <outputs>
     <!--
       pdf1: summaries of each contrasts, clearly labelled by level=pair name
@@ -176,7 +172,6 @@
     -->
     <data name="contrast_salience" label="${tool.name}_${variableMetadata_in.name}_salience" format="tabular" />
   </outputs>
-
   <tests>
     <!-- test #1 -->
     <test>

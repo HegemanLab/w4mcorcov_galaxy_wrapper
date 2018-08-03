@@ -90,7 +90,8 @@
                 <expand macro="paramPairSigFeatOnly" />
             </when>
         </conditional>
-        <param name="levCSV" label="Levels of interest" type="text" value = "*" help="Comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; levels must be non-numeric; may include wild cards or regular expressions.  Note that extra space characters will affect results - 'a,b' is correct, but 'a , b' is not and may fail or give different results.">
+        <param name="levCSV" type="text" value="*" label="Levels of interest" 
+            help="Comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; levels must be non-numeric; may include wild cards or regular expressions.  Note that extra space characters will affect results - 'a,b' is correct, but 'a , b' is not and may fail or give different results.">
             <sanitizer>
                 <valid initial="string.letters">
                     <add preset="string.digits"/>
@@ -124,8 +125,8 @@
         <param name="labelFeatures" type="text" value="3" label="How many features having extreme loadings should be labelled on cov-vs.-cor plot" help="Specify the number of features at each of the loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features or '0' to label no features; this choice has no effect on the OPLS-DA loadings plot."/>
         <conditional name="xplots">
             <param name="expPlot" label="Extra plots to include" type="select" help="Choosing 'none' hides further choices.">
-                <option value="none">none - Do not include additonal extra plots.</option>
-                <option value="cplot">cplot - Include C-plots (predictor-loading vs. 'vip4p' and orthogonal-loading versus 'vip4o')</option>
+                <option value="none">Do not include additonal extra plots.</option>
+                <option value="cplot">Include C-plots (predictor-loading vs. 'vip4p' and orthogonal-loading versus 'vip4o')</option>
             </param>
             <when value="none" />
             <when value="cplot">

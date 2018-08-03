@@ -4,38 +4,38 @@
 
   <macros>
     <xml name="paramPairSigFeatOnly">
-			<param
-				name="pairSigFeatOnly"
-				type="boolean"
-				checked="true"
-				truevalue="TRUE"
-				falsevalue="FALSE"
-				label="Retain only pairwise-significant features"
-				help="When this option is set to 'Yes', analysis will be performed including only features that differ significantly for the pair of levels being contrasted; when set to 'No', any feature that varies significantly across all levels will be included (i.e., exclude any feature that is not significantly different across all levels).  See examples below." />
+            <param
+                name="pairSigFeatOnly"
+                type="boolean"
+                checked="true"
+                truevalue="TRUE"
+                falsevalue="FALSE"
+                label="Retain only pairwise-significant features"
+                help="When this option is set to 'Yes', analysis will be performed including only features that differ significantly for the pair of levels being contrasted; when set to 'No', any feature that varies significantly across all levels will be included (i.e., exclude any feature that is not significantly different across all levels).  See examples below." />
     </xml>
     <xml name="cplots">
-			<param name="cplot_y" label="C-plot Y-axis" type="select" help="Choose the Y-axis for C-plots.">
-				<option value="correlation">Plot VIP versus correlation</option>
-				<option value="covariance">Plot VIP versus covariance</option>
-			</param>
-			<param
-				name="cplot_p"
-				type="boolean"
-				checked="TRUE"
-				truevalue="TRUE"
-				falsevalue="FALSE"
-				label="Produce predictor C-plot"
-				help="When this option is set to 'Yes', correlation will be plotted against vip4 for predictor loadings." />
-			<param
-				name="cplot_o"
-				type="boolean"
-				checked="TRUE"
-				truevalue="TRUE"
-				falsevalue="FALSE"
-				label="Produce orthogonal C-plot"
-				help="When this option is set to 'Yes', correlation will be plotted against vip4 for orthogonal loadings." />
+            <param name="cplot_y" label="C-plot Y-axis" type="select" help="Choose the Y-axis for C-plots.">
+                <option value="correlation">Plot VIP versus correlation</option>
+                <option value="covariance">Plot VIP versus covariance</option>
+            </param>
+            <param
+                name="cplot_p"
+                type="boolean"
+                checked="TRUE"
+                truevalue="TRUE"
+                falsevalue="FALSE"
+                label="Produce predictor C-plot"
+                help="When this option is set to 'Yes', correlation will be plotted against vip4 for predictor loadings." />
+            <param
+                name="cplot_o"
+                type="boolean"
+                checked="TRUE"
+                truevalue="TRUE"
+                falsevalue="FALSE"
+                label="Produce orthogonal C-plot"
+                help="When this option is set to 'Yes', correlation will be plotted against vip4 for orthogonal loadings." />
     </xml>
-	</macros>
+    </macros>
 
   <requirements>
     <requirement type="package">r-batch</requirement>
@@ -82,26 +82,26 @@
     <param name="variableMetadata_in" label="Variable metadata file (ideally from Univariate)" type="data" format="tabular" help="Features x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
     <param name="facC" label="Factor of interest" type="text" help="REQUIRED - The name of the column of sampleMetadata corresponding to the qualitative variable used to define the contrasts.  Except when the 'Univariate Significance-test' is set to 'none', this also must be a portion of the column names in the variableMetadata file."/>
     <conditional name="signif_test">
-			<param name="tesC" label="Univariate significance-test" type="select" help="Either 'none' or the name of the statistical test that was run by the 'Univariate' tool to produce the variableMetadata file; that name must also be a portion of the column names in that file.">
-				<option value="none">none - Display all features from variableMetadata (rather than choosing a subset based on significance in univariate testing)</option>
-				<option value="ttest">ttest - Student's t-test (parametric test, qualitative factor with exactly 2 levels)</option>
-				<option value="anova">anova - Analysis of variance (parametric test, qualitative factor with more than 2 levels)</option>
-				<option value="wilcoxon">wilcoxon - Wilcoxon rank test (nonparametric test, qualitative factor with exactly 2 levels)</option>
-				<option value="kruskal">kruskal - Kruskal-Wallis rank test (nonparametric test, qualitative factor with more than 2 levels)</option>
-			</param>
-			<when value="none" />
-			<when value="ttest">
-				<expand macro="paramPairSigFeatOnly" />
-			</when>
-			<when value="anova">
-				<expand macro="paramPairSigFeatOnly" />
-			</when>
-			<when value="wilcoxon">
-				<expand macro="paramPairSigFeatOnly" />
-			</when>
-			<when value="kruskal">
-				<expand macro="paramPairSigFeatOnly" />
-			</when>
+            <param name="tesC" label="Univariate significance-test" type="select" help="Either 'none' or the name of the statistical test that was run by the 'Univariate' tool to produce the variableMetadata file; that name must also be a portion of the column names in that file.">
+                <option value="none">none - Display all features from variableMetadata (rather than choosing a subset based on significance in univariate testing)</option>
+                <option value="ttest">ttest - Student's t-test (parametric test, qualitative factor with exactly 2 levels)</option>
+                <option value="anova">anova - Analysis of variance (parametric test, qualitative factor with more than 2 levels)</option>
+                <option value="wilcoxon">wilcoxon - Wilcoxon rank test (nonparametric test, qualitative factor with exactly 2 levels)</option>
+                <option value="kruskal">kruskal - Kruskal-Wallis rank test (nonparametric test, qualitative factor with more than 2 levels)</option>
+            </param>
+            <when value="none" />
+            <when value="ttest">
+                <expand macro="paramPairSigFeatOnly" />
+            </when>
+            <when value="anova">
+                <expand macro="paramPairSigFeatOnly" />
+            </when>
+            <when value="wilcoxon">
+                <expand macro="paramPairSigFeatOnly" />
+            </when>
+            <when value="kruskal">
+                <expand macro="paramPairSigFeatOnly" />
+            </when>
     </conditional>
     <param name="levCSV" label="Levels of interest" type="text" value = "*" help="Comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; levels must be non-numeric; may include wild cards or regular expressions.  Note that extra space characters will affect results - 'a,b' is correct, but 'a , b' is not and may fail or give different results.">
       <sanitizer>
@@ -136,14 +136,14 @@
     </param>
     <param name="labelFeatures" type="text" value="3" label="How many features having extreme loadings should be labelled on cov-vs.-cor plot" help="Specify the number of features at each of the loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features or '0' to label no features; this choice has no effect on the OPLS-DA loadings plot."/>
     <conditional name="xplots">
-			<param name="expPlot" label="Extra plots to include" type="select" help="Choosing 'none' hides further choices.">
-				<option value="none">none - Do not include additonal extra plots.</option>
-				<option value="cplot">cplot - Include C-plots (predictor-loading vs. 'vip4p' and orthogonal-loading versus 'vip4o')</option>
-			</param>
-			<when value="none" />
-			<when value="cplot">
-				<expand macro="cplots" />
-			</when>
+            <param name="expPlot" label="Extra plots to include" type="select" help="Choosing 'none' hides further choices.">
+                <option value="none">none - Do not include additonal extra plots.</option>
+                <option value="cplot">cplot - Include C-plots (predictor-loading vs. 'vip4p' and orthogonal-loading versus 'vip4o')</option>
+            </param>
+            <when value="none" />
+            <when value="cplot">
+                <expand macro="cplots" />
+            </when>
     </conditional>
   </inputs>
 

@@ -58,10 +58,16 @@
   ]]></command>
 
     <inputs>
-        <param name="dataMatrix_in" label="Data matrix file" type="data" format="tabular" help="Features x samples (tabular data - decimal: '.'; missing: NA; mode: numerical; separator: tab character)" />
-        <param name="sampleMetadata_in" label="Sample metadata file" type="data" format="tabular" help="Samples x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
-        <param name="variableMetadata_in" label="Variable metadata file (ideally from Univariate)" type="data" format="tabular" help="Features x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
-        <param name="facC" label="Factor of interest" type="text" help="REQUIRED - The name of the column of sampleMetadata corresponding to the qualitative variable used to define the contrasts.  Except when the 'Univariate Significance-test' is set to 'none', this also must be a portion of the column names in the variableMetadata file."/>
+        <param name="dataMatrix_in" type="data" format="tabular" label="Data matrix file"
+            help="Features x samples (tabular data - decimal: '.'; missing: NA; mode: numerical; separator: tab character)" />
+        <param name="sampleMetadata_in" type="data" format="tabular" label="Sample metadata file"
+            help="Samples x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
+        <param name="variableMetadata_in" type="data" format="tabular"
+            label="Variable metadata file (ideally from Univariate)"
+            help="Features x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
+        <param name="facC" type="text"
+            label="Factor of interest"
+            help="REQUIRED - The name of the column of sampleMetadata corresponding to the qualitative variable used to define the contrasts.  Except when the 'Univariate Significance-test' is set to 'none', this also must be a portion of the column names in the variableMetadata file."/>
         <conditional name="signif_test">
             <param name="tesC" label="Univariate significance-test" type="select" help="Either 'none' or the name of the statistical test that was run by the 'Univariate' tool to produce the variableMetadata file; that name must also be a portion of the column names in that file.">
                 <option value="none">none - Display all features from variableMetadata (rather than choosing a subset based on significance in univariate testing)</option>

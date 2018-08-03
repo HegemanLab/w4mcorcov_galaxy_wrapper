@@ -141,7 +141,7 @@
         * then PLS score-plot
         * then PLS S-PLOT; color in red features with VIP > 1; color in grey any non-pairwise-significant features, if these are included
     -->
-    <data name="contrast_detail" label="${tool.name}_${variableMetadata_in.name}_detail" format="pdf" />
+    <data name="contrast_detail" format="pdf" label="${tool.name}_${variableMetadata_in.name}_detail" />
     <!--
       tsv1: cor and cov table with columns:
         * feature-ID
@@ -153,7 +153,7 @@
         * Galindo_Prieto_2014 VIP for orthogonal components, VIP[4,o]
         * (When filtering on significance of univariate tests) Significance of test of null hypothesis that there is no difference between the two classes, i.e, the pair-wise test.
     -->
-    <data name="contrast_corcov" label="${tool.name}_${variableMetadata_in.name}_corcov" format="tabular" />
+    <data name="contrast_corcov" format="tabular" label="${tool.name}_${variableMetadata_in.name}_corcov" />
     <!--
       tsv2: salience table with columns (experimental feature):
         * feature-ID
@@ -161,7 +161,7 @@
         * Salient robust coefficient of variation, i.e., for the feature, the mean absolute deviation of the intensity for the salient level divided by the median intensity for the salient level
         * Salience, i.e., for the feature, the median of the class-level having the greatest intensity divided by the mean of the medians for all class-levels.
     -->
-    <data name="contrast_salience" label="${tool.name}_${variableMetadata_in.name}_salience" format="tabular" />
+    <data name="contrast_salience" format="tabular" label="${tool.name}_${variableMetadata_in.name}_salience" />
   </outputs>
   <tests>
     <!-- test #1 -->

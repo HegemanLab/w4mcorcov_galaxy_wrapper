@@ -23,11 +23,7 @@
         <requirement type="package">r-batch</requirement>
         <requirement type="package">bioconductor-ropls</requirement>
     </requirements>
-    <stdio>
-      <exit_code range="1:" level="fatal" />
-    </stdio>
-
-    <command><![CDATA[
+    <command detect_errors="aggressive"><![CDATA[
     Rscript '$__tool_directory__/w4mcorcov_wrapper.R'
         dataMatrix_in '$dataMatrix_in'
         sampleMetadata_in '$sampleMetadata_in'
@@ -122,7 +118,9 @@
             <option value="wildcard" selected="true">use wild-cards for matching level-names</option>
             <option value="regex">use regular expressions for matching level-names</option>
         </param>
-        <param name="labelFeatures" type="text" value="3" label="How many features having extreme loadings should be labelled on cov-vs.-cor plot" help="Specify the number of features at each of the loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features or '0' to label no features; this choice has no effect on the OPLS-DA loadings plot."/>
+        <param name="labelFeatures" type="text" value="3"
+            label="How many features having extreme loadings should be labelled on cov-vs.-cor plot"
+            help="Specify the number of features at each of the loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features or '0' to label no features; this choice has no effect on the OPLS-DA loadings plot."/>
         <conditional name="xplots">
             <param name="expPlot" label="Extra plots to include" type="select" help="Choosing 'none' hides further choices.">
                 <option value="none">Do not include additonal extra plots.</option>

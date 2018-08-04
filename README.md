@@ -27,6 +27,10 @@ The original OPLS-DA® S-PLOT® which this tool emulates is described in:
 
 # Release notes
 
+0.98.12
+
+- merge: iuc standards pull requests [3](https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/pull/3) and [4](https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/pull/4).
+
 0.98.11
 
 - bug fix: Readdress issue 2 - features now are pareto-scaled *and centered* per Wikland *op cit.*.

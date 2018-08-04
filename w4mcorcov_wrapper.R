@@ -22,12 +22,45 @@ options(stringsAsFactors = FALSE)
 ## subroutines
 ##----------
 
-source("w4mcorcov_lib.R")
-source("w4mcorcov_util.R")
-source("w4mcorcov_input.R")
-source("w4mcorcov_salience.R")
-source("w4mcorcov_calc.R")
-source("w4mcorcov_output.R")
+# from: https://github.com/molgenis/molgenis-pipelines/wiki/How-to-source-another_file.R-from-within-your-R-script
+LocationOfThisScript = function() # Function LocationOfThisScript returns the location of this .R script (may be needed to source other files in same dir)
+{
+    this.file = NULL
+    # This file may be 'sourced'
+    for (i in -(1:sys.nframe())) {
+        if (identical(sys.function(i), base::source)) this.file = (normalizePath(sys.frame(i)$ofile))
+    }
+
+    if (!is.null(this.file)) return(dirname(this.file))
+
+    # But it may also be called from the command line
+    cmd.args = commandArgs(trailingOnly = FALSE)
+    cmd.args.trailing = commandArgs(trailingOnly = TRUE)
+    cmd.args = cmd.args[seq.int(from=1, length.out=length(cmd.args) - length(cmd.args.trailing))]
+    res = gsub("^(?:--file=(.*)|.*)$", "\\1", cmd.args)
+
+    # If multiple --file arguments are given, R uses the last one
+    res = tail(res[res != ""], 1)
+    if (0 < length(res)) return(dirname(res))
+
+    # Both are not the case. Maybe we are in an R GUI?
+    return(NULL)
+}
+
+script.dir <-  LocationOfThisScript()
+
+source(paste(script.dir, "w4mcorcov_lib.R", sep="/")) 
+source(paste(script.dir, "w4mcorcov_util.R", sep="/")) 
+source(paste(script.dir, "w4mcorcov_input.R", sep="/")) 
+source(paste(script.dir, "w4mcorcov_salience.R", sep="/")) 
+source(paste(script.dir, "w4mcorcov_calc.R", sep="/")) 
+source(paste(script.dir, "w4mcorcov_output.R", sep="/")) 
+#source("w4mcorcov_lib.R")
+#source("w4mcorcov_util.R")
+#source("w4mcorcov_input.R")
+#source("w4mcorcov_salience.R")
+#source("w4mcorcov_calc.R")
+#source("w4mcorcov_output.R")
 
 ## log file
 ##---------

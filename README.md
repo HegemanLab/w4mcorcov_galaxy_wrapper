@@ -21,3 +21,50 @@ The original OPLS-DA® S-PLOT® which this tool emulates is described in:
 
 1. OPLS-DA®, SIMCA®, and S-PLOT® are registered trademarks of the Umetrics company, [http://umetrics.com/about-us/trademarks](http://umetrics.com/about-us/trademarks).
 2. For lines from the corcov dataset for a single contrast (i.e., with a common combination of factorLevel1 and factorLevel2), there is a linear relationship between correlation and loadp; correlation has the advantage that it is more directly interpretable regarding how consistently a feature varies with the predictor.
+
+
+
+
+# Release notes
+
+0.98.11
+
+- bug fix: Readdress issue 2 - features now are pareto-scaled *and centered* per Wikland *op cit.*.
+
+0.98.10
+
+- new feature: C-plots of VIP versus correlation or relative covariance.
+- bug fix: Handle issue 2 - features now are only pareto-scaled per Wikland *op cit.*.
+
+0.98.9
+
+- bug fix: Handle issue 1 - handle features removed by ropls because variance is less than 2.2e-16.
+
+0.98.8
+
+- new feature: Replace loadings plot with correlation-versus-covariance plot for orthogonal features, i.e., the consistency of features influencing within-treatment variation (which is linearly related to the loading of the orthogonal projection) versus consistency.  This eliminates the need for the parameter to suppress labels for features with extreme orthogonal loadings
+
+0.98.7
+
+- bug fix: Handle case of a treatment level with only one sample.
+
+0.98.6
+
+- bug fix: Set 'crossvalI' param (of R function 'ropls::opls') to the number of samples when the there are fewer than seven samples.
+
+0.98.5
+
+- bug fix: Fit feature-labels within clipping region of cor-vs.cov plot
+- new feature: optionally (and by default) suppress labels for features with extreme orthogonal loadings
+
+0.98.3
+
+- Add support for two-level factors
+- Add adjusted mz and rt to output tables
+- Allow explicitly setting the number of features with extreme loadings to be labelled on the correlation vs. covariance plot
+- Add loadings to corcov table
+
+0.98.2
+
+- first release
+

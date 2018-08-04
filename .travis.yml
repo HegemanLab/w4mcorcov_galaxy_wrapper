@@ -22,8 +22,7 @@ jobs:
           fi
         - echo $TRAVIS_COMMIT_RANGE
         - |
-          planemo ci_find_repos --exclude_from .tt_blacklist \
-                                --changed_in_commit_range "$TRAVIS_COMMIT_RANGE" \
+          planemo ci_find_repos --changed_in_commit_range "$TRAVIS_COMMIT_RANGE" \
                                 --output changed_repositories.list
         - cat changed_repositories.list
       script:
@@ -59,8 +58,7 @@ jobs:
           fi
         - echo $TRAVIS_COMMIT_RANGE
         - |
-          planemo ci_find_repos --exclude_from .tt_blacklist \
-                                --changed_in_commit_range "$TRAVIS_COMMIT_RANGE" \
+          planemo ci_find_repos --changed_in_commit_range "$TRAVIS_COMMIT_RANGE" \
                                 --output changed_repositories.list
         - cat changed_repositories.list
       script:
@@ -95,7 +93,6 @@ install:
   - |
     planemo ci_find_repos --exclude data_managers \
                           --exclude packages \
-                          --exclude_from .tt_blacklist \
                           --changed_in_commit_range "$TRAVIS_COMMIT_RANGE" \
                           --output changed_repositories.list
   - touch changed_repositories_chunk.list changed_tools_chunk.list

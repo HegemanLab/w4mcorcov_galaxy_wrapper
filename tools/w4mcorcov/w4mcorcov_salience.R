@@ -61,8 +61,8 @@ w4msalience <- function(
   )
   rcvOfFeatureBySampleClassLevel[is.nan(rcvOfFeatureBySampleClassLevel)] <- max(9999,max(rcvOfFeatureBySampleClassLevel, na.rm = TRUE)) 
 
-  # "For each feature, 'select max(median_feature_intensity) from feature'."
-  maxApplyMedianOfFeatureBySampleClassLevel <- sapply(
+  # "For each feature, 'select max(max_feature_intensity) from feature'."
+  maxApplyMaxOfFeatureBySampleClassLevel <- sapply(
       X = 1:n_features
     , FUN = function(i) {
         match(
@@ -84,19 +84,19 @@ w4msalience <- function(
     # the feature name
     feature = features
     # the name (or factor-level) of the class-level with the highest median intensity for the feature
-  , max_level = medianOfFeatureBySampleClassLevel[maxApplyMedianOfFeatureBySampleClassLevel,1]
+  , max_level = medianOfFeatureBySampleClassLevel[maxApplyMaxOfFeatureBySampleClassLevel,1]
     # the median intensity for the feature and the level max_level
   , max_median = sapply(
         X = 1:n_features
       , FUN = function(i) {
-          maxOfFeatureBySampleClassLevel[maxApplyMedianOfFeatureBySampleClassLevel[i], 1 + i]
+          maxOfFeatureBySampleClassLevel[maxApplyMaxOfFeatureBySampleClassLevel[i], 1 + i]
         }
     )
     # the coefficient of variation (expressed as a proportion) for the intensity for the feature and the level max_level
   , max_rcv = sapply(
         X = 1:n_features
       , FUN = function(i) {
-          rcvOfFeatureBySampleClassLevel[maxApplyMedianOfFeatureBySampleClassLevel[i], i]
+          rcvOfFeatureBySampleClassLevel[maxApplyMaxOfFeatureBySampleClassLevel[i], i]
         }
     )
     # the mean of the medians of intensity for all class-levels for the feature

@@ -149,7 +149,7 @@
         * Wiklund_2008 covariance
         * Galindo_Prieto_2014 VIP for predictive components, VIP[4,p]
         * Galindo_Prieto_2014 VIP for orthogonal components, VIP[4,o]
-        * (When filtering on significance of univariate tests) Significance of test of null hypothesis that there is no difference between the two classes, i.e, the pair-wise test.
+        * When filtering on significance of univariate tests,significance of test of null hypothesis that there is no difference between the two classes, i.e, the pair-wise test.
     -->
     <data name="contrast_corcov" format="tabular" label="${tool.name}_${variableMetadata_in.name}_corcov" />
     <!--

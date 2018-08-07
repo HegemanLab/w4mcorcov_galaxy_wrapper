@@ -95,6 +95,11 @@ install:
                           --exclude packages \
                           --changed_in_commit_range "$TRAVIS_COMMIT_RANGE" \
                           --output changed_repositories.list
+    if [ -s changed_repositories.list ]; then
+        if [ $(wc -l < changed_repositories.list) -eq 1 ]; then
+            cat test_repositories.list > changed_repositories.list
+        fi
+    fi
   - touch changed_repositories_chunk.list changed_tools_chunk.list
   - |
     if [ -s changed_repositories.list ]; then

@@ -96,9 +96,10 @@ install:
                           --changed_in_commit_range "$TRAVIS_COMMIT_RANGE" \
                           --output changed_repositories.list
     if [ -s changed_repositories.list ]; then
-        if [ $(wc -l < changed_repositories.list) -eq 1 ]; then
-            cat test_repositories.list > changed_repositories.list
-        fi
+        # test -s FILE is true when FILE exists and has a size greater than zer0
+        cat test_repositories.list >> changed_repositories.list
+    else
+        cat test_repositories.list > changed_repositories.list
     fi
   - touch changed_repositories_chunk.list changed_tools_chunk.list
   - |

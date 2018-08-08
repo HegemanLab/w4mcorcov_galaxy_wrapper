@@ -1,4 +1,6 @@
-[![DOI](https://zenodo.org/badge/106058128.svg)](https://zenodo.org/badge/latestdoi/106058128)
+[![DOI](https://zenodo.org/badge/106058128.svg)](https://zenodo.org/badge/latestdoi/106058128) Latest public release
+
+[![Build Status](https://travis-ci.org/HegemanLab/w4mcorcov_galaxy_wrapper.svg?branch=master)](https://travis-ci.org/HegemanLab/w4mcorcov_galaxy_wrapper) Current build status for master branch on GitHub
 
 [Repository 'w4mcorcov' in Galaxy Toolshed](https://toolshed.g2.bx.psu.edu/repository?repository_id=96046af0e175c57d)
 

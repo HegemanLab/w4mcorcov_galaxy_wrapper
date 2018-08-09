@@ -424,7 +424,7 @@ Although this tool can be used in a purely exploratory manner by supplying the v
 It must be stressed that there may be no *single* definitive computational approach to select features that are reliable biomarkers, especially from a small number of samples or experiments.  A few possible choices are:
 
 - picking features with maximum loadings along the projection parallel to the predictor (loadp),
-- examining extreme values on S-PLOTs (for which covariance is linearly related to loadp),
+- examining extreme values on S-PLOTs
 - examining "variable importance in projection VIP for OPLS-DA" (Galindo-Prieto *et al.* 2014), and
 - examining a feature's "selectivity ratio" (Rajalahti *et al.*, 2009).
 

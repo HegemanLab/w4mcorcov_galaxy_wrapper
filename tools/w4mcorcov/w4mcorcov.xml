@@ -60,13 +60,12 @@
   ]]></command>
 
     <inputs>
-        <param name="dataMatrix_in" type="data" format="tabular" label="Data matrix file"
-            help="Features x samples (tabular data - decimal: '.'; missing: NA; mode: numerical; separator: tab character)" />
-        <param name="sampleMetadata_in" type="data" format="tabular" label="Sample metadata file"
-            help="Samples x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
-        <param name="variableMetadata_in" type="data" format="tabular"
-            label="Variable metadata file (ideally from Univariate)"
-            help="Features x metadata (tabular data - decimal: '.'; missing: NA; mode: character or numerical; separator: tab character)" />
+        <param name="dataMatrix_in" format="tabular" label="Data matrix file" type="data"
+            help="variables &#10006; samples" />
+        <param name="sampleMetadata_in" format="tabular" label="Sample metadata file" type="data"
+            help="sample metadata, one row per sample" />
+        <param name="variableMetadata_in" format="tabular" label="Variable metadata file (ideally from Univariate)"
+            type="data" help="variable metadata, one row per variable" />
         <param name="facC" type="text"
             label="Factor of interest"
             help="REQUIRED - The name of the column of sampleMetadata corresponding to the qualitative variable used to define the contrasts.  Except when the 'Univariate Significance-test' is set to 'none', this also must be a portion of the column names in the variableMetadata file."/>

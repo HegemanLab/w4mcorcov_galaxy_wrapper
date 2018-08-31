@@ -119,8 +119,8 @@
             </sanitizer>
         </param>
         <param name="matchingC" label="Level-name matching" type="select" help="How to specify level-names generically. (See help below for details on using wild cards or regular expressions.)">
-            <option value="none">do no generic matching (default)</option>
-            <option value="wildcard" selected="true">use wild-cards for matching level-names</option>
+            <option value="none">do no generic matching</option>
+            <option value="wildcard" selected="true">use wild-cards for matching level-names (default)</option>
             <option value="regex">use regular expressions for matching level-names</option>
         </param>
         <param name="labelFeatures" type="text" value="3"

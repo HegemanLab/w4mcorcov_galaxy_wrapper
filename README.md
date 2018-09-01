@@ -28,7 +28,8 @@ The original OPLS-DA® S-PLOT® which this tool emulates is described in:
 
 0.98.14
 
-- Fix `read_data_frame` bug inherited by copy-and-paste from [https://github.com/HegemanLab/w4mclassfilter/issues/1](https://github.com/HegemanLab/w4mclassfilter/issues/1)
+- Fix `read_data_frame` bug inherited by copy-and-paste from [https://github.com/HegemanLab/w4mclassfilter/issues/1](https://github.com/HegemanLab/w4mclassfilter/issues/1).
+- Added missing support for underscores in class levels, fixing issue [https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/7](https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/7).
 
 0.98.13
 

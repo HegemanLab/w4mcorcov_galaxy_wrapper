@@ -240,3 +240,50 @@ echo diff salience ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salienc
 diff ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}  | sed -n -e '1,30 p' | head
 
 
+matchingC=wildcard
+levCSV=k1,k.2,k_3,k-4
+# Repeat the test with test none and a two-level factor
+facC=k._10
+tesC=none
+labelFeatures=3
+contrast_detail=contrast_detail.pdf
+contrast_corcov=contrast_corcov.tsv
+contrast_salience=contrast_salience.tsv
+cplot_o=TRUE
+cplot_p=TRUE
+PREFIX=issue6
+# sampleMetadata	k10
+sampleMetadata_in=test-data/${PREFIX}_input_sampleMetadata.tsv
+# variableMetadata	k10_kruskal_k2.k1_sig	k10_kruskal_k3.k1_sig	k10_kruskal_k4.k1_sig	k10_kruskal_k3.k2_sig	k10_kruskal_k4.k2_sig	k10_kruskal_k4.k3_sig
+variableMetadata_in=test-data/input_variableMetadata.tsv
+# rows labeled as first column of variableMetadata; columns, as first column of sampleMetadata
+dataMatrix_in=test-data/input_dataMatrix.tsv
+OUTPUT=test-data/${PREFIX}_output
+EXPECTED=test-data/${PREFIX}_expected
+
+# Run the script
+bash -c " cd $__tool_directory__; \
+  Rscript w4mcorcov_wrapper.R \
+  dataMatrix_in '$dataMatrix_in' \
+  sampleMetadata_in '$sampleMetadata_in' \
+  variableMetadata_in '$variableMetadata_in' \
+  tesC '$tesC' \
+  facC '$facC' \
+  pairSigFeatOnly '$pairSigFeatOnly' \
+  levCSV '$levCSV' \
+  matchingC '$matchingC' \
+  contrast_detail '${OUTPUT}_${contrast_detail}' \
+  contrast_corcov '${OUTPUT}_${contrast_corcov}' \
+  contrast_salience '${OUTPUT}_${contrast_salience}' \
+  labelFeatures '$labelFeatures' \
+  labelOrthoFeatures '$labelOrthoFeatures' \
+  cplot_p '$cplot_p' \
+  cplot_o '$cplot_o' \
+  cplot_y '$cplot_y' \
+  "
+echo diff corcov ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov} 
+diff ${EXPECTED}_${contrast_corcov}   ${OUTPUT}_${contrast_corcov}    | sed -n -e '1,30 p' | head
+echo diff salience ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}
+diff ${EXPECTED}_${contrast_salience} ${OUTPUT}_${contrast_salience}  | sed -n -e '1,30 p' | head
+
+

@@ -1,6 +1,6 @@
 # read_data_frame - read a w4m data frame, with error handling
 #   e.g., data_matrix_input_env <- read_data_frame(dataMatrix_in, "data matrix input")
-read_data_frame <- function(file_path, kind_string, failure_action = failure_action) {
+read_data_frame <- function(file_path, kind_string, rdf_failure_action = failure_action) {
   my.env <- new.env()
   my.env$success <- FALSE
   my.env$msg <- sprintf("no message reading %s", kind_string)
@@ -14,7 +14,7 @@ read_data_frame <- function(file_path, kind_string, failure_action = failure_act
     }
   )
   if (!my.env$success) {
-    failure_action(my.env$msg)
+    rdf_failure_action(my.env$msg)
     return ( FALSE )
   }
   return (my.env)

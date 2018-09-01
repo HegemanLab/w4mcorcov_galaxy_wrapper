@@ -311,6 +311,7 @@
           <has_text text="0.0488654" />
         </assert_contents>
       </output>
+      <!-- test #4 -->
       <output name="contrast_salience">
         <assert_contents>
           <!-- column-labels line -->
@@ -383,6 +384,76 @@
           <has_text text="4.414469" />
           <has_text text="518.1656" />
           <has_text text="368.59817" />
+        </assert_contents>
+      </output>
+    </test>
+    <!-- test #5 -->
+    <test>
+      <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
+      <param name="sampleMetadata_in" value="issue6_input_sampleMetadata.tsv"/>
+      <param name="variableMetadata_in" value="input_variableMetadata.tsv"/>
+      <param name="tesC" value="none"/>
+      <param name="facC" value="k10"/>
+      <param name="labelFeatures" value="3"/>
+      <param name="levCSV" value="k1,k.2"/>
+      <param name="matchingC" value="none"/>
+      <output name="contrast_corcov">
+        <assert_contents>
+          <!-- column-labels line -->
+          <has_text text="featureID" />
+          <has_text text="factorLevel1" />
+          <has_text text="factorLevel2" />
+          <has_text text="correlation" />
+          <has_text text="covariance" />
+          <has_text text="vip4p" />
+          <has_text text="vip4o" />
+          <!-- first matched line -->
+          <has_text text="M349.2383T700" />
+          <has_text text="-0.37867079" />
+          <has_text text="-37.71066" />
+          <has_text text="0.5246766" />
+          <has_text text="0.0103341" />
+          <!-- second matched line -->
+          <has_text text="M207.9308T206" />
+          <has_text text="0.31570433" />
+          <has_text text="5.86655640" />
+          <has_text text="0.2111623" />
+          <has_text text="0.0488654" />
+        </assert_contents>
+      </output>
+    </test>
+    <!-- test #6 -->
+    <test>
+      <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
+      <param name="sampleMetadata_in" value="issue6_input_sampleMetadata.tsv"/>
+      <param name="variableMetadata_in" value="input_variableMetadata.tsv"/>
+      <param name="tesC" value="none"/>
+      <param name="facC" value="k10"/>
+      <param name="labelFeatures" value="3"/>
+      <param name="levCSV" value="k_3,k-4"/>
+      <param name="matchingC" value="none"/>
+      <output name="contrast_corcov">
+        <assert_contents>
+          <!-- column-labels line -->
+          <has_text text="featureID" />
+          <has_text text="factorLevel1" />
+          <has_text text="factorLevel2" />
+          <has_text text="correlation" />
+          <has_text text="covariance" />
+          <has_text text="vip4p" />
+          <has_text text="vip4o" />
+          <!-- first matched line -->
+          <has_text text="M349.2383T700" />
+          <has_text text="-0.37867079" />
+          <has_text text="-37.71066" />
+          <has_text text="0.5246766" />
+          <has_text text="0.0103341" />
+          <!-- second matched line -->
+          <has_text text="M207.9308T206" />
+          <has_text text="0.31570433" />
+          <has_text text="5.86655640" />
+          <has_text text="0.2111623" />
+          <has_text text="0.0488654" />
         </assert_contents>
       </output>
     </test>

@@ -1,4 +1,4 @@
-﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.13">
+﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.14">
     <description>OPLS-DA Contrasts of Univariate Results</description>
     <macros>
         <xml name="paramPairSigFeatOnly">
@@ -68,7 +68,16 @@
             type="data" help="variable metadata, one row per variable" />
         <param name="facC" type="text"
             label="Factor of interest"
-            help="REQUIRED - The name of the column of sampleMetadata corresponding to the qualitative variable used to define the contrasts.  Except when the 'Univariate Significance-test' is set to 'none', this also must be a portion of the column names in the variableMetadata file."/>
+            help="REQUIRED - The name of the column of sampleMetadata corresponding to the qualitative variable used to define the contrasts.  Except when the 'Univariate Significance-test' is set to 'none', this also must be a portion of the column names in the variableMetadata file.">
+            <sanitizer>
+                <valid initial="string.letters">
+                    <add preset="string.digits"/>
+                    <add value="&#46;"    /> <!-- dot, period -->
+                    <add value="&#95;"    /> <!-- underscore -->
+                    <!-- R does not permit dashes in column names; neither does SQL -->
+                </valid>
+            </sanitizer>
+        </param>
         <conditional name="signif_test">
             <param name="tesC" label="Univariate significance-test" type="select" help="Either 'none' or the name of the statistical test that was run by the 'Univariate' tool to produce the variableMetadata file; that name must also be a portion of the column names in that file.">
                 <option value="none">none - Display all features from variableMetadata (rather than choosing a subset based on significance in univariate testing)</option>
@@ -111,6 +120,7 @@
                     <add value="&#92;"  /> <!-- \ whack, backslash -->
                     <add value="&#93;"  /> <!-- ] r-squib, right-squre-bracket -->
                     <add value="&#94;"  /> <!-- ^ hat, caret -->
+                    <add value="&#95;"  /> <!-- underscore -->
                     <add value="&#123;" /> <!-- { l-cube, left-curly-bracket -->
                     <add value="&#124;" /> <!-- | pipe -->
                     <add value="&#125;" /> <!-- } r-cube, right-curly-bracket -->
@@ -393,7 +403,7 @@
       <param name="sampleMetadata_in" value="issue6_input_sampleMetadata.tsv"/>
       <param name="variableMetadata_in" value="input_variableMetadata.tsv"/>
       <param name="tesC" value="none"/>
-      <param name="facC" value="k10"/>
+      <param name="facC" value="k._10"/>
       <param name="labelFeatures" value="3"/>
       <param name="levCSV" value="k1,k.2"/>
       <param name="matchingC" value="none"/>
@@ -428,7 +438,7 @@
       <param name="sampleMetadata_in" value="issue6_input_sampleMetadata.tsv"/>
       <param name="variableMetadata_in" value="input_variableMetadata.tsv"/>
       <param name="tesC" value="none"/>
-      <param name="facC" value="k10"/>
+      <param name="facC" value="k._10"/>
       <param name="labelFeatures" value="3"/>
       <param name="levCSV" value="k_3,k-4"/>
       <param name="matchingC" value="none"/>
@@ -444,16 +454,10 @@
           <has_text text="vip4o" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
-          <has_text text="-0.37867079" />
-          <has_text text="-37.71066" />
-          <has_text text="0.5246766" />
-          <has_text text="0.0103341" />
-          <!-- second matched line -->
-          <has_text text="M207.9308T206" />
-          <has_text text="0.31570433" />
-          <has_text text="5.86655640" />
-          <has_text text="0.2111623" />
-          <has_text text="0.0488654" />
+          <has_text text="-0.0435663" />
+          <has_text text="-1.9068114" />
+          <has_text text="0.0304592" />
+          <has_text text="0.104748883" />
         </assert_contents>
       </output>
     </test>
@@ -821,6 +825,6 @@ OPLS-DA, SIMCA, and S-PLOT are registered trademarks of the Umetrics company.  h
     <citation type="doi">10.1021/ac0713510</citation>
   </citations>
   <!--
-     vim:noet:sw=2:ts=2
+     vim:et:sw=4:ts=4
 -->
 </tool>

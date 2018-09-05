@@ -419,20 +419,20 @@
           <has_text text="vip4o" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
-          <has_text text="-0.37867079" />
-          <has_text text="-37.71066" />
-          <has_text text="0.5246766" />
-          <has_text text="0.0103341" />
+          <has_text text="0.43361563" />
+          <has_text text="37.76875778" />
+          <has_text text="0.54672558" />
+          <has_text text="0.3920409" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
-          <has_text text="0.31570433" />
-          <has_text text="5.86655640" />
-          <has_text text="0.2111623" />
-          <has_text text="0.0488654" />
+          <has_text text="-0.3365475" />
+          <has_text text="-6.337903" />
+          <has_text text="0.270297" />
+          <has_text text="0.037661" />
         </assert_contents>
       </output>
     </test>
-    <!-- test #6 -->
+    <!-- test #6 - issue 6 -->
     <test>
       <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
       <param name="sampleMetadata_in" value="issue6_input_sampleMetadata.tsv"/>
@@ -458,6 +458,32 @@
           <has_text text="-1.9068114" />
           <has_text text="0.0304592" />
           <has_text text="0.104748883" />
+        </assert_contents>
+      </output>
+    </test>
+    <!-- test #6 - issue 8 -->
+    <test>
+      <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
+      <param name="sampleMetadata_in" value="issue8_input_sampleMetadata.tsv"/>
+      <param name="variableMetadata_in" value="input_variableMetadata.tsv"/>
+      <param name="tesC" value="none"/>
+      <param name="facC" value="k._10"/>
+      <param name="labelFeatures" value="3"/>
+      <param name="levCSV" value="k_3,k-4"/>
+      <param name="matchingC" value="none"/>
+      <output name="contrast_corcov">
+        <assert_contents>
+          <!-- column-labels line -->
+          <has_text text="featureID" />
+          <has_text text="factorLevel1" />
+          <has_text text="factorLevel2" />
+          <has_text text="correlation" />
+          <has_text text="covariance" />
+          <has_text text="vip4p" />
+          <has_text text="vip4o" />
+          <!-- k1 rejected by levCSV, leaving only k_3 and k-4 -->
+          <not_has_text text="k1" />
+          <not_has_text text="other" />
         </assert_contents>
       </output>
     </test>

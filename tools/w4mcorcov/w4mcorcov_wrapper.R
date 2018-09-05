@@ -72,7 +72,12 @@ my_log("Start of the '", modNamC, "' Galaxy module call: ")
 # MAIN #
 ########
 
+errorPrint(sessionInfo())
+
 argVc <- unlist(parseCommandArgs(evaluate=FALSE))
+errorCat("\n\n---\n\nArguments that were passed to R are as follows:\n")
+errorPrint(argVc)
+
 my_env <- new.env()
 
 ##------------------------------

@@ -26,6 +26,10 @@ The original OPLS-DA® S-PLOT® which this tool emulates is described in:
 
 # Release notes
 
+0.98.15
+
+- Fix `unselected levels included in other` bug [https://github.com/HegemanLab/w4mclassfilter/issues/8](https://github.com/HegemanLab/w4mclassfilter/issues/8).
+
 0.98.14
 
 - Fix `read_data_frame` bug inherited by copy-and-paste from [https://github.com/HegemanLab/w4mclassfilter/issues/1](https://github.com/HegemanLab/w4mclassfilter/issues/1).

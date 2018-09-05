@@ -1,4 +1,4 @@
-﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.14">
+﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.15">
     <description>OPLS-DA Contrasts of Univariate Results</description>
     <macros>
         <xml name="paramPairSigFeatOnly">

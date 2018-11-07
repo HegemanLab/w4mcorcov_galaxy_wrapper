@@ -158,6 +158,7 @@ do_detail_plot <- function(
           }
           main_cex <- min(1.0, 46.0/nchar(main_label))
           my_feature_label_slant <- -30 # slant feature labels 30 degrees downward
+          my_pch <- sapply(X = cor_p_value, function(x) if (x < 0.01) 16 else if (x < 0.05) 17 else 18)
           plot(
             y = my_y
           , x = my_x
@@ -169,7 +170,7 @@ do_detail_plot <- function(
           , main = main_label
           , cex.main = main_cex
           , cex = cex
-          , pch = 16
+          , pch = my_pch
           , col = my_col
           )
           low_x <- -0.7 * lim_x
@@ -881,12 +882,14 @@ cor_vs_cov_try <- function(
   # I did transform covariance to "relative covariance" (relative to the maximum value)
   #   to keep the figures consistent with one another.
 
+  # count the features (one column for each sample)
+  Nfeatures <- ncol(matrix_x)
   # count the samples (one row for each sample)
   Nobservations <- nrow(matrix_x)
   # a one-dimensional magnitude function (i.e., take the vector norm)
   vector_norm <- function(one_dimensional) sqrt(sum(one_dimensional * one_dimensional))
   # calculate the standard deviation for each feature 
-  sd_xi <- sapply(X = 1:ncol(matrix_x), FUN = function(x) sd(matrix_x[,x]))
+  sd_xi <- sapply(X = 1:Nfeatures, FUN = function(x) sd(matrix_x[,x]))
   # choose whether to plot the predictive score vector or orthogonal score vector
   if (predictor_projection_x)
      score_matrix <- ropls_x@scoreMN
@@ -904,10 +907,58 @@ cor_vs_cov_try <- function(
   # compute the correlation of each feature with the score vector
   result$correlation <-
     score_matrix_transposed %*% matrix_x / ( (Nobservations - 1) * ( score_matrix_sd * sd_xi ) )
+
   # convert covariance and correlation from one-dimensional matrices to arrays of values, 
   #   which are accessed by feature name below
-  pcorr1 <- result$correlation <- result$correlation[ 1, , drop = TRUE ]
   p1     <- result$covariance  <- result$covariance [ 1, , drop = TRUE ]
+  # x_progress("strF(p1)")
+  # x_progress(strF(p1))
+
+  pcorr1 <- result$correlation <- result$correlation[ 1, , drop = TRUE ]
+  # x_progress("pearson strF(pcorr1)")
+  # x_progress(strF(pcorr1))
+  # x_progress(typeof(pcorr1))
+  # x_progress(str(pcorr1))
+  
+  # # this is how to use Spearman correlation instead of pearson
+  # result$spearcor <- sapply(
+  #   X = 1:Nfeatures
+  # , FUN = function(i) {
+  #     stats::cor(
+  #       x = as.vector(score_matrix)
+  #     , y = as.vector(matrix_x[,i])
+  #     # , method = "spearman"
+  #     , method = "pearson"
+  #     )
+  #   }
+  # )
+  # names(result$spearcor) <- names(p1)
+  # pcorr1 <- result$spearcor
+  # x_progress("spearman strF(pcorr1)")
+  # x_progress(strF(pcorr1))
+  # x_progress(typeof(pcorr1))
+  # x_progress(str(pcorr1))
+  # pcorr1 <- result$correlation <- result$spearcor
+
+  # correl.ci(r, n, a = 0.05, rho = 0)
+  correl_pci <- lapply(
+    X = 1:Nfeatures
+  , FUN = function(i) correl.ci(r = pcorr1[i], n = Nobservations)
+  )
+  result$p_value_raw <- sapply(
+    X = 1:Nfeatures
+  , FUN = function(i) correl_pci[[i]]$p.value
+  )
+  result$p_value_raw[is.na(result$p_value_raw)] <- 0.0
+  result$ci_lower <- sapply(
+    X = 1:Nfeatures
+  , FUN = function(i) correl_pci[[i]]$CI['lower']
+  )
+  result$ci_upper <- sapply(
+    X = 1:Nfeatures
+  , FUN = function(i) correl_pci[[i]]$CI['upper']
+  )
+
 
   # extract "variant 4 of Variable Influence on Projection for OPLS" (see Galindo_Prieto_2014, DOI 10.1002/cem.2627)
   #    Length = number of features; labels = feature identifiers.  (The same is true for $correlation and $covariance.)
@@ -953,27 +1004,26 @@ cor_vs_cov_try <- function(
 
   # build a data frame to hold the content for the tab-separated values file
   tsv1 <- data.frame(
-    featureID           = featureID
-  , factorLevel1        = result$level1
-  , factorLevel2        = result$level2
-  , greaterLevel        = greaterLevel
-  , projection          = result$projection
-  , correlation         = result$correlation
-  , covariance          = result$covariance
-  , vip4p               = result$vip4p
-  , vip4o               = result$vip4o
-  , loadp               = result$loadp
-  , loado               = result$loado
-  , row.names           = NULL
+    featureID     = featureID
+  , factorLevel1  = result$level1
+  , factorLevel2  = result$level2
+  , greaterLevel  = greaterLevel
+  , projection    = result$projection
+  , correlation   = result$correlation
+  , covariance    = result$covariance
+  , vip4p         = result$vip4p
+  , vip4o         = result$vip4o
+  , loadp         = result$loadp
+  , loado         = result$loado
+  , cor_p_val_raw = result$p_value_raw
+  , cor_p_value   = p.adjust(p = result$p_value_raw, method = "BY")
+  , cor_ci_lower  = result$ci_lower 
+  , cor_ci_upper  = result$ci_upper
   )
-  # remove any rows having NA for covariance or correlation
-  tsv1 <- tsv1[!is.na(tsv1$correlation),]
-  tsv1 <- tsv1[!is.na(tsv1$covariance),]
+  rownames(tsv1) <- tsv1$featureID
 
   # build the superresult, i.e., the result returned by this function
   superresult <- list()
-  superresult$tsv1 <- tsv1
-  rownames(superresult$tsv1) <- tsv1$featureID
   superresult$projection <- result$projection
   superresult$covariance <- result$covariance
   superresult$correlation <- result$correlation
@@ -981,7 +1031,13 @@ cor_vs_cov_try <- function(
   superresult$vip4o <- result$vip4o
   superresult$loadp <- result$loadp
   superresult$loado <- result$loado
+  superresult$cor_p_value <- tsv1$cor_p_value
   superresult$details <- result
+
+  # remove any rows having NA for covariance or correlation
+  tsv1 <- tsv1[!is.na(tsv1$correlation),]
+  tsv1 <- tsv1[!is.na(tsv1$covariance),]
+  superresult$tsv1 <- tsv1
 
   # # I did not include these but left them commentd out in case future 
   # #   consumers of this routine want to use it in currently unanticipated ways
@@ -990,6 +1046,35 @@ cor_vs_cov_try <- function(
   # result$predictor <- ropls_x@suppLs$y
 
   return (superresult)
+}
+
+# Code for correl.ci was adapted from correl function from:
+#   @book{
+#     Tsagris_2018,
+#     author = {Tsagris, Michail},
+#     year = {2018},
+#     link = {https://www.researchgate.net/publication/324363311_Multivariate_data_analysis_in_R},
+#     title = {Multivariate data analysis in R}
+#   }
+# which follows
+#   https://en.wikipedia.org/wiki/Fisher_transformation#Definition
+
+correl.ci <- function(r, n, a = 0.05, rho = 0) {
+  ## r is the calculated correlation coefficient for n pairs
+  ## a is the significance level
+  ## rho is the hypothesised correlation
+  zh0 <- atanh(rho) # 0.5*log((1+rho)/(1-rho)), i.e., Fisher's z-transformation for Ho
+  zh1 <- atanh(r)   # 0.5*log((1+r)/(1-r)), i.e., Fisher's z-transformation for H1
+  se <- (1 - r^2)/sqrt(n - 3) ## standard error for Fisher's z-transformation of Ho
+  test <- (zh1 - zh0)/se ### test statistic
+  pvalue <- 2*(1 - pnorm(abs(test))) ## p-value
+  zL <- zh1 - qnorm(1 - a/2)*se
+  zH <- zh1 + qnorm(1 - a/2)*se
+  fishL <- tanh(zL) # (exp(2*zL)-1)/(exp(2*zL)+1), i.e., lower confidence limit
+  fishH <- tanh(zH) # (exp(2*zH)-1)/(exp(2*zH)+1), i.e., upper confidence limit
+  CI <- c(fishL, fishH)
+  names(CI) <- c('lower', 'upper')
+  list(correlation = r, p.value = pvalue, CI = CI)
 }
 
 # vim: sw=2 ts=2 et :

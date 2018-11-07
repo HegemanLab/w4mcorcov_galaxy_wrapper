@@ -495,6 +495,7 @@
 
 **Author** - Arthur Eschenlauer (University of Minnesota, esch0041@umn.edu)
 
+**Release Notes** - https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper#release-notes
 
 Motivation
 ----------
@@ -616,9 +617,13 @@ Parameters
   |
 
 [OUT] Contrast-detail output PDF
-  | Several plots for each two-projection OPLS-DA analysis:
+  | File containing several plots for each two-projection OPLS-DA analysis.
 
-- (first row, left) **correlation-versus-covariance plot** of OPLS-DA results (a work-alike for the S-PLOT, computed using formula in Supplement to Wiklund, *op. cit.*); point-color becomes saturated as the "variable importance in projection to the predictive components" (VIP\ :subscript:`4,p` from Galindo-Prieto *et al.* 2014) ranges from 0.83 and 1.21 (Mehmood *et al.* 2012), for use to identify features for consideration as biomarkers.
+- (first row, left) **correlation-versus-covariance plot** of OPLS-DA results
+
+    - This is a work-alike for the S-PLOT, computed using formula in Supplement to Wiklund, (*op. cit.*);
+    - point-color becomes saturated as the "variable importance in projection to the predictive components" (VIP\ :subscript:`4,p` from Galindo-Prieto *et al.* 2014) ranges from 0.83 and 1.21 (Mehmood *et al.* 2012), for use to identify features for consideration as biomarkers;
+    - plot symbols are diamonds when the adjusted p-value of correlation is greater than 0.05, circles when it is less than 0.01, and triangles when it between these limits.
 - (second row, left) **model-overview plot** for the two projections; grey bars are the correlation coefficient for the fitted data; black bars indicate performance in cross-validation tests (Th]]>&#233;<![CDATA[venot, 2017)
 - (first row, right) OPLS-DA **scores-plot** for the two projections (Th]]>&#233;<![CDATA[venot *et al.*, 2015)
 - (second row, right) **correlation-versus-covariance plot** of OPLS-DA results **orthogonal to the predictor** (see section "S-Plot of Orthogonal Component" in Wiklund, *op. cit.*, pp. 120-121; this characterizes features with the greatest variation independent of the predictor).
@@ -639,6 +644,12 @@ Parameters
 - **vip4o** - "variable importance in projection" to the orthogonal projection, VIP\ :subscript:`4,o` (*ibid.*)
 - **loadp** - variable loading for the predictive projection (Wiklund *op. cit.*)
 - **loado** - variable loading for the orthogonal projection (*ibid.*)
+- **cor_p_val_raw** - p-value for Fisher-transformed correlation (see e.g. https://en.wikipedia.org/wiki/Fisher_transformation), with no family-wise error-rate correction.
+- **cor_p_value** - p-value for Fisher-transformed correlation, adjusted for family-wise error rate (Yekutieli *et al.*, 2001)
+- **cor_ci_lower** - lower limit of 95% confidence interval for correlation (see e.g. https://en.wikipedia.org/wiki/Fisher_transformation)
+- **cor_ci_upper** - upper limit of 95% confidence interval for correlation (*ibid.*)
+- **mz** - *m/z* ratio for feature, copied from input variableMetadata
+- **rt** - retention time for feature, copied from input variableMetadata
 - **level1Level2Sig** - (Only present when a test other than "none" is chosen) '1' when feature varies significantly across all classes (i.e., not pair-wise); '0' otherwise
 
 [OUT] Feature "Salience" data TABULAR
@@ -849,6 +860,8 @@ OPLS-DA, SIMCA, and S-PLOT are registered trademarks of the Umetrics company.  h
     ]]></citation>
     <!-- Wiklund_2008 OPLS PLS-DA and S-PLOT -->
     <citation type="doi">10.1021/ac0713510</citation>
+    <!-- Yekutieli_2001 The control of the false discovery rate in multiple testing under dependency -->
+    <citation type="doi">10.1214/aos/1013699998</citation>
   </citations>
   <!--
      vim:et:sw=4:ts=4

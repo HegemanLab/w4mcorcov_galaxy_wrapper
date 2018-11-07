@@ -28,7 +28,8 @@ The original OPLS-DA® S-PLOT® which this tool emulates is described in:
 
 0.98.16
 
-- Fix `correlation calculation is incorrect` bug [https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/11](https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/11)
+- Fix defect `correlation calculation is incorrect` [https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/11](https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/11)
+- Add enhancement `calculate significance for correlation` enhancement [https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/12](https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/12)
 
 0.98.15
 

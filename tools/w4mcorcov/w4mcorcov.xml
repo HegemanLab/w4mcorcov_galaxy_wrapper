@@ -1,4 +1,4 @@
-﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.15">
+﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.16">
     <description>OPLS-DA Contrasts of Univariate Results</description>
     <macros>
         <xml name="paramPairSigFeatOnly">
@@ -201,13 +201,13 @@
           <has_text text="level1Level2Sig" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
-          <has_text text="-0.3704185" />
+          <has_text text="-0.462909875" />
           <has_text text="-36.6668927" />
           <has_text text="0.4914638" />
           <has_text text="0.01302117" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
-          <has_text text="0.3235022" />
+          <has_text text="0.504885262" />
           <has_text text="5.97529097" />
           <has_text text="0.207196379" />
           <has_text text="0.04438632" />
@@ -259,7 +259,7 @@
           <has_text text="level1Level2Sig" />
           <!-- first matched line -->
           <has_text text="M200.005T296" />
-          <has_text text="-0.24533821" />
+          <has_text text="-0.28035717" />
           <has_text text="-3.3573953" />
           <has_text text="0.1157346" />
           <has_text text="0.0647860" />
@@ -309,13 +309,13 @@
           <has_text text="vip4o" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
-          <has_text text="-0.37867079" />
+          <has_text text="-0.4732226665" />
           <has_text text="-37.71066" />
           <has_text text="0.5246766" />
           <has_text text="0.0103341" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
-          <has_text text="0.31570433" />
+          <has_text text="0.4927151212" />
           <has_text text="5.86655640" />
           <has_text text="0.2111623" />
           <has_text text="0.0488654" />
@@ -368,7 +368,7 @@
           <has_text text="NM516T251" />
           <has_text text="flower_yes" />
           <has_text text="other" />
-          <has_text text="0.03402807" />
+          <has_text text="0.3499550705" />
           <has_text text="0.03526926" />
           <has_text text="0.43664386" />
           <has_text text="0.587701897" />
@@ -419,13 +419,13 @@
           <has_text text="vip4o" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
-          <has_text text="0.43361563" />
+          <has_text text="0.61594030" />
           <has_text text="37.76875778" />
           <has_text text="0.54672558" />
           <has_text text="0.3920409" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
-          <has_text text="-0.3365475" />
+          <has_text text="-0.89716403" />
           <has_text text="-6.337903" />
           <has_text text="0.270297" />
           <has_text text="0.037661" />
@@ -454,14 +454,14 @@
           <has_text text="vip4o" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
-          <has_text text="-0.0435663" />
-          <has_text text="-1.9068114" />
-          <has_text text="0.0304592" />
-          <has_text text="0.104748883" />
+          <has_text text="-0.331230562" />
+          <has_text text="-2.47167915" />
+          <has_text text="0.0892595" />
+          <has_text text="0.0049228872" />
         </assert_contents>
       </output>
     </test>
-    <!-- test #6 - issue 8 -->
+    <!-- test #7 - issue 8 -->
     <test>
       <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
       <param name="sampleMetadata_in" value="issue8_input_sampleMetadata.tsv"/>

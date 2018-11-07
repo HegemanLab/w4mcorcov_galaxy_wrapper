@@ -26,6 +26,10 @@ The original OPLS-DA® S-PLOT® which this tool emulates is described in:
 
 # Release notes
 
+0.98.16
+
+- Fix `correlation calculation is incorrect` bug [https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/11](https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/11)
+
 0.98.15
 
 - Fix `unselected levels included in other` bug [https://github.com/HegemanLab/w4mclassfilter/issues/8](https://github.com/HegemanLab/w4mclassfilter/issues/8).

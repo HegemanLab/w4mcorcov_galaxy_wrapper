@@ -38,10 +38,7 @@ do_detail_plot <- function(
     # strip out variables having negligible variance
     x_dataMatrix <- x_dataMatrix[,names(my_oplsda@vipVn), drop = FALSE]
     my_oplsda_suppLs_y_levels <- levels(as.factor(my_oplsda@suppLs$y))
-    # x_progress(strF(x_dataMatrix))
-    # x_progress(strF(my_oplsda))
-    #x_progress(head(my_oplsda_suppLs_y_levels))
-    #x_progress(unique(my_oplsda_suppLs_y_levels))
+
     fctr_lvl_1 <- my_oplsda_suppLs_y_levels[1]
     fctr_lvl_2 <- my_oplsda_suppLs_y_levels[2]
     do_s_plot <- function(
@@ -51,12 +48,8 @@ do_detail_plot <- function(
       , cor_vs_cov_x = NULL
       )
     {
-      #print(ls(x_env))               # "cplot_y" etc
-      #print(str(x_env$cplot_y))      # chr "covariance"
       if (cplot_x) {
-        #print(x_env$cplot_y)         # "covariance"
         cplot_y_correlation <- (x_env$cplot_y == "correlation")
-        #print(cplot_y_correlation)   # FALSE
       }
       if (is.null(cor_vs_cov_x)) {
         my_cor_vs_cov <- cor_vs_cov(
@@ -68,7 +61,6 @@ do_detail_plot <- function(
       } else {
         my_cor_vs_cov <- cor_vs_cov_x
       }
-      # print("str(my_cor_vs_cov)")
       # str(my_cor_vs_cov)
       if (is.null(my_cor_vs_cov) || sum(!is.na(my_cor_vs_cov$tsv1$covariance)) < 2) {
         if (is.null(cor_vs_cov_x)) {
@@ -217,12 +209,6 @@ do_detail_plot <- function(
                 )
             }
             label_features <- function(x_arg, y_arg, labels_arg, slant_arg) {
-              # print("str(x_arg)")
-              # print(str(x_arg))
-              # print("str(y_arg)")
-              # print(str(y_arg))
-              # print("str(labels_arg)")
-              # print(str(labels_arg))
               if (length(labels_arg) > 0) {
                 unique_slant <- unique(slant_arg)
                 if (length(unique_slant) == 1) {
@@ -851,13 +837,13 @@ cor_vs_cov <- function(
 }
 
 cor_vs_cov_try <- function(
-  matrix_x
-, ropls_x
-, predictor_projection_x = TRUE
-, x_progress = print
+  matrix_x                      # rows are samples; columns, features
+, ropls_x                       # an instance of ropls::opls
+, predictor_projection_x = TRUE # TRUE for predictor projection; FALSE for orthogonal projection
+, x_progress = print            # function to produce progress and error messages
 ) {
   x_class <- class(ropls_x)
-  if ( !( as.character(x_class) == "opls" ) ) { # || !( attr(class(x_class),"package") == "ropls" ) )
+  if ( !( as.character(x_class) == "opls" ) ) {
     stop(
       paste(
         "cor_vs_cov: Expected ropls_x to be of class ropls::opls but instead it was of class "
@@ -865,57 +851,70 @@ cor_vs_cov_try <- function(
       )
     )
   }
-  result <- list()
-  result$projection <- projection <- if (predictor_projection_x) 1 else 2
-  # suppLs$algoC - Character: algorithm used - "svd" for singular value decomposition; "nipals" for NIPALS
-  if ( ropls_x@suppLs$algoC == "nipals") {
-    # Equations (1) and (2) from *Supplement to* Wiklund 2008, doi:10.1021/ac0713510
-    mag <- function(one_dimensional) sqrt(sum(one_dimensional * one_dimensional))
-    mag_xi <- sapply(X = 1:ncol(matrix_x), FUN = function(x) mag(matrix_x[,x]))
-    if (predictor_projection_x)
-       score_matrix <- ropls_x@scoreMN
-    else
-       score_matrix <- ropls_x@orthoScoreMN
-    score_matrix_transposed <- t(score_matrix)
-    score_matrix_magnitude <- mag(score_matrix)
-    result$covariance <-
-      score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * score_matrix_magnitude )
-    result$correlation <-
-      score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * mag_xi )
-  } else {
-    # WARNING - untested code - I don't have test data to exercise this branch
-    # Equations (1) and (2) from Wiklund 2008, doi:10.1021/ac0713510
-    # scoreMN - Numerical matrix of x scores (T; dimensions: nrow(x) x predI) X = TP' + E; Y = TC' + F
-    if (predictor_projection_x)
-       score_matrix <- ropls_x@scoreMN
-    else
-       score_matrix <- ropls_x@orthoScoreMN
-    score_matrix_transposed <- t(score_matrix)
-    cov_divisor <- nrow(matrix_x) - 1
-    result$covariance <- sapply(
-      X = 1:ncol(matrix_x)
-    , FUN = function(x) score_matrix_transposed %*% matrix_x[,x] / cov_divisor
-    )
-    score_sd <- sapply(
-      X = 1:ncol(score_matrix)
-      , FUN = function(x) sd(score_matrix[,x])
-    )
-    # xSdVn - Numerical vector: variable standard deviations of the 'x' matrix
-    xSdVn <- ropls_x@xSdVn
-    result$correlation <- sapply(
-      X = 1:ncol(matrix_x)
-    , FUN = function(x) {
-        ( score_matrix_transposed / score_sd ) %*% ( matrix_x[,x] / (xSdVn[x] * cov_divisor) )
-      }
+  if ( !ropls_x@suppLs$algoC == "nipals" ) {
+    # suppLs$algoC - Character: algorithm used - "svd" for singular value decomposition; "nipals" for NIPALS
+    stop(
+      paste(
+        "cor_vs_cov: Expected ropls::opls instance to have been computed by the NIPALS algorithm rather than "
+      , ropls_x@suppLs$algoC
+      )
     )
   }
-  result$correlation <- result$correlation[ 1, , drop = TRUE ]
-  result$covariance  <- result$covariance [ 1, , drop = TRUE ]
+  result <- list()
+  result$projection <- projection <- if (predictor_projection_x) 1 else 2
 
-  # Variant 4 of Variable Influence on Projection for OPLS from Galindo_Prieto_2014
+  # I used equations (1) and (2) from Wiklund 2008, doi:10.1021/ac0713510
+  #   (and not from the supplement despite the statement that, for the NIPALS algorithm,
+  #   the equations from the supplement should be used) because of the definition of the 
+  #   Pearson/Galton coefficient of correlation is defined as
+  #   $$
+  #      \rho_{X,Y}= \frac{\operatorname{cov}(X,Y)}{\sigma_X \sigma_Y}
+  #   $$
+  #   as described (among other places) on Wikipedia at 
+  #     https://en.wikipedia.org/wiki/Pearson_correlation_coefficient#For_a_population
+  # The equations in the supplement said to use, for the predictive component t1,
+  #      \rho_{t1,X_i}= \frac{\operatorname{cov}(t1,X_i)}{(\operatorname{mag}(t1))(\operatorname{mag}(X_i))}
+  # but the results that I got were dramatically different from published results for S-PLOTs;
+  # perhaps my data are not centered exactly the same way that theirs were.
+  # The correlations calculated here are in agreement with those calculated with the code from
+  #   page 22 of https://cran.r-project.org/web/packages/muma/muma.pdf
+  # I did transform covariance to "relative covariance" (relative to the maximum value)
+  #   to keep the figures consistent with one another.
+
+  # count the samples (one row for each sample)
+  Nobservations <- nrow(matrix_x)
+  # a one-dimensional magnitude function (i.e., take the vector norm)
+  vector_norm <- function(one_dimensional) sqrt(sum(one_dimensional * one_dimensional))
+  # calculate the standard deviation for each feature 
+  sd_xi <- sapply(X = 1:ncol(matrix_x), FUN = function(x) sd(matrix_x[,x]))
+  # choose whether to plot the predictive score vector or orthogonal score vector
+  if (predictor_projection_x)
+     score_matrix <- ropls_x@scoreMN
+  else
+     score_matrix <- ropls_x@orthoScoreMN
+  # transpose the score (or orthoscore) vector for use as a premultiplier in covariance calculation
+  score_matrix_transposed <- t(score_matrix)
+  # compute the norm of the vector (i.e., the magnitude)
+  score_matrix_magnitude  <- vector_norm(score_matrix)
+  # compute the standard deviation of the vector
+  score_matrix_sd         <- sd(score_matrix)
+  # compute the relative covariance of each feature with the score vector
+  result$covariance <-
+    score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * score_matrix_magnitude )
+  # compute the correlation of each feature with the score vector
+  result$correlation <-
+    score_matrix_transposed %*% matrix_x / ( (Nobservations - 1) * ( score_matrix_sd * sd_xi ) )
+  # convert covariance and correlation from one-dimensional matrices to arrays of values, 
+  #   which are accessed by feature name below
+  pcorr1 <- result$correlation <- result$correlation[ 1, , drop = TRUE ]
+  p1     <- result$covariance  <- result$covariance [ 1, , drop = TRUE ]
+
+  # extract "variant 4 of Variable Influence on Projection for OPLS" (see Galindo_Prieto_2014, DOI 10.1002/cem.2627)
   #    Length = number of features; labels = feature identifiers.  (The same is true for $correlation and $covariance.)
   result$vip4p     <- as.numeric(ropls_x@vipVn)
   result$vip4o     <- as.numeric(ropls_x@orthoVipVn)
+  if (length(result$vip4o) == 0) result$vip4o <- NA
+  # extract the loadings
   result$loadp     <- as.numeric(ropls_x@loadingMN)
   result$loado     <- as.numeric(ropls_x@orthoLoadingMN)
   # get the level names
@@ -925,14 +924,11 @@ cor_vs_cov_try <- function(
   feature_count    <- length(ropls_x@vipVn)
   result$level1    <- rep.int(x = fctr_lvl_1, times = feature_count)
   result$level2    <- rep.int(x = fctr_lvl_2, times = feature_count)
-  superresult <- list()
-  if (length(result$vip4o) == 0) result$vip4o <- NA
   greaterLevel <- sapply(
     X = result$correlation
   , FUN = function(my_corr)
       tryCatch({
           if ( is.nan( my_corr ) ) {
-            print("my_corr is NaN")
             NA 
           } else {
             if ( my_corr < 0 ) fctr_lvl_1 else fctr_lvl_2
@@ -955,6 +951,7 @@ cor_vs_cov_try <- function(
   result$covariance  <- result$covariance[featureID]
   # end fixes for https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/1
 
+  # build a data frame to hold the content for the tab-separated values file
   tsv1 <- data.frame(
     featureID           = featureID
   , factorLevel1        = result$level1
@@ -969,8 +966,12 @@ cor_vs_cov_try <- function(
   , loado               = result$loado
   , row.names           = NULL
   )
+  # remove any rows having NA for covariance or correlation
   tsv1 <- tsv1[!is.na(tsv1$correlation),]
   tsv1 <- tsv1[!is.na(tsv1$covariance),]
+
+  # build the superresult, i.e., the result returned by this function
+  superresult <- list()
   superresult$tsv1 <- tsv1
   rownames(superresult$tsv1) <- tsv1$featureID
   superresult$projection <- result$projection
@@ -981,10 +982,13 @@ cor_vs_cov_try <- function(
   superresult$loadp <- result$loadp
   superresult$loado <- result$loado
   superresult$details <- result
-  result$superresult <- superresult
-  # Include thise in case future consumers of this routine want to use it in currently unanticipated ways
-  result$oplsda    <- ropls_x
-  result$predictor <- ropls_x@suppLs$y   # in case future consumers of this routine want to use it in currently unanticipated ways
+
+  # # I did not include these but left them commentd out in case future 
+  # #   consumers of this routine want to use it in currently unanticipated ways
+  # result$superresult <- superresult
+  # result$oplsda    <- ropls_x
+  # result$predictor <- ropls_x@suppLs$y
+
   return (superresult)
 }
 

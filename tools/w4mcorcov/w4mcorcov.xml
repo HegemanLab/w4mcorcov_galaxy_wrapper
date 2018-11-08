@@ -644,8 +644,8 @@ Parameters
 - **vip4o** - "variable importance in projection" to the orthogonal projection, VIP\ :subscript:`4,o` (*ibid.*)
 - **loadp** - variable loading for the predictive projection (Wiklund *op. cit.*)
 - **loado** - variable loading for the orthogonal projection (*ibid.*)
-- **cor_p_val_raw** - p-value for Fisher-transformed correlation (see e.g. https://en.wikipedia.org/wiki/Fisher_transformation), with no family-wise error-rate correction.
-- **cor_p_value** - p-value for Fisher-transformed correlation, adjusted for family-wise error rate (Yekutieli *et al.*, 2001)
+- **cor_p_val_raw** - p-value for Fisher-transformed correlation (Fisher, 1921; Snedecor, 1980; see also https://en.wikipedia.org/wiki/Fisher_transformation), with no family-wise error-rate correction.
+- **cor_p_value** - p-value for Fisher-transformed correlation, adjusted for family-wise error rate (Yekutieli *et al.*, 2001).  Caveat: any previous selection for features that vary notably by factor level may result in too little adjustment.
 - **cor_ci_lower** - lower limit of 95% confidence interval for correlation (see e.g. https://en.wikipedia.org/wiki/Fisher_transformation)
 - **cor_ci_upper** - upper limit of 95% confidence interval for correlation (*ibid.*)
 - **mz** - *m/z* ratio for feature, copied from input variableMetadata
@@ -830,6 +830,19 @@ OPLS-DA, SIMCA, and S-PLOT are registered trademarks of the Umetrics company.  h
   <citations>
     <!-- this tool -->
     <citation type="doi">10.5281/zenodo.1034784</citation>
+    <!-- Fisher_1921: Fisher z-transformation of correlation coefficient -->
+    <citation type="bibtex"><![CDATA[
+    @article{Fisher_1921,
+      author = {Fisher, R. A.},
+      title = {{On the probable error of a coefficient of correlation deduced from a small sample}},
+      journal = {Metron},
+      year = {1921},
+      volume = {1},
+      pages = {3--32},
+      note = {Defines the Fisher z-transformation of a coefficient of correlation.  Citation adapted from http://www.citeulike.org/group/894/article/2344770},
+      url = {https://digital.library.adelaide.edu.au/dspace/bitstream/2440/15169/1/14.pdf},
+    }
+    ]]></citation>
     <!-- Galindo_Prieto_2014 Variable influence on projection (VIP) for OPLS -->
     <citation type="doi">10.1002/cem.2627</citation>
     <!-- Giacomoni_2014 W4M 2.5 -->
@@ -844,6 +857,22 @@ OPLS-DA, SIMCA, and S-PLOT are registered trademarks of the Umetrics company.  h
     <citation type="doi">10.3389/fmolb.2016.00026</citation>
     <!-- Sun_2016 Urinary Biomarkers for adolescent idiopathic scoliosis -->
     <citation type="doi">10.1038/srep22274</citation>
+    <!-- Snedecor_1980: Fisher z-transformation of correlation coefficient -->
+    <citation type="bibtex"><![CDATA[
+    @book{Snedecor_1980,
+      author = {Snedecor, George W. and Cochran, William G.},
+      title = {Statistical methods},
+      publisher = {Iowa State University Press},
+      year = {1980},
+      pages = {186},
+      isbn = {0813815606},
+      language = {eng},
+      keyword = {Statistics, Statistics as Topic -- methods},
+      lccn = {80014582},
+      edition = {7th ed..},
+      address = {Ames, Iowa},
+    }
+    ]]></citation>
     <!-- Thevenot_2015 Urinary metabolome statistics -->
     <citation type="doi">10.1021/acs.jproteome.5b00354</citation>
     <!-- ropls package -->

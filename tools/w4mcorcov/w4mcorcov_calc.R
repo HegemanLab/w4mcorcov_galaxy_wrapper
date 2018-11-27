@@ -82,14 +82,6 @@ do_detail_plot <- function(
           max_x <- max(covariance, na.rm = TRUE)
           lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
           covariance <- covariance / lim_x
-          print("fivenum(min_x)")
-          print(fivenum(min_x))
-          print("fivenum(max_x)")
-          print(fivenum(max_x))
-          print("fivenum(lim_x)")
-          print(fivenum(lim_x))
-          print("fivenum(covariance)")
-          print(fivenum(covariance))
           lim_x <- default_lim_x
           # "It is generally accepted that a variable should be selected if vj>1, [27–29],
           #   but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]."
@@ -126,14 +118,6 @@ do_detail_plot <- function(
                 my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
               }
               my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
-              print("fivenum(my_x)")
-              print(fivenum(my_x))
-              print("fivenum(my_y)")
-              print(fivenum(my_y))
-              print("fivenum(lim_x)")
-              print(fivenum(lim_x))
-              print("fivenum(my_xlim)")
-              print(fivenum(my_xlim))
               my_load_distal <- loadp
               my_load_proximal <- loado
               red  <- as.numeric(correlation > 0) * vipcp
@@ -170,14 +154,6 @@ do_detail_plot <- function(
                 }
               }
               my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
-              print("fivenum(my_x)")
-              print(fivenum(my_x))
-              print("fivenum(my_y)")
-              print(fivenum(my_y))
-              print("fivenum(lim_x)")
-              print(fivenum(lim_x))
-              print("fivenum(my_xlim)")
-              print(fivenum(my_xlim))
               my_load_distal <- loado
               my_load_proximal <- loadp
               alpha <- 0.1 + 0.4 * vipco
@@ -733,7 +709,6 @@ corcov_calc <- function(
             fctr_lvl_2 <- {
               if ( fctr_lvl_1 %in% completed )
                 return("DUMMY")
-              # strF(completed)
               completed <<- c(completed, fctr_lvl_1)
               setdiff(level_union, fctr_lvl_1)
             }
@@ -932,8 +907,6 @@ cor_vs_cov_try <- function(
   # I did transform covariance to "relative covariance" (relative to the maximum value)
   #   to keep the figures consistent with one another.
 
-  # print("strF(my_matrix_x)")
-  # print(strF(my_matrix_x))
 
   # count the features/variables (one column for each sample)
   # count the features/variables (one column for each sample)
@@ -987,44 +960,7 @@ cor_vs_cov_try <- function(
   # convert covariance and correlation from one-dimensional matrices to arrays of values, 
   #   which are accessed by feature name below
   p1     <- result$covariance
-  print("sum(is.na(p1))")
-  print(sum(is.na(p1)))
-  # print("strF(p1)")
-  # print(strF(p1))
-
-  # x_progress("strF(p1)")
-  # x_progress(strF(p1))
-
   pcorr1 <- result$correlation
-  print("sum(is.na(pcorr1))")
-  print(sum(is.na(pcorr1)))
-  # print("strF(pcorr1)")
-  # print(strF(pcorr1))
-
-  # x_progress("pearson strF(pcorr1)")
-  # x_progress(strF(pcorr1))
-  # x_progress(typeof(pcorr1))
-  # x_progress(str(pcorr1))
-  
-  # # this is how to use Spearman correlation instead of pearson
-  # result$spearcor <- sapply(
-  #   X = 1:Nfeatures
-  # , FUN = function(i) {
-  #     stats::cor(
-  #       x = as.vector(score_vector)
-  #     , y = as.vector(my_matrix_x[,i])
-  #     # , method = "spearman"
-  #     , method = "pearson"
-  #     )
-  #   }
-  # )
-  # names(result$spearcor) <- names(p1)
-  # pcorr1 <- result$spearcor
-  # x_progress("spearman strF(pcorr1)")
-  # x_progress(strF(pcorr1))
-  # x_progress(typeof(pcorr1))
-  # x_progress(str(pcorr1))
-  # pcorr1 <- result$correlation <- result$spearcor
 
   # correl.ci(r, n, a = 0.05, rho = 0)
   correl_pci <- lapply(
@@ -1048,14 +984,14 @@ cor_vs_cov_try <- function(
 
   # extract "variant 4 of Variable Influence on Projection for OPLS" (see Galindo_Prieto_2014, DOI 10.1002/cem.2627)
   #    Length = number of features; labels = feature identifiers.  (The same is true for $correlation and $covariance.)
-  result$vip4p     <- as.numeric(ropls_x@vipVn)[featureID]
-  result$vip4o     <- as.numeric(ropls_x@orthoVipVn)[featureID]
+  result$vip4p     <- as.numeric(ropls_x@vipVn)[!nas]
+  result$vip4o     <- as.numeric(ropls_x@orthoVipVn)[!nas]
   if (length(result$vip4o) == 0) result$vip4o <- NA
   # extract the loadings
-  result$loadp     <- as.numeric(ropls_x@loadingMN)[featureID]
-  result$loado     <- as.numeric(ropls_x@orthoLoadingMN)[featureID]
+  result$loadp     <- as.numeric(ropls_x@loadingMN)[!nas]
+  result$loado     <- as.numeric(ropls_x@orthoLoadingMN)[!nas]
   # get the level names
-  level_names      <- sort(levels(as.factor(ropls_x@suppLs$y)))[featureID]
+  level_names      <- sort(levels(as.factor(ropls_x@suppLs$y)))[!nas]
   fctr_lvl_1       <- level_names[1]
   fctr_lvl_2       <- level_names[2]
   result$level1    <- rep.int(x = fctr_lvl_1, times = Nfeatures)

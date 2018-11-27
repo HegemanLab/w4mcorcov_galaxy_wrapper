@@ -50,6 +50,9 @@ do_detail_plot <- function(
     {
       if (cplot_x) {
         cplot_y_correlation <- (x_env$cplot_y == "correlation")
+        default_lim_x <- 10
+      } else {
+        default_lim_x <- 1.2
       }
       if (is.null(cor_vs_cov_x)) {
         my_cor_vs_cov <- cor_vs_cov(
@@ -79,209 +82,246 @@ do_detail_plot <- function(
           max_x <- max(covariance, na.rm = TRUE)
           lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
           covariance <- covariance / lim_x
-          lim_x <- 1.2
+          print("fivenum(min_x)")
+          print(fivenum(min_x))
+          print("fivenum(max_x)")
+          print(fivenum(max_x))
+          print("fivenum(lim_x)")
+          print(fivenum(lim_x))
+          print("fivenum(covariance)")
+          print(fivenum(covariance))
+          lim_x <- default_lim_x
           # "It is generally accepted that a variable should be selected if vj>1, [27–29],
           #   but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]."
           #   (Mehmood 2012 doi:10.1186/1748-7188-6-27)
           plus_cor <- correlation
           plus_cov <- covariance
-          cex <- 0.65
-          which_projection <- if (projection == 1) "t1" else "o1"
-          which_loading <- if (projection == 1) "parallel" else "orthogonal"
-          if (projection == 1) { # predictor-projection
-            vipcp <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
-            if (!cplot_x) { # S-plot predictor-projection
-              my_xlab <- "relative covariance(feature,t1)"
-              my_x <- plus_cov
-              my_ylab <- "correlation(feature,t1)"
-              my_y <- plus_cor
-            } else { # C-plot predictor-projection
-              my_xlab <- "variable importance in predictor-projection"
-              my_x <- vip4p
-              if (cplot_y_correlation) {
+          if (length(plus_cor) != 0 && length(plus_cor) != 0) {
+            cex <- 0.65
+            which_projection <- if (projection == 1) "t1" else "o1"
+            which_loading <- if (projection == 1) "parallel" else "orthogonal"
+            if (projection == 1) { # predictor-projection
+              vipcp <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
+              if (!cplot_x) { # S-plot predictor-projection
+                my_xlab <- "relative covariance(feature,t1)"
+                my_x <- plus_cov
                 my_ylab <- "correlation(feature,t1)"
                 my_y <- plus_cor
-              } else {
-                my_ylab <- "relative covariance(feature,t1)"
-                my_y <- plus_cov
-              }
-            }
-            if (cplot_x) {
-              lim_x <- max(my_x, na.rm = TRUE) * 1.1
-              my_xlim <- c( 0, lim_x + off(0.2) )
-            } else {
-              my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
-            }
-            my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
-            my_load_distal <- loadp
-            my_load_proximal <- loado
-            red  <- as.numeric(correlation > 0) * vipcp
-            blue <- as.numeric(correlation < 0) * vipcp
-            alpha <- 0.1 + 0.4 * vipcp
-            red[is.na(red)] <- 0
-            blue[is.na(blue)] <- 0
-            alpha[is.na(alpha)] <- 0
-            my_col <- rgb(blue = blue, red = red, green = 0, alpha = alpha)
-            main_label <- sprintf("%s for level %s versus %s"
-                                 , x_prefix, fctr_lvl_1, fctr_lvl_2)
-          } else { # orthogonal projection
-            vipco <- pmax(0, pmin(1,(vip4o-0.83)/(1.21-0.83)))
-            if (!cplot_x) {
-              my_xlab <- "relative covariance(feature,to1)"
-              my_x <- -plus_cov
-            } else {
-              my_xlab <- "variable importance in orthogonal projection"
-              my_x <- vip4o
-            }
-            if (!cplot_x) { # S-plot orthogonal projection
-              my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
-              my_ylab <- "correlation(feature,to1)"
-              my_y <- plus_cor
-            } else { # C-plot orthogonal projection
-              lim_x <- max(my_x, na.rm = TRUE) * 1.1
-              my_xlim <- c( 0, lim_x + off(0.2) )
-              if (cplot_y_correlation) {
-                my_ylab <- "correlation(feature,to1)"
-                my_y <- plus_cor
-              } else {
-                my_ylab <- "relative covariance(feature,to1)"
-                my_y <- plus_cov
-              }
-            }
-            my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
-            my_load_distal <- loado
-            my_load_proximal <- loadp
-            alpha <- 0.1 + 0.4 * vipco
-            alpha[is.na(alpha)] <- 0
-            my_col <- rgb(blue = 0, red = 0, green = 0, alpha = alpha)
-            main_label <- sprintf(
-              "Features influencing orthogonal projection for %s versus %s"
-            , fctr_lvl_1, fctr_lvl_2)
-          }
-          main_cex <- min(1.0, 46.0/nchar(main_label))
-          my_feature_label_slant <- -30 # slant feature labels 30 degrees downward
-          my_pch <- sapply(X = cor_p_value, function(x) if (x < 0.01) 16 else if (x < 0.05) 17 else 18)
-          plot(
-            y = my_y
-          , x = my_x
-          , type = "p"
-          , xlim = my_xlim
-          , ylim = my_ylim
-          , xlab = my_xlab
-          , ylab = my_ylab
-          , main = main_label
-          , cex.main = main_cex
-          , cex = cex
-          , pch = my_pch
-          , col = my_col
-          )
-          low_x <- -0.7 * lim_x
-          high_x <- 0.7 * lim_x
-          if (projection == 1 && !cplot_x) {
-            text(x = low_x, y = -0.05, labels =  fctr_lvl_1, col = "blue")
-            text(x = high_x, y = 0.05, labels =  fctr_lvl_2, col = "red")
-          }
-          if ( x_show_labels != "0" ) {
-            names(my_load_distal) <- tsv1$featureID
-            names(my_load_proximal) <- tsv1$featureID
-            if ( x_show_labels == "ALL" ) {
-              n_labels <- length(my_load_distal)
-            } else {
-              n_labels <- as.numeric(x_show_labels)
-            }
-            n_labels <- min( n_labels, (1 + length(my_load_distal)) / 2 )
-            labels_to_show <- c(
-              names(head(sort(my_load_distal),n = n_labels))
-            , names(tail(sort(my_load_distal),n = n_labels))
-            )
-            labels <- unname(
-              sapply(
-                X = tsv1$featureID
-              , FUN = function(x) if( x %in% labels_to_show ) x else ""
-              )
-            )
-            x_text_offset <- 0.024
-            y_text_off <- 0.017
-            if (!cplot_x) { # S-plot
-              y_text_offset <- if (projection == 1) -y_text_off else y_text_off
-            } else { # C-plot
-              y_text_offset <-
-                sapply(
-                  X = (my_y > 0)
-                , FUN = function(x) { if (x) y_text_off else -y_text_off }
-                )
-            }
-            label_features <- function(x_arg, y_arg, labels_arg, slant_arg) {
-              if (length(labels_arg) > 0) {
-                unique_slant <- unique(slant_arg)
-                if (length(unique_slant) == 1) {
-                  text(
-                    y = y_arg
-                  , x = x_arg + x_text_offset
-                  , cex = 0.4
-                  , labels = labels_arg
-                  , col = rgb(blue = 0, red = 0, green = 0, alpha = 0.5) # grey semi-transparent labels
-                  , srt = slant_arg
-                  , adj = 0   # left-justified
-                  )
+              } else { # C-plot predictor-projection
+                my_xlab <- "variable importance in predictor-projection"
+                my_x <- vip4p
+                if (cplot_y_correlation) {
+                  my_ylab <- "correlation(feature,t1)"
+                  my_y <- plus_cor
                 } else {
-                  for (slant in unique_slant) {
-                    text(
-                      y = y_arg[slant_arg == slant]
-                    , x = x_arg[slant_arg == slant] + x_text_offset
-                    , cex = 0.4
-                    , labels = labels_arg[slant_arg == slant]
-                    , col = rgb(blue = 0, red = 0, green = 0, alpha = 0.5) # grey semi-transparent labels
-                    , srt = slant
-                    , adj = 0   # left-justified
-                    )
-                  }
+                  my_ylab <- "relative covariance(feature,t1)"
+                  my_y <- plus_cov
                 }
               }
-            }
-            if (!cplot_x) {
-              my_slant <- (if (projection == 1) 1 else -1) * my_feature_label_slant
-            } else {
-              my_slant <- sapply(
-                            X = (my_y > 0)
-                          , FUN = function(x) if (x) 2 else -2
-                          ) * my_feature_label_slant
-            }
-            if (length(my_x) > 1) {
-              label_features(
-                x_arg      = my_x  [my_x > 0]
-              , y_arg      = my_y  [my_x > 0] - y_text_offset
-              , labels_arg = labels[my_x > 0]
-              , slant_arg = (if (!cplot_x) -my_slant else (my_slant))
-              )
-              if (!cplot_x) {
-                label_features(
-                  x_arg      = my_x  [my_x < 0]
-                , y_arg      = my_y  [my_x < 0] + y_text_offset
-                , labels_arg = labels[my_x < 0]
-                , slant_arg = my_slant
-                )
-              }
-            } else {
-              if (!cplot_x) {
-                my_slant <- (if (my_x > 1) -1 else 1) * my_slant
-                my_y_arg = my_y + (if (my_x > 1) -1 else 1) * y_text_offset
+              if (cplot_x) {
+                lim_x <- max(my_x, na.rm = TRUE) * 1.1
+                lim_x <- min(lim_x, default_lim_x)
+                my_xlim <- c( 0, lim_x + off(0.2) )
               } else {
-                my_slant <- (if (my_y > 1) -1 else 1) * my_slant
-                my_y_arg = my_y + (if (my_y > 1) -1 else 1) * y_text_offset
+                my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
               }
-              label_features(
-                x_arg = my_x
-              , y_arg = my_y_arg
-              , labels_arg = labels
-              , slant_arg = my_slant
-              )
+              my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
+              print("fivenum(my_x)")
+              print(fivenum(my_x))
+              print("fivenum(my_y)")
+              print(fivenum(my_y))
+              print("fivenum(lim_x)")
+              print(fivenum(lim_x))
+              print("fivenum(my_xlim)")
+              print(fivenum(my_xlim))
+              my_load_distal <- loadp
+              my_load_proximal <- loado
+              red  <- as.numeric(correlation > 0) * vipcp
+              blue <- as.numeric(correlation < 0) * vipcp
+              alpha <- 0.1 + 0.4 * vipcp
+              red[is.na(red)] <- 0
+              blue[is.na(blue)] <- 0
+              alpha[is.na(alpha)] <- 0
+              my_col <- rgb(blue = blue, red = red, green = 0, alpha = alpha)
+              main_label <- sprintf("%s for level %s versus %s"
+                                   , x_prefix, fctr_lvl_1, fctr_lvl_2)
+            } else { # orthogonal projection
+              vipco <- pmax(0, pmin(1,(vip4o-0.83)/(1.21-0.83)))
+              if (!cplot_x) {
+                my_xlab <- "relative covariance(feature,to1)"
+                my_x <- -plus_cov
+              } else {
+                my_xlab <- "variable importance in orthogonal projection"
+                my_x <- vip4o
+              }
+              if (!cplot_x) { # S-plot orthogonal projection
+                my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
+                my_ylab <- "correlation(feature,to1)"
+                my_y <- plus_cor
+              } else { # C-plot orthogonal projection
+                lim_x <- max(my_x, na.rm = TRUE) * 1.1
+                my_xlim <- c( 0, lim_x + off(0.2) )
+                if (cplot_y_correlation) {
+                  my_ylab <- "correlation(feature,to1)"
+                  my_y <- plus_cor
+                } else {
+                  my_ylab <- "relative covariance(feature,to1)"
+                  my_y <- plus_cov
+                }
+              }
+              my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
+              print("fivenum(my_x)")
+              print(fivenum(my_x))
+              print("fivenum(my_y)")
+              print(fivenum(my_y))
+              print("fivenum(lim_x)")
+              print(fivenum(lim_x))
+              print("fivenum(my_xlim)")
+              print(fivenum(my_xlim))
+              my_load_distal <- loado
+              my_load_proximal <- loadp
+              alpha <- 0.1 + 0.4 * vipco
+              alpha[is.na(alpha)] <- 0
+              my_col <- rgb(blue = 0, red = 0, green = 0, alpha = alpha)
+              main_label <- sprintf(
+                "Features influencing orthogonal projection for %s versus %s"
+              , fctr_lvl_1, fctr_lvl_2)
             }
-          }
-        }
-      )
+            main_cex <- min(1.0, 46.0/nchar(main_label))
+            my_feature_label_slant <- -30 # slant feature labels 30 degrees downward
+            my_pch <- sapply(X = cor_p_value, function(x) if (x < 0.01) 16 else if (x < 0.05) 17 else 18)
+            if ( sum(is.infinite(my_xlim)) == 0 ) {
+              plot(
+                y = my_y
+              , x = my_x
+              , type = "p"
+              , xlim = my_xlim
+              , ylim = my_ylim
+              , xlab = my_xlab
+              , ylab = my_ylab
+              , main = main_label
+              , cex.main = main_cex
+              , cex = cex
+              , pch = my_pch
+              , col = my_col
+              )
+              low_x <- -0.7 * lim_x
+              high_x <- 0.7 * lim_x
+              if (projection == 1 && !cplot_x) {
+                text(x = low_x, y = -0.05, labels =  fctr_lvl_1, col = "blue")
+                text(x = high_x, y = 0.05, labels =  fctr_lvl_2, col = "red")
+              }
+              if ( x_show_labels != "0" ) {
+                names(my_load_distal) <- tsv1$featureID
+                names(my_load_proximal) <- tsv1$featureID
+                if ( x_show_labels == "ALL" ) {
+                  n_labels <- length(my_load_distal)
+                } else {
+                  n_labels <- as.numeric(x_show_labels)
+                }
+                n_labels <- min( n_labels, (1 + length(my_load_distal)) / 2 )
+                labels_to_show <- c(
+                  names(head(sort(my_load_distal),n = n_labels))
+                , names(tail(sort(my_load_distal),n = n_labels))
+                )
+                labels <- unname(
+                  sapply(
+                    X = tsv1$featureID
+                  , FUN = function(x) if( x %in% labels_to_show ) x else ""
+                  )
+                )
+                x_text_offset <- 0.024
+                y_text_off <- 0.017
+                if (!cplot_x) { # S-plot
+                  y_text_offset <- if (projection == 1) -y_text_off else y_text_off
+                } else { # C-plot
+                  y_text_offset <-
+                    sapply(
+                      X = (my_y > 0)
+                    , FUN = function(x) { 
+                        if (x) y_text_off else -y_text_off 
+                      }
+                    )
+                }
+                label_features <- function(x_arg, y_arg, labels_arg, slant_arg) {
+                  if (length(labels_arg) > 0) {
+                    unique_slant <- unique(slant_arg)
+                    if (length(unique_slant) == 1) {
+                      text(
+                        y = y_arg
+                      , x = x_arg + x_text_offset
+                      , cex = 0.4
+                      , labels = labels_arg
+                      , col = rgb(blue = 0, red = 0, green = 0, alpha = 0.5) # grey semi-transparent labels
+                      , srt = slant_arg
+                      , adj = 0   # left-justified
+                      )
+                    } else {
+                      for (slant in unique_slant) {
+                        text(
+                          y = y_arg[slant_arg == slant]
+                        , x = x_arg[slant_arg == slant] + x_text_offset
+                        , cex = 0.4
+                        , labels = labels_arg[slant_arg == slant]
+                        , col = rgb(blue = 0, red = 0, green = 0, alpha = 0.5) # grey semi-transparent labels
+                        , srt = slant
+                        , adj = 0   # left-justified
+                        )
+                      }
+                    }
+                  }
+                }
+                if (!cplot_x) {
+                  my_slant <- (if (projection == 1) 1 else -1) * my_feature_label_slant
+                } else {
+                  my_slant <- sapply(
+                                X = (my_y > 0)
+                              , FUN = function(x) if (x) 2 else -2
+                              ) * my_feature_label_slant
+                }
+                if (length(my_x) > 1) {
+                  label_features(
+                    x_arg      = my_x  [my_x > 0]
+                  , y_arg      = my_y  [my_x > 0] - y_text_offset
+                  , labels_arg = labels[my_x > 0]
+                  , slant_arg = (if (!cplot_x) -my_slant else (my_slant))
+                  )
+                  if (!cplot_x) {
+                    label_features(
+                      x_arg      = my_x  [my_x < 0]
+                    , y_arg      = my_y  [my_x < 0] + y_text_offset
+                    , labels_arg = labels[my_x < 0]
+                    , slant_arg = my_slant
+                    )
+                  }
+                } else {
+                  if (!cplot_x) {
+                    my_slant <- (if (my_x > 1) -1 else 1) * my_slant
+                    my_y_arg = my_y + (if (my_x > 1) -1 else 1) * y_text_offset
+                  } else {
+                    my_slant <- (if (my_y > 1) -1 else 1) * my_slant
+                    my_y_arg = my_y + (if (my_y > 1) -1 else 1) * y_text_offset
+                  }
+                  label_features(
+                    x_arg = my_x
+                  , y_arg = my_y_arg
+                  , labels_arg = labels
+                  , slant_arg = my_slant
+                  )
+                } # end if (length(my_x) > 1) 
+              } # end if ( x_show_labels != "0" )
+            } else {
+              plot(x=1, y=1, xaxt="n", yaxt="n", xlab="", ylab="", type="n")
+              text(x=1, y=1, labels="no S-plot is possible")
+            } # end if (sum(is.infinte(my_xlim))==0)
+          } else {
+            plot(x=1, y=1, xaxt="n", yaxt="n", xlab="", ylab="", type="n")
+            text(x=1, y=1, labels="no S-plot is possible")
+          } # end if (length(plus_cor) != 0 && length(plus_cor) != 0)
+        } # end action
+      ) # end with( my_cor_vs_cov, action )
       return (my_cor_vs_cov)
-    }
+    } # end function do_s_plot
     my_cor_vs_cov <- do_s_plot(
       x_env = x_env
     , predictor_projection_x = TRUE
@@ -349,12 +389,17 @@ do_detail_plot <- function(
     cplot_o <- x_env$cplot_o
     if (cplot_p || cplot_o) {
       if (cplot_p) {
-        do_s_plot(
-          x_env = x_env
-        , predictor_projection_x = TRUE
-        , cplot_x = TRUE
-        , cor_vs_cov_x = my_cor_vs_cov
-        )
+        if (!is.null(my_cor_vs_cov)) {
+          do_s_plot(
+            x_env = x_env
+          , predictor_projection_x = TRUE
+          , cplot_x = TRUE
+          , cor_vs_cov_x = my_cor_vs_cov
+          )
+        } else {
+          plot(x=1, y=1, xaxt="n", yaxt="n", xlab="", ylab="", type="n")
+          text(x=1, y=1, labels="no predictor projection is possible")
+        }
         did_plots <- 1
       } else {
         did_plots <- 0
@@ -915,6 +960,7 @@ cor_vs_cov_try <- function(
         cov(score_vector, my_matrix_x[ , i, drop = TRUE], use = "pairwise.complete.obs")
       }
     )
+  # access covariance by feature name
   names(result$covariance) <- colnames(my_matrix_x)
 
   # compute the correlation of each feature with the score vector
@@ -925,11 +971,24 @@ cor_vs_cov_try <- function(
         cor(score_vector, my_matrix_x[ , i, drop = TRUE], use = "pairwise.complete.obs")
       }
     )
+  # access correlation by feature name
   names(result$correlation) <- colnames(my_matrix_x)
+
+  # eliminate NAs in either correlation or covariance
+  nas <- is.na(result$correlation) | is.na(result$covariance)
+  featureID          <- names(ropls_x@vipVn)
+  featureID          <- featureID[!nas]
+  result$level1      <- result$level1[!nas]
+  result$level2      <- result$level2[!nas]
+  result$correlation <- result$correlation[!nas]
+  result$covariance  <- result$covariance[!nas]
+  Nfeatures <- length(featureID)
 
   # convert covariance and correlation from one-dimensional matrices to arrays of values, 
   #   which are accessed by feature name below
   p1     <- result$covariance
+  print("sum(is.na(p1))")
+  print(sum(is.na(p1)))
   # print("strF(p1)")
   # print(strF(p1))
 
@@ -937,6 +996,8 @@ cor_vs_cov_try <- function(
   # x_progress(strF(p1))
 
   pcorr1 <- result$correlation
+  print("sum(is.na(pcorr1))")
+  print(sum(is.na(pcorr1)))
   # print("strF(pcorr1)")
   # print(strF(pcorr1))
 
@@ -987,29 +1048,31 @@ cor_vs_cov_try <- function(
 
   # extract "variant 4 of Variable Influence on Projection for OPLS" (see Galindo_Prieto_2014, DOI 10.1002/cem.2627)
   #    Length = number of features; labels = feature identifiers.  (The same is true for $correlation and $covariance.)
-  result$vip4p     <- as.numeric(ropls_x@vipVn)
-  result$vip4o     <- as.numeric(ropls_x@orthoVipVn)
+  result$vip4p     <- as.numeric(ropls_x@vipVn)[featureID]
+  result$vip4o     <- as.numeric(ropls_x@orthoVipVn)[featureID]
   if (length(result$vip4o) == 0) result$vip4o <- NA
   # extract the loadings
-  result$loadp     <- as.numeric(ropls_x@loadingMN)
-  result$loado     <- as.numeric(ropls_x@orthoLoadingMN)
+  result$loadp     <- as.numeric(ropls_x@loadingMN)[featureID]
+  result$loado     <- as.numeric(ropls_x@orthoLoadingMN)[featureID]
   # get the level names
-  level_names      <- sort(levels(as.factor(ropls_x@suppLs$y)))
+  level_names      <- sort(levels(as.factor(ropls_x@suppLs$y)))[featureID]
   fctr_lvl_1       <- level_names[1]
   fctr_lvl_2       <- level_names[2]
-  feature_count    <- length(ropls_x@vipVn)
-  result$level1    <- rep.int(x = fctr_lvl_1, times = feature_count)
-  result$level2    <- rep.int(x = fctr_lvl_2, times = feature_count)
+  result$level1    <- rep.int(x = fctr_lvl_1, times = Nfeatures)
+  result$level2    <- rep.int(x = fctr_lvl_2, times = Nfeatures)
   greaterLevel <- sapply(
     X = result$correlation
-  , FUN = function(my_corr)
-      tryCatch({
-          if ( is.nan( my_corr ) ) {
+  , FUN = function(my_corr) {
+      tryCatch(
+        {
+          if ( is.na(my_corr) || ! is.numeric( my_corr ) ) {
             NA 
           } else {
             if ( my_corr < 0 ) fctr_lvl_1 else fctr_lvl_2
           }
-        }, error = function(e) {
+        }
+      , error = function(e) {
+          print(my_corr)
           x_progress(
             sprintf(
               "cor_vs_cov -> sapply:  error - substituting NA - %s"
@@ -1017,15 +1080,10 @@ cor_vs_cov_try <- function(
             )
           )
           NA
-        })
+        }
+      )
+    }
   )
-
-  # begin fixes for https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/1
-  featureID          <- names(ropls_x@vipVn)
-  greaterLevel       <- greaterLevel[featureID]
-  result$correlation <- result$correlation[featureID]
-  result$covariance  <- result$covariance[featureID]
-  # end fixes for https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/1
 
   # build a data frame to hold the content for the tab-separated values file
   tsv1 <- data.frame(
@@ -1102,4 +1160,4 @@ correl.ci <- function(r, n, a = 0.05, rho = 0) {
   list(correlation = r, p.value = pvalue, CI = CI)
 }
 
-# vim: sw=2 ts=2 et :
+# vim: sw=2 ts=2 et ai :

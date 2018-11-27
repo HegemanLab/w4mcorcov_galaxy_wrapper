@@ -64,7 +64,9 @@ do_detail_plot <- function(
       # str(my_cor_vs_cov)
       if (is.null(my_cor_vs_cov) || sum(!is.na(my_cor_vs_cov$tsv1$covariance)) < 2) {
         if (is.null(cor_vs_cov_x)) {
-          x_progress("No cor_vs_cov data produced")
+          x_progress(
+            sprintf("No cor_vs_cov data produced for level %s versus %s", fctr_lvl_1, fctr_lvl_2)
+          )
         }
         plot(x=1, y=1, xaxt="n", yaxt="n", xlab="", ylab="", type="n")
         text(x=1, y=1, labels="too few covariance data")
@@ -804,7 +806,7 @@ corcov_calc <- function(
   if (!did_plot) {
     failure_action(
       sprintf(
-        "bad parameter!  sampleMetadata must have at least two levels of factor '%s' matching '%s'"
+        "Did not plot. Does sampleMetadata have at least two levels of factor '%s' matching '%s' ?"
       , facC, originalLevCSV))
     return ( FALSE )
   }
@@ -843,6 +845,9 @@ cor_vs_cov_try <- function(
 , predictor_projection_x = TRUE # TRUE for predictor projection; FALSE for orthogonal projection
 , x_progress = print            # function to produce progress and error messages
 ) {
+  my_matrix_x <- matrix_x
+  my_matrix_x[my_matrix_x==0] <- NA
+
   x_class <- class(ropls_x)
   if ( !( as.character(x_class) == "opls" ) ) {
     stop(
@@ -882,39 +887,59 @@ cor_vs_cov_try <- function(
   # I did transform covariance to "relative covariance" (relative to the maximum value)
   #   to keep the figures consistent with one another.
 
-  # count the features (one column for each sample)
-  Nfeatures <- ncol(matrix_x)
-  # count the samples (one row for each sample)
-  Nobservations <- nrow(matrix_x)
-  # a one-dimensional magnitude function (i.e., take the vector norm)
-  vector_norm <- function(one_dimensional) sqrt(sum(one_dimensional * one_dimensional))
-  # calculate the standard deviation for each feature 
-  sd_xi <- sapply(X = 1:Nfeatures, FUN = function(x) sd(matrix_x[,x]))
+  # print("strF(my_matrix_x)")
+  # print(strF(my_matrix_x))
+
+  # count the features/variables (one column for each sample)
+  # count the features/variables (one column for each sample)
+  Nfeatures <- ncol(my_matrix_x)
+  # print("Nfeatures")
+  # print(Nfeatures)
+
+  # count the samples/observations (one row for each sample)
+  Nobservations <- nrow(my_matrix_x)
+  # print("Nobservations")
+  # print(Nobservations)
+
   # choose whether to plot the predictive score vector or orthogonal score vector
   if (predictor_projection_x)
-     score_matrix <- ropls_x@scoreMN
+     score_vector <- ropls_x@scoreMN
   else
-     score_matrix <- ropls_x@orthoScoreMN
-  # transpose the score (or orthoscore) vector for use as a premultiplier in covariance calculation
-  score_matrix_transposed <- t(score_matrix)
-  # compute the norm of the vector (i.e., the magnitude)
-  score_matrix_magnitude  <- vector_norm(score_matrix)
-  # compute the standard deviation of the vector
-  score_matrix_sd         <- sd(score_matrix)
+     score_vector <- ropls_x@orthoScoreMN
+
   # compute the relative covariance of each feature with the score vector
-  result$covariance <-
-    score_matrix_transposed %*% matrix_x / ( score_matrix_magnitude * score_matrix_magnitude )
+  result$covariance <- 
+    sapply(
+      X = 1:Nfeatures
+    , FUN = function(i) {
+        cov(score_vector, my_matrix_x[ , i, drop = TRUE], use = "pairwise.complete.obs")
+      }
+    )
+  names(result$covariance) <- colnames(my_matrix_x)
+
   # compute the correlation of each feature with the score vector
-  result$correlation <-
-    score_matrix_transposed %*% matrix_x / ( (Nobservations - 1) * ( score_matrix_sd * sd_xi ) )
+  result$correlation <- 
+    sapply(
+      X = 1:Nfeatures
+    , FUN = function(i) {
+        cor(score_vector, my_matrix_x[ , i, drop = TRUE], use = "pairwise.complete.obs")
+      }
+    )
+  names(result$correlation) <- colnames(my_matrix_x)
 
   # convert covariance and correlation from one-dimensional matrices to arrays of values, 
   #   which are accessed by feature name below
-  p1     <- result$covariance  <- result$covariance [ 1, , drop = TRUE ]
+  p1     <- result$covariance
+  # print("strF(p1)")
+  # print(strF(p1))
+
   # x_progress("strF(p1)")
   # x_progress(strF(p1))
 
-  pcorr1 <- result$correlation <- result$correlation[ 1, , drop = TRUE ]
+  pcorr1 <- result$correlation
+  # print("strF(pcorr1)")
+  # print(strF(pcorr1))
+
   # x_progress("pearson strF(pcorr1)")
   # x_progress(strF(pcorr1))
   # x_progress(typeof(pcorr1))
@@ -925,8 +950,8 @@ cor_vs_cov_try <- function(
   #   X = 1:Nfeatures
   # , FUN = function(i) {
   #     stats::cor(
-  #       x = as.vector(score_matrix)
-  #     , y = as.vector(matrix_x[,i])
+  #       x = as.vector(score_vector)
+  #     , y = as.vector(my_matrix_x[,i])
   #     # , method = "spearman"
   #     , method = "pearson"
   #     )

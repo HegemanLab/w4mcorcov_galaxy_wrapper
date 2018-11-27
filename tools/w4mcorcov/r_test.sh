@@ -2,6 +2,14 @@
 # To run this script you must first install two R packages:
 #   - CRAN package 'batch'
 #   - bioconductor package 'ropls' <http://bioconductor.org/packages/release/bioc/html/ropls.html>
+# or, set up and activate a conda environment:
+#   - # Install miniconda3 - see https://conda.io/docs/user-guide/install/index.html 
+#   - conda config --add channels defaults
+#   - conda config --add channels bioconda
+#   - conda config --add channels conda-forge
+#   - conda create -n ropls r-base r-batch bioconductor-ropls=1.10.0
+#   - source ~/miniconda3/envs/ropls/bin/activate
+#   - export PATH=~/miniconda3/envs/ropls/bin:$PATH
 __tool_directory__=.
 # constants
 OUTPUT=test-data/output

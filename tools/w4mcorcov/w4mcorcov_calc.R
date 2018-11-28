@@ -951,8 +951,6 @@ cor_vs_cov_try <- function(
   nas <- is.na(result$correlation) | is.na(result$covariance)
   featureID          <- names(ropls_x@vipVn)
   featureID          <- featureID[!nas]
-  result$level1      <- result$level1[!nas]
-  result$level2      <- result$level2[!nas]
   result$correlation <- result$correlation[!nas]
   result$covariance  <- result$covariance[!nas]
   Nfeatures <- length(featureID)
@@ -991,7 +989,7 @@ cor_vs_cov_try <- function(
   result$loadp     <- as.numeric(ropls_x@loadingMN)[!nas]
   result$loado     <- as.numeric(ropls_x@orthoLoadingMN)[!nas]
   # get the level names
-  level_names      <- sort(levels(as.factor(ropls_x@suppLs$y)))[!nas]
+  level_names      <- sort(levels(as.factor(ropls_x@suppLs$y)))
   fctr_lvl_1       <- level_names[1]
   fctr_lvl_2       <- level_names[2]
   result$level1    <- rep.int(x = fctr_lvl_1, times = Nfeatures)

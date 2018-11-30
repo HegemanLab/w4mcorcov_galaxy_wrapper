@@ -8,8 +8,11 @@
 #   - conda config --add channels bioconda
 #   - conda config --add channels conda-forge
 #   - conda create -n ropls r-base r-batch bioconductor-ropls=1.10.0
-#   - source ~/miniconda3/envs/ropls/bin/activate
-#   - export PATH=~/miniconda3/envs/ropls/bin:$PATH
+#   - conda activate ropls
+#
+# To deactivate the roopls environment, use
+#   - conda deactivate
+
 __tool_directory__=.
 # constants
 OUTPUT=test-data/output

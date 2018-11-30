@@ -1,11 +1,11 @@
 # center with 'colMeans()' - ref: http://gastonsanchez.com/visually-enforced/how-to/2014/01/15/Center-data-in-R/
 center_colmeans <- function(x) {
-  xcenter = colMeans(x)
+  xcenter <- colMeans(x)
   x - rep(xcenter, rep.int(nrow(x), ncol(x)))
 }
 
 #### OPLS-DA
-algoC <- "nipals"
+algo <- "nipals"
 
 do_detail_plot <- function(
   x_dataMatrix
@@ -21,7 +21,7 @@ do_detail_plot <- function(
   off <- function(x) if (x_show_labels == "0") 0 else x
   if ( x_is_match
       && ncol(x_dataMatrix) > 0
-      && length(unique(x_predictor))> 1
+      && length(unique(x_predictor)) > 1
       && x_crossval_i < nrow(x_dataMatrix)
   ) {
     my_oplsda <- opls(
@@ -36,18 +36,17 @@ do_detail_plot <- function(
       , scaleC = "pareto" # data centered and pareto scaled here only. This line fixes issue #2.
       )
     # strip out variables having negligible variance
-    x_dataMatrix <- x_dataMatrix[,names(my_oplsda@vipVn), drop = FALSE]
+    x_dataMatrix <- x_dataMatrix[ , names(my_oplsda@vipVn), drop = FALSE]
     my_oplsda_suppLs_y_levels <- levels(as.factor(my_oplsda@suppLs$y))
 
     fctr_lvl_1 <- my_oplsda_suppLs_y_levels[1]
     fctr_lvl_2 <- my_oplsda_suppLs_y_levels[2]
     do_s_plot <- function(
-        x_env
-      , predictor_projection_x   = TRUE
-      , cplot_x      = FALSE
-      , cor_vs_cov_x = NULL
-      )
-    {
+      x_env
+    , predictor_projection_x   = TRUE
+    , cplot_x      = FALSE
+    , cor_vs_cov_x = NULL
+    ) {
       if (cplot_x) {
         cplot_y_correlation <- (x_env$cplot_y == "correlation")
         default_lim_x <- 10
@@ -64,7 +63,7 @@ do_detail_plot <- function(
       } else {
         my_cor_vs_cov <- cor_vs_cov_x
       }
-      # str(my_cor_vs_cov)
+
       if (is.null(my_cor_vs_cov) || sum(!is.na(my_cor_vs_cov$tsv1$covariance)) < 2) {
         if (is.null(cor_vs_cov_x)) {
           x_progress(
@@ -81,43 +80,49 @@ do_detail_plot <- function(
           min_x <- min(covariance, na.rm = TRUE)
           max_x <- max(covariance, na.rm = TRUE)
           lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
-          covariance <- covariance / lim_x
-          lim_x <- default_lim_x
-          # "It is generally accepted that a variable should be selected if vj>1, [27–29],
+          # raw_covariance <- covariance
+          # covariance <- covariance / lim_x
+          # lim_x <- default_lim_x
+
+          # Regarding using VIP as a guide to selecting a biomarker:
+          #   "It is generally accepted that a variable should be selected if vj>1, [27–29],
           #   but a proper threshold between 0.83 and 1.21 can yield more relevant variables according to [28]."
           #   (Mehmood 2012 doi:10.1186/1748-7188-6-27)
           plus_cor <- correlation
           plus_cov <- covariance
           if (length(plus_cor) != 0 && length(plus_cor) != 0) {
             cex <- 0.65
-            which_projection <- if (projection == 1) "t1" else "o1"
-            which_loading <- if (projection == 1) "parallel" else "orthogonal"
-            if (projection == 1) { # predictor-projection
-              vipcp <- pmax(0, pmin(1,(vip4p-0.83)/(1.21-0.83)))
-              if (!cplot_x) { # S-plot predictor-projection
-                my_xlab <- "relative covariance(feature,t1)"
+            if (projection == 1) {
+              # predictor-projection
+              vipcp <- pmax(0, pmin(1, (vip4p - 0.83) / (1.21 - 0.83)))
+              if (!cplot_x) {
+                # S-plot predictor-projection
+                my_xlab <- "covariance(feature,t1)"
                 my_x <- plus_cov
                 my_ylab <- "correlation(feature,t1)"
                 my_y <- plus_cor
-              } else { # C-plot predictor-projection
+              } else {
+                # C-plot predictor-projection
                 my_xlab <- "variable importance in predictor-projection"
                 my_x <- vip4p
                 if (cplot_y_correlation) {
                   my_ylab <- "correlation(feature,t1)"
                   my_y <- plus_cor
                 } else {
-                  my_ylab <- "relative covariance(feature,t1)"
+                  my_ylab <- "covariance(feature,t1)"
                   my_y <- plus_cov
                 }
               }
               if (cplot_x) {
+                # X limits for C-plot
                 lim_x <- max(my_x, na.rm = TRUE) * 1.1
                 lim_x <- min(lim_x, default_lim_x)
-                my_xlim <- c( 0, lim_x + off(0.2) )
+                my_xlim <- c( 0, lim_x ) # + off(0.2) )
               } else {
-                my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
+                # X limits for S-PLOT
+                my_xlim <- c( -lim_x, lim_x ) * (1.0 + off(0.3))
               }
-              my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
+              my_ylim <- c( -1.0, 1.0 ) * (1.0 + off(0.2) )
               my_load_distal <- loadp
               my_load_proximal <- loado
               red  <- as.numeric(correlation > 0) * vipcp
@@ -129,31 +134,34 @@ do_detail_plot <- function(
               my_col <- rgb(blue = blue, red = red, green = 0, alpha = alpha)
               main_label <- sprintf("%s for level %s versus %s"
                                    , x_prefix, fctr_lvl_1, fctr_lvl_2)
-            } else { # orthogonal projection
-              vipco <- pmax(0, pmin(1,(vip4o-0.83)/(1.21-0.83)))
+            } else {
+              # orthogonal projection
+              vipco <- pmax(0, pmin(1, (vip4o - 0.83) / (1.21 - 0.83)))
               if (!cplot_x) {
-                my_xlab <- "relative covariance(feature,to1)"
+                my_xlab <- "covariance(feature,to1)"
                 my_x <- -plus_cov
               } else {
                 my_xlab <- "variable importance in orthogonal projection"
                 my_x <- vip4o
               }
-              if (!cplot_x) { # S-plot orthogonal projection
-                my_xlim <- c( -lim_x - off(0.2), lim_x + off(0.2) )
+              if (!cplot_x) {
+                # S-plot orthogonal projection
+                my_xlim <- c( -lim_x, lim_x ) * (1.0 + off(0.3))
                 my_ylab <- "correlation(feature,to1)"
                 my_y <- plus_cor
-              } else { # C-plot orthogonal projection
+              } else {
+                # C-plot orthogonal projection
                 lim_x <- max(my_x, na.rm = TRUE) * 1.1
-                my_xlim <- c( 0, lim_x + off(0.2) )
+                my_xlim <- c( 0, lim_x ) # + off(0.2) )
                 if (cplot_y_correlation) {
                   my_ylab <- "correlation(feature,to1)"
                   my_y <- plus_cor
                 } else {
-                  my_ylab <- "relative covariance(feature,to1)"
+                  my_ylab <- "covariance(feature,to1)"
                   my_y <- plus_cov
                 }
               }
-              my_ylim <- c( -1.0   - off(0.2), 1.0   + off(0.2) )
+              my_ylim <- c( -1.0, 1.0 ) * (1.0 + off(0.2) )
               my_load_distal <- loado
               my_load_proximal <- loadp
               alpha <- 0.1 + 0.4 * vipco
@@ -197,25 +205,27 @@ do_detail_plot <- function(
                 }
                 n_labels <- min( n_labels, (1 + length(my_load_distal)) / 2 )
                 labels_to_show <- c(
-                  names(head(sort(my_load_distal),n = n_labels))
-                , names(tail(sort(my_load_distal),n = n_labels))
+                  names(head(sort(my_load_distal), n = n_labels))
+                , names(tail(sort(my_load_distal), n = n_labels))
                 )
                 labels <- unname(
                   sapply(
                     X = tsv1$featureID
-                  , FUN = function(x) if( x %in% labels_to_show ) x else ""
+                  , FUN = function(x) if ( x %in% labels_to_show ) x else ""
                   )
                 )
                 x_text_offset <- 0.024
                 y_text_off <- 0.017
-                if (!cplot_x) { # S-plot
+                if (!cplot_x) {
+                  # S-plot
                   y_text_offset <- if (projection == 1) -y_text_off else y_text_off
-                } else { # C-plot
+                } else {
+                  # C-plot
                   y_text_offset <-
                     sapply(
                       X = (my_y > 0)
-                    , FUN = function(x) { 
-                        if (x) y_text_off else -y_text_off 
+                    , FUN = function(x) {
+                        if (x) y_text_off else -y_text_off
                       }
                     )
                 }
@@ -273,10 +283,10 @@ do_detail_plot <- function(
                 } else {
                   if (!cplot_x) {
                     my_slant <- (if (my_x > 1) -1 else 1) * my_slant
-                    my_y_arg = my_y + (if (my_x > 1) -1 else 1) * y_text_offset
+                    my_y_arg <- my_y + (if (my_x > 1) -1 else 1) * y_text_offset
                   } else {
                     my_slant <- (if (my_y > 1) -1 else 1) * my_slant
-                    my_y_arg = my_y + (if (my_y > 1) -1 else 1) * y_text_offset
+                    my_y_arg <- my_y + (if (my_y > 1) -1 else 1) * y_text_offset
                   }
                   label_features(
                     x_arg = my_x
@@ -284,7 +294,7 @@ do_detail_plot <- function(
                   , labels_arg = labels
                   , slant_arg = my_slant
                   )
-                } # end if (length(my_x) > 1) 
+                } # end if (length(my_x) > 1)
               } # end if ( x_show_labels != "0" )
             } else {
               plot(x=1, y=1, xaxt="n", yaxt="n", xlab="", ylab="", type="n")
@@ -303,7 +313,7 @@ do_detail_plot <- function(
     , predictor_projection_x = TRUE
     , cplot_x = FALSE
     )
-    typeVc <- c("correlation",      # 1
+    typevc <- c("correlation",      # 1
                 "outlier",          # 2
                 "overview",         # 3
                 "permutation",      # 4
@@ -317,36 +327,37 @@ do_detail_plot <- function(
                 "xy-weight"         # 12
                )                    # [c(3,8,9)] # [c(4,3,8,9)]
     if ( length(my_oplsda@orthoVipVn) > 0 ) {
-      my_typevc <- typeVc[c(9,3,8)]
+      my_typevc <- typevc[c(9,3,8)]
     } else {
       my_typevc <- c("(dummy)","overview","(dummy)")
     }
     my_ortho_cor_vs_cov_exists <- FALSE
     for (my_type in my_typevc) {
-      if (my_type %in% typeVc) {
+      if (my_type %in% typevc) {
         tryCatch({
-          if ( my_type != "x-loading" ) {
-             plot(
-               x            = my_oplsda
-             , typeVc       = my_type
-             , parCexN      = 0.4
-             , parDevNewL   = FALSE
-             , parLayL      = TRUE
-             , parEllipsesL = TRUE
-             )
-             if (my_type == "overview") {
-               sub_label <- sprintf("%s versus %s", fctr_lvl_1, fctr_lvl_2)
-               title(sub = sub_label)
-             }
-          } else {
-            my_ortho_cor_vs_cov <- do_s_plot(
-              x_env = x_env
-            , predictor_projection_x = FALSE
-            , cplot_x = FALSE
-            )
-            my_ortho_cor_vs_cov_exists <- TRUE
+            if ( my_type != "x-loading" ) {
+               plot(
+                 x            = my_oplsda
+               , typeVc       = my_type
+               , parCexN      = 0.4
+               , parDevNewL   = FALSE
+               , parLayL      = TRUE
+               , parEllipsesL = TRUE
+               )
+               if (my_type == "overview") {
+                 sub_label <- sprintf("%s versus %s", fctr_lvl_1, fctr_lvl_2)
+                 title(sub = sub_label)
+               }
+            } else {
+              my_ortho_cor_vs_cov <- do_s_plot(
+                x_env = x_env
+              , predictor_projection_x = FALSE
+              , cplot_x = FALSE
+              )
+              my_ortho_cor_vs_cov_exists <- TRUE
+            }
           }
-        }, error = function(e) {
+        , error = function(e) {
           x_progress(
             sprintf(
               "factor level %s or %s may have only one sample - %s"
@@ -428,10 +439,10 @@ corcov_calc <- function(
 
   # extract parameters from the environment
   vrbl_metadata <- calc_env$vrbl_metadata
-  vrbl_metadata_names <- vrbl_metadata[,1]
+  vrbl_metadata_names <- vrbl_metadata[, 1]
   smpl_metadata <- calc_env$smpl_metadata
   data_matrix <- calc_env$data_matrix
-  pairSigFeatOnly <- calc_env$pairSigFeatOnly
+  pair_significant_features_only <- calc_env$pairSigFeatOnly
   facC <- calc_env$facC
   tesC <- calc_env$tesC
   # extract the levels from the environment
@@ -583,8 +594,8 @@ corcov_calc <- function(
           x_dataMatrix  = my_matrix
         , x_predictor   = predictor
         , x_is_match    = TRUE
-        , x_algorithm   = algoC
-        , x_prefix      = if (pairSigFeatOnly) {
+        , x_algorithm   = algo
+        , x_prefix      = if (pair_significant_features_only) {
                             "Significantly contrasting features"
                           } else {
                             "Significant features"
@@ -650,15 +661,15 @@ corcov_calc <- function(
                 }
               )
             col_selector <- vrbl_metadata_names[
-              if ( pairSigFeatOnly ) fully_significant else overall_significant
+              if (pair_significant_features_only) fully_significant else overall_significant
             ]
             my_matrix <- tdm[ chosen_samples, col_selector, drop = FALSE ]
             my_cor_cov <- do_detail_plot(
               x_dataMatrix  = my_matrix
             , x_predictor   = predictor
             , x_is_match    = is_match
-            , x_algorithm   = algoC
-            , x_prefix      = if (pairSigFeatOnly) {
+            , x_algorithm   = algo
+            , x_prefix      = if (pair_significant_features_only) {
                                 "Significantly contrasting features"
                               } else {
                                 "Significant features"
@@ -691,7 +702,8 @@ corcov_calc <- function(
         }
       }
     }
-  } else { # tesC == "none"
+  } else {
+    # tesC == "none"
     # find all the levels for factor facC in sampleMetadata
     level_union <- unique(sort(smpl_metadata_facC))
     # identify the selected levels for factor facC from sampleMetadata
@@ -739,7 +751,7 @@ corcov_calc <- function(
                   x_dataMatrix  = my_matrix
                 , x_predictor   = predictor
                 , x_is_match    = is_match
-                , x_algorithm   = algoC
+                , x_algorithm   = algo
                 , x_prefix      = "Features"
                 , x_show_labels = labelFeatures
                 , x_progress    = progress_action
@@ -792,7 +804,7 @@ corcov_calc <- function(
                 x_dataMatrix  = my_matrix
               , x_predictor   = predictor
               , x_is_match    = is_match
-              , x_algorithm   = algoC
+              , x_algorithm   = algo
               , x_prefix      = "Features"
               , x_show_labels = labelFeatures
               , x_progress    = progress_action
@@ -845,10 +857,11 @@ cor_vs_cov <- function(
 , x_progress = print
 ) {
   tryCatch({
-    return(
-      cor_vs_cov_try( matrix_x, ropls_x, predictor_projection_x, x_progress)
-    )
-  }, error = function(e) {
+      return(
+        cor_vs_cov_try( matrix_x, ropls_x, predictor_projection_x, x_progress)
+      )
+    }
+  , error = function(e) {
     x_progress(
       sprintf(
         "cor_vs_cov fatal error - %s"
@@ -891,12 +904,12 @@ cor_vs_cov_try <- function(
 
   # I used equations (1) and (2) from Wiklund 2008, doi:10.1021/ac0713510
   #   (and not from the supplement despite the statement that, for the NIPALS algorithm,
-  #   the equations from the supplement should be used) because of the definition of the 
+  #   the equations from the supplement should be used) because of the definition of the
   #   Pearson/Galton coefficient of correlation is defined as
   #   $$
   #      \rho_{X,Y}= \frac{\operatorname{cov}(X,Y)}{\sigma_X \sigma_Y}
   #   $$
-  #   as described (among other places) on Wikipedia at 
+  #   as described (among other places) on Wikipedia at
   #     https://en.wikipedia.org/wiki/Pearson_correlation_coefficient#For_a_population
   # The equations in the supplement said to use, for the predictive component t1,
   #      \rho_{t1,X_i}= \frac{\operatorname{cov}(t1,X_i)}{(\operatorname{mag}(t1))(\operatorname{mag}(X_i))}
@@ -904,20 +917,16 @@ cor_vs_cov_try <- function(
   # perhaps my data are not centered exactly the same way that theirs were.
   # The correlations calculated here are in agreement with those calculated with the code from
   #   page 22 of https://cran.r-project.org/web/packages/muma/muma.pdf
-  # I did transform covariance to "relative covariance" (relative to the maximum value)
-  #   to keep the figures consistent with one another.
 
 
   # count the features/variables (one column for each sample)
   # count the features/variables (one column for each sample)
-  Nfeatures <- ncol(my_matrix_x)
-  # print("Nfeatures")
-  # print(Nfeatures)
+  n_features <- ncol(my_matrix_x)
+  # print("n_features")
+  # print(n_features)
 
   # count the samples/observations (one row for each sample)
-  Nobservations <- nrow(my_matrix_x)
-  # print("Nobservations")
-  # print(Nobservations)
+  n_observations <- nrow(my_matrix_x)
 
   # choose whether to plot the predictive score vector or orthogonal score vector
   if (predictor_projection_x)
@@ -925,10 +934,10 @@ cor_vs_cov_try <- function(
   else
      score_vector <- ropls_x@orthoScoreMN
 
-  # compute the relative covariance of each feature with the score vector
-  result$covariance <- 
+  # compute the covariance of each feature with the score vector
+  result$covariance <-
     sapply(
-      X = 1:Nfeatures
+      X = 1:n_features
     , FUN = function(i) {
         cov(score_vector, my_matrix_x[ , i, drop = TRUE], use = "pairwise.complete.obs")
       }
@@ -937,9 +946,9 @@ cor_vs_cov_try <- function(
   names(result$covariance) <- colnames(my_matrix_x)
 
   # compute the correlation of each feature with the score vector
-  result$correlation <- 
+  result$correlation <-
     sapply(
-      X = 1:Nfeatures
+      X = 1:n_features
     , FUN = function(i) {
         cor(score_vector, my_matrix_x[ , i, drop = TRUE], use = "pairwise.complete.obs")
       }
@@ -953,30 +962,24 @@ cor_vs_cov_try <- function(
   featureID          <- featureID[!nas]
   result$correlation <- result$correlation[!nas]
   result$covariance  <- result$covariance[!nas]
-  Nfeatures <- length(featureID)
+  n_features <- length(featureID)
 
-  # convert covariance and correlation from one-dimensional matrices to arrays of values, 
-  #   which are accessed by feature name below
-  p1     <- result$covariance
-  pcorr1 <- result$correlation
-
-  # correl.ci(r, n, a = 0.05, rho = 0)
   correl_pci <- lapply(
-    X = 1:Nfeatures
-  , FUN = function(i) correl.ci(r = pcorr1[i], n = Nobservations)
+    X = 1:n_features
+  , FUN = function(i) correl.ci(r = result$correlation[i], n = n_observations)
   )
   result$p_value_raw <- sapply(
-    X = 1:Nfeatures
+    X = 1:n_features
   , FUN = function(i) correl_pci[[i]]$p.value
   )
   result$p_value_raw[is.na(result$p_value_raw)] <- 0.0
   result$ci_lower <- sapply(
-    X = 1:Nfeatures
-  , FUN = function(i) correl_pci[[i]]$CI['lower']
+    X = 1:n_features
+  , FUN = function(i) correl_pci[[i]]$CI["lower"]
   )
   result$ci_upper <- sapply(
-    X = 1:Nfeatures
-  , FUN = function(i) correl_pci[[i]]$CI['upper']
+    X = 1:n_features
+  , FUN = function(i) correl_pci[[i]]$CI["upper"]
   )
 
 
@@ -992,15 +995,14 @@ cor_vs_cov_try <- function(
   level_names      <- sort(levels(as.factor(ropls_x@suppLs$y)))
   fctr_lvl_1       <- level_names[1]
   fctr_lvl_2       <- level_names[2]
-  result$level1    <- rep.int(x = fctr_lvl_1, times = Nfeatures)
-  result$level2    <- rep.int(x = fctr_lvl_2, times = Nfeatures)
+  result$level1    <- rep.int(x = fctr_lvl_1, times = n_features)
+  result$level2    <- rep.int(x = fctr_lvl_2, times = n_features)
   greaterLevel <- sapply(
     X = result$correlation
   , FUN = function(my_corr) {
-      tryCatch(
-        {
+      tryCatch({
           if ( is.na(my_corr) || ! is.numeric( my_corr ) ) {
-            NA 
+            NA
           } else {
             if ( my_corr < 0 ) fctr_lvl_1 else fctr_lvl_2
           }
@@ -1034,7 +1036,7 @@ cor_vs_cov_try <- function(
   , loado         = result$loado
   , cor_p_val_raw = result$p_value_raw
   , cor_p_value   = p.adjust(p = result$p_value_raw, method = "BY")
-  , cor_ci_lower  = result$ci_lower 
+  , cor_ci_lower  = result$ci_lower
   , cor_ci_upper  = result$ci_upper
   )
   rownames(tsv1) <- tsv1$featureID
@@ -1056,7 +1058,7 @@ cor_vs_cov_try <- function(
   tsv1 <- tsv1[!is.na(tsv1$covariance),]
   superresult$tsv1 <- tsv1
 
-  # # I did not include these but left them commentd out in case future 
+  # # I did not include these but left them commentd out in case future
   # #   consumers of this routine want to use it in currently unanticipated ways
   # result$superresult <- superresult
   # result$oplsda    <- ropls_x
@@ -1085,13 +1087,13 @@ correl.ci <- function(r, n, a = 0.05, rho = 0) {
   se <- (1 - r^2)/sqrt(n - 3) ## standard error for Fisher's z-transformation of Ho
   test <- (zh1 - zh0)/se ### test statistic
   pvalue <- 2*(1 - pnorm(abs(test))) ## p-value
-  zL <- zh1 - qnorm(1 - a/2)*se
-  zH <- zh1 + qnorm(1 - a/2)*se
-  fishL <- tanh(zL) # (exp(2*zL)-1)/(exp(2*zL)+1), i.e., lower confidence limit
-  fishH <- tanh(zH) # (exp(2*zH)-1)/(exp(2*zH)+1), i.e., upper confidence limit
-  CI <- c(fishL, fishH)
-  names(CI) <- c('lower', 'upper')
-  list(correlation = r, p.value = pvalue, CI = CI)
+  z_L <- zh1 - qnorm(1 - a/2)*se
+  z_h <- zh1 + qnorm(1 - a/2)*se
+  fish_l <- tanh(z_L) # (exp(2*z_l)-1)/(exp(2*z_l)+1), i.e., lower confidence limit
+  fish_h <- tanh(z_h) # (exp(2*z_h)-1)/(exp(2*z_h)+1), i.e., upper confidence limit
+  ci <- c(fish_l, fish_h)
+  names(ci) <- c("lower", "upper")
+  list(correlation = r, p.value = pvalue, CI = ci)
 }
 
 # vim: sw=2 ts=2 et ai :

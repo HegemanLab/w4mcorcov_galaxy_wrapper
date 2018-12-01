@@ -20,11 +20,6 @@
         </xml>
     </macros>
     <requirements>
-        <!--
-        <requirement type="package" version="3.4.1">r-base</requirement>
-        <requirement type="package" version="1.1_4">r-batch</requirement>
-        <requirement type="package" version="1.2.14">bioconductor-ropls</requirement>
-        -->
         <requirement type="package">r-base</requirement>
         <requirement type="package">r-batch</requirement>
         <requirement type="package" version="1.10.0">bioconductor-ropls</requirement>

@@ -1,12 +1,4 @@
-# center with 'colMeans()' - ref: http://gastonsanchez.com/visually-enforced/how-to/2014/01/15/Center-data-in-R/
-center_colmeans <- function(x) {
-  xcenter <- colMeans(x)
-  x - rep(xcenter, rep.int(nrow(x), ncol(x)))
-}
-
-#### OPLS-DA
-algo <- "nipals"
-
+# compute and output detail plots
 do_detail_plot <- function(
   x_dataMatrix
 , x_predictor
@@ -80,9 +72,6 @@ do_detail_plot <- function(
           min_x <- min(covariance, na.rm = TRUE)
           max_x <- max(covariance, na.rm = TRUE)
           lim_x <- max(sapply(X=c(min_x, max_x), FUN=abs))
-          # raw_covariance <- covariance
-          # covariance <- covariance / lim_x
-          # lim_x <- default_lim_x
 
           # Regarding using VIP as a guide to selecting a biomarker:
           #   "It is generally accepted that a variable should be selected if vj>1, [27–29],
@@ -101,6 +90,9 @@ do_detail_plot <- function(
                 my_x <- plus_cov
                 my_ylab <- "correlation(feature,t1)"
                 my_y <- plus_cor
+                # X,Y limits for S-PLOT
+                my_xlim <- c( -lim_x, lim_x ) * (1.0 + off(0.3))
+                my_ylim <- c( -1.0, 1.0 ) * (1.0 + off(0.2) )
               } else {
                 # C-plot predictor-projection
                 my_xlab <- "variable importance in predictor-projection"
@@ -108,21 +100,18 @@ do_detail_plot <- function(
                 if (cplot_y_correlation) {
                   my_ylab <- "correlation(feature,t1)"
                   my_y <- plus_cor
+                  my_ylim <- c( -1.0, 1.0 ) * (1.0 + off(0.2) )
                 } else {
                   my_ylab <- "covariance(feature,t1)"
                   my_y <- plus_cov
+                  my_ylim <- max(abs(plus_cov))
+                  my_ylim <- c( -my_ylim, my_ylim ) * (1.0 + off(0.2) )
                 }
-              }
-              if (cplot_x) {
-                # X limits for C-plot
+                # X,Y limits for C-plot
                 lim_x <- max(my_x, na.rm = TRUE) * 1.1
                 lim_x <- min(lim_x, default_lim_x)
                 my_xlim <- c( 0, lim_x ) # + off(0.2) )
-              } else {
-                # X limits for S-PLOT
-                my_xlim <- c( -lim_x, lim_x ) * (1.0 + off(0.3))
               }
-              my_ylim <- c( -1.0, 1.0 ) * (1.0 + off(0.2) )
               my_load_distal <- loadp
               my_load_proximal <- loado
               red  <- as.numeric(correlation > 0) * vipcp
@@ -138,30 +127,33 @@ do_detail_plot <- function(
               # orthogonal projection
               vipco <- pmax(0, pmin(1, (vip4o - 0.83) / (1.21 - 0.83)))
               if (!cplot_x) {
+                # S-PLOT orthogonal-projection
                 my_xlab <- "covariance(feature,to1)"
                 my_x <- -plus_cov
-              } else {
-                my_xlab <- "variable importance in orthogonal projection"
-                my_x <- vip4o
-              }
-              if (!cplot_x) {
-                # S-plot orthogonal projection
+                # X,Y limits for S-PLOT
                 my_xlim <- c( -lim_x, lim_x ) * (1.0 + off(0.3))
                 my_ylab <- "correlation(feature,to1)"
                 my_y <- plus_cor
+                my_ylim <- c( -1.0, 1.0 ) * (1.0 + off(0.2) )
               } else {
+                # C-plot orthogonal-projection
+                my_xlab <- "variable importance in orthogonal projection"
+                my_x <- vip4o
                 # C-plot orthogonal projection
+                # X,Y limits for C-plot
                 lim_x <- max(my_x, na.rm = TRUE) * 1.1
                 my_xlim <- c( 0, lim_x ) # + off(0.2) )
                 if (cplot_y_correlation) {
                   my_ylab <- "correlation(feature,to1)"
                   my_y <- plus_cor
+                  my_ylim <- c( -1.0, 1.0 ) * (1.0 + off(0.2) )
                 } else {
                   my_ylab <- "covariance(feature,to1)"
                   my_y <- plus_cov
+                  my_ylim <- max(abs(plus_cov))
+                  my_ylim <- c( -my_ylim, my_ylim ) * (1.0 + off(0.2) )
                 }
               }
-              my_ylim <- c( -1.0, 1.0 ) * (1.0 + off(0.2) )
               my_load_distal <- loado
               my_load_proximal <- loadp
               alpha <- 0.1 + 0.4 * vipco
@@ -594,7 +586,7 @@ corcov_calc <- function(
           x_dataMatrix  = my_matrix
         , x_predictor   = predictor
         , x_is_match    = TRUE
-        , x_algorithm   = algo
+        , x_algorithm   = "nipals"
         , x_prefix      = if (pair_significant_features_only) {
                             "Significantly contrasting features"
                           } else {
@@ -668,7 +660,7 @@ corcov_calc <- function(
               x_dataMatrix  = my_matrix
             , x_predictor   = predictor
             , x_is_match    = is_match
-            , x_algorithm   = algo
+            , x_algorithm   = "nipals"
             , x_prefix      = if (pair_significant_features_only) {
                                 "Significantly contrasting features"
                               } else {
@@ -751,7 +743,7 @@ corcov_calc <- function(
                   x_dataMatrix  = my_matrix
                 , x_predictor   = predictor
                 , x_is_match    = is_match
-                , x_algorithm   = algo
+                , x_algorithm   = "nipals"
                 , x_prefix      = "Features"
                 , x_show_labels = labelFeatures
                 , x_progress    = progress_action
@@ -804,7 +796,7 @@ corcov_calc <- function(
                 x_dataMatrix  = my_matrix
               , x_predictor   = predictor
               , x_is_match    = is_match
-              , x_algorithm   = algo
+              , x_algorithm   = "nipals"
               , x_prefix      = "Features"
               , x_show_labels = labelFeatures
               , x_progress    = progress_action

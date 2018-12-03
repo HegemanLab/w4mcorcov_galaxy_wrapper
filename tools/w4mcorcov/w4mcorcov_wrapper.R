@@ -108,6 +108,7 @@ my_env$pairSigFeatOnly    <- as.logical(argVc["pairSigFeatOnly"])
 my_env$levCSV             <- as.character(argVc["levCSV"])
 my_env$matchingC          <- as.character(argVc["matchingC"])
 my_env$labelFeatures      <- as.character(argVc["labelFeatures"]) # number of features to label at each extreme of the loadings or 'ALL'
+my_env$fdr_features       <- as.character(argVc["fdr_features"]) # number of features to consider when adjusting p-value, or 'ALL'
 my_env$cplot_o            <- as.logical(argVc["cplot_o"]) # TRUE if orthogonal C-plot is requested
 my_env$cplot_p            <- as.logical(argVc["cplot_p"]) # TRUE if parallel C-plot is requested
 my_env$cplot_y            <- as.character(argVc["cplot_y"]) # Choice of covariance/correlation for Y-axis on C-plot

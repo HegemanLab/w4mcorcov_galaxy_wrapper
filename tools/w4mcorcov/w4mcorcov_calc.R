@@ -51,6 +51,7 @@ do_detail_plot <- function(
           , ropls_x    = my_oplsda
           , predictor_projection_x = predictor_projection_x
           , x_progress
+          , x_env
           )
       } else {
         my_cor_vs_cov <- cor_vs_cov_x
@@ -847,10 +848,11 @@ cor_vs_cov <- function(
 , ropls_x
 , predictor_projection_x = TRUE
 , x_progress = print
+, x_env
 ) {
   tryCatch({
       return(
-        cor_vs_cov_try( matrix_x, ropls_x, predictor_projection_x, x_progress)
+        cor_vs_cov_try( matrix_x, ropls_x, predictor_projection_x, x_progress, x_env)
       )
     }
   , error = function(e) {
@@ -869,9 +871,11 @@ cor_vs_cov_try <- function(
 , ropls_x                       # an instance of ropls::opls
 , predictor_projection_x = TRUE # TRUE for predictor projection; FALSE for orthogonal projection
 , x_progress = print            # function to produce progress and error messages
+, x_env
 ) {
   my_matrix_x <- matrix_x
   my_matrix_x[my_matrix_x==0] <- NA
+  fdr_features <- x_env$fdr_features
 
   x_class <- class(ropls_x)
   if ( !( as.character(x_class) == "opls" ) ) {
@@ -914,6 +918,13 @@ cor_vs_cov_try <- function(
   # count the features/variables (one column for each sample)
   # count the features/variables (one column for each sample)
   n_features <- ncol(my_matrix_x)
+  all_n_features <- x_env$fdr_features
+  if (length(grep("^[0-9][0-9]*$", all_n_features)) > 0) {
+    all_n_features <- as.integer(all_n_features)
+  } else {
+    all_n_features <- n_features
+  }
+  fdr_n_features <- max(n_features, all_n_features)
   # print("n_features")
   # print(n_features)
 
@@ -958,13 +969,24 @@ cor_vs_cov_try <- function(
 
   correl_pci <- lapply(
     X = 1:n_features
-  , FUN = function(i) correl.ci(r = result$correlation[i], n = n_observations)
+  , FUN = function(i) {
+      correl.ci(
+        r = result$correlation[i]
+      , n_obs = n_observations
+      , n_vars = fdr_n_features
+      )
+    }
   )
   result$p_value_raw <- sapply(
     X = 1:n_features
+  , FUN = function(i) correl_pci[[i]]$p.value.raw
+  )
+  result$p_value_raw[is.na(result$p_value_raw)] <- 1.0
+  result$p_value <- sapply(
+    X = 1:n_features
   , FUN = function(i) correl_pci[[i]]$p.value
   )
-  result$p_value_raw[is.na(result$p_value_raw)] <- 0.0
+  result$p_value[is.na(result$p_value)] <- 1.0
   result$ci_lower <- sapply(
     X = 1:n_features
   , FUN = function(i) correl_pci[[i]]$CI["lower"]
@@ -1027,7 +1049,7 @@ cor_vs_cov_try <- function(
   , loadp         = result$loadp
   , loado         = result$loado
   , cor_p_val_raw = result$p_value_raw
-  , cor_p_value   = p.adjust(p = result$p_value_raw, method = "BY")
+  , cor_p_value   = result$p_value
   , cor_ci_lower  = result$ci_lower
   , cor_ci_upper  = result$ci_upper
   )
@@ -1070,22 +1092,28 @@ cor_vs_cov_try <- function(
 # which follows
 #   https://en.wikipedia.org/wiki/Fisher_transformation#Definition
 
-correl.ci <- function(r, n, a = 0.05, rho = 0) {
-  ## r is the calculated correlation coefficient for n pairs
+correl.ci <- function(r, n_obs, n_vars, a = 0.05, rho = 0) {
+  ## r is the calculated correlation coefficient for n_obs pairs of observations of one variable
   ## a is the significance level
   ## rho is the hypothesised correlation
   zh0 <- atanh(rho) # 0.5*log((1+rho)/(1-rho)), i.e., Fisher's z-transformation for Ho
   zh1 <- atanh(r)   # 0.5*log((1+r)/(1-r)), i.e., Fisher's z-transformation for H1
-  se <- (1 - r^2)/sqrt(n - 3) ## standard error for Fisher's z-transformation of Ho
+  se <- (1 - r^2)/sqrt(n_obs - 3) ## standard error for Fisher's z-transformation of Ho
   test <- (zh1 - zh0)/se ### test statistic
   pvalue <- 2*(1 - pnorm(abs(test))) ## p-value
+  pvalue.adj <- p.adjust(p = pvalue, method = "BY", n = n_vars)
   z_L <- zh1 - qnorm(1 - a/2)*se
   z_h <- zh1 + qnorm(1 - a/2)*se
   fish_l <- tanh(z_L) # (exp(2*z_l)-1)/(exp(2*z_l)+1), i.e., lower confidence limit
   fish_h <- tanh(z_h) # (exp(2*z_h)-1)/(exp(2*z_h)+1), i.e., upper confidence limit
   ci <- c(fish_l, fish_h)
   names(ci) <- c("lower", "upper")
-  list(correlation = r, p.value = pvalue, CI = ci)
+  list(
+    correlation = r
+  , p.value.raw = pvalue
+  , p.value = pvalue.adj
+  , CI = ci
+  )
 }
 
 # vim: sw=2 ts=2 et ai :

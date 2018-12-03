@@ -30,9 +30,9 @@
         sampleMetadata_in '$sampleMetadata_in'
         variableMetadata_in '$variableMetadata_in'
         facC '$facC'
-        #if str( $signif_test.tesC ) == "none":
-            tesC "none"
-            pairSigFeatOnly "FALSE"
+        #if str( $signif_test.tesC ) == 'none':
+            tesC 'none'
+            pairSigFeatOnly 'FALSE'
         #else:
             tesC '$signif_test.tesC'
             pairSigFeatOnly '$signif_test.pairSigFeatOnly'
@@ -40,11 +40,12 @@
         levCSV '$levCSV'
         matchingC '$matchingC'
         labelFeatures '$labelFeatures'
-        #if str( $xplots.expPlot ) == "none":
-            cplot_p "FALSE"
-            cplot_o "FALSE"
-            cplot_y "correlation"
-        #else if str( $xplots.expPlot ) == "cplot":
+        fdr_features '$fdr_features'
+        #if str( $xplots.expPlot ) == 'none':
+            cplot_p 'FALSE'
+            cplot_o 'FALSE'
+            cplot_y 'correlation'
+        #else if str( $xplots.expPlot ) == 'cplot':
             cplot_p '$xplots.cplot_p'
             cplot_o '$xplots.cplot_o'
             cplot_y '$xplots.cplot_y'
@@ -52,8 +53,7 @@
         contrast_detail '$contrast_detail'
         contrast_corcov '$contrast_corcov'
         contrast_salience '$contrast_salience'
-  ]]></command>
-
+    ]]></command>
     <inputs>
         <param name="dataMatrix_in" format="tabular" label="Data matrix file" type="data"
             help="variables &#10006; samples" />
@@ -129,8 +129,11 @@
             <option value="regex">use regular expressions for matching level-names</option>
         </param>
         <param name="labelFeatures" type="text" value="3"
-            label="How many features having extreme loadings should be labelled on cov-vs.-cor plot"
+            label="How many features having extreme loadings should be labelled on cov-vs.-cor plot?"
             help="Specify the number of features at each of the loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features or '0' to label no features; this choice has no effect on the OPLS-DA loadings plot."/>
+        <param name="fdr_features" type="text" value="ALL"
+            label="How many features for p-value calculation?"
+            help="Specify how many features should be used to perform family-wise error rate adjustment of p-values for covariance and correlation.  If features were eliminated from the data matrix based on significance criteria prior to running this tool, you may want to include them i the count here to avoid underestimating the p-value.  Specify 'ALL' to signify that all features that could impact p-value calculation are included in the data matrix."/>
         <conditional name="xplots">
             <param name="expPlot" label="Extra plots to include" type="select" help="Choosing 'none' hides further choices.">
                 <option value="none">Do not include additonal extra plots.</option>
@@ -495,7 +498,7 @@
 Motivation
 ----------
 
-OPLS-DA and the SIMCA S-PLOT (Wiklund *et al.*, 2008) may be employed to draw attention to metabolomic features that are potential biomarkers, i.e. features that are potentially useful to discriminate to which class a sample should be assigned (e.g. Sun *et al.*, 2016).  Workflow4Metabolomics (W4M, Giacomoni *et al.*, 2014, Guitton *et al.*, 2017) provides a suite of tools for preprocessing and statistical analysis of LC-MS, GC-MS, and NMR metabolomics data; however, it does not (as of release 3.0) include a tool for making the equivalent of an S-PLOT.
+OPLS-DA and the SIMCA S-PLOT (Wiklund *et al.*, 2008) may be employed to draw attention to metabolomic features that are potential biomarkers, i.e. features that are potentially useful to discriminate to which class a sample should be assigned (e.g. Sun *et al.*, 2016).  Workflow4Metabolomics (W4M, Giacomoni *et al.*, 2014, Guitton *et al.*, 2017) provides a suite of tools for preprocessing and statistical analysis of LC-MS, GC-MS, and NMR metabolomics data; however, it does not (as of release 3.2) include a tool for making the equivalent of an S-PLOT.
 
 The S-PLOT is computed from mean-centered, pareto-scaled data.  This plot presents the correlation of the first score vector from an OPLS-DA model with the sample-variables used to produce that model versus the covariance of the scores with the sample-variables.  For OPLS-DA, the first score vector represents the variation among the sample-variables that is related to the predictor (i.e., the contrasting factor).
 

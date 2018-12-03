@@ -31,8 +31,8 @@ facC=k10
 pairSigFeatOnly=TRUE
 # Number of features having extreme loadings
 labelFeatures=ALL
-# la bel features having extreme orthogonal loadings
-labelOrthoFeatures=TRUE
+# Number of features for family-wise error-rate adjustment of p-values
+fdr_features=250
 # comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions
 levCSV="k[12],k[3-4]"
 # how to specify levels generically
@@ -78,7 +78,7 @@ bash -c " cd $__tool_directory__; \
   contrast_corcov '${OUTPUT}_${contrast_corcov}' \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
-  labelOrthoFeatures '$labelOrthoFeatures' \
+  fdr_features '$fdr_features' \
   cplot_p '$cplot_p' \
   cplot_o '$cplot_o' \
   cplot_y '$cplot_y' \
@@ -98,9 +98,10 @@ contrast_salience=contrast_salience_all.tsv
 matchingC=wildcard
 levCSV=*
 labelFeatures=5
-labelOrthoFeatures=FALSE
 cplot_o=TRUE
 cplot_p=TRUE
+# Number of features for family-wise error-rate adjustment of p-values
+fdr_features=ALL
 
 # Run the script
 bash -c " cd $__tool_directory__; \
@@ -117,7 +118,7 @@ bash -c " cd $__tool_directory__; \
   contrast_corcov '${OUTPUT}_${contrast_corcov}' \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
-  labelOrthoFeatures '$labelOrthoFeatures' \
+  fdr_features '$fdr_features' \
   cplot_p '$cplot_p' \
   cplot_o '$cplot_o' \
   cplot_y '$cplot_y' \
@@ -138,7 +139,6 @@ contrast_salience=contrast_salience_global.tsv
 matchingC=regex
 # comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions
 levCSV=k[12],k[3-4]
-labelOrthoFeatures=TRUE
 cplot_o=FALSE
 cplot_p=FALSE
 
@@ -157,7 +157,7 @@ bash -c " cd $__tool_directory__; \
   contrast_corcov '${OUTPUT}_${contrast_corcov}' \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
-  labelOrthoFeatures '$labelOrthoFeatures' \
+  fdr_features '$fdr_features' \
   cplot_p '$cplot_p' \
   cplot_o '$cplot_o' \
   cplot_y '$cplot_y' \
@@ -194,7 +194,7 @@ bash -c " cd $__tool_directory__; \
   contrast_corcov '${OUTPUT}_${contrast_corcov}' \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
-  labelOrthoFeatures '$labelOrthoFeatures' \
+  fdr_features '$fdr_features' \
   cplot_p '$cplot_p' \
   cplot_o '$cplot_o' \
   cplot_y '$cplot_y' \
@@ -240,7 +240,7 @@ bash -c " cd $__tool_directory__; \
   contrast_corcov '${OUTPUT}_${contrast_corcov}' \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
-  labelOrthoFeatures '$labelOrthoFeatures' \
+  fdr_features '$fdr_features' \
   cplot_p '$cplot_p' \
   cplot_o '$cplot_o' \
   cplot_y '$cplot_y' \
@@ -287,7 +287,7 @@ bash -c " cd $__tool_directory__; \
   contrast_corcov '${OUTPUT}_${contrast_corcov}' \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
-  labelOrthoFeatures '$labelOrthoFeatures' \
+  fdr_features '$fdr_features' \
   cplot_p '$cplot_p' \
   cplot_o '$cplot_o' \
   cplot_y '$cplot_y' \
@@ -334,7 +334,7 @@ bash -c " cd $__tool_directory__; \
   contrast_corcov '${OUTPUT}_${contrast_corcov}' \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
-  labelOrthoFeatures '$labelOrthoFeatures' \
+  fdr_features '$fdr_features' \
   cplot_p '$cplot_p' \
   cplot_o '$cplot_o' \
   cplot_y '$cplot_y' \

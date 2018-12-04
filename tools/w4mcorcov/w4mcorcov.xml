@@ -199,14 +199,14 @@
           <has_text text="level1Level2Sig" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
-          <has_text text="-0.462909875" />
-          <has_text text="-36.6668927" />
+          <has_text text="-0.49037231902" />
+          <has_text text="-2111932280.94" />
           <has_text text="0.4914638" />
           <has_text text="0.01302117" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
           <has_text text="0.504885262" />
-          <has_text text="5.97529097" />
+          <has_text text="293403792" />
           <has_text text="0.207196379" />
           <has_text text="0.04438632" />
         </assert_contents>
@@ -257,8 +257,8 @@
           <has_text text="level1Level2Sig" />
           <!-- first matched line -->
           <has_text text="M200.005T296" />
-          <has_text text="-0.28035717" />
-          <has_text text="-3.3573953" />
+          <has_text text="0.0050579682" />
+          <has_text text="2607493" />
           <has_text text="0.1157346" />
           <has_text text="0.0647860" />
         </assert_contents>
@@ -307,14 +307,14 @@
           <has_text text="vip4o" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
-          <has_text text="-0.4732226665" />
-          <has_text text="-37.71066" />
+          <has_text text="-0.499225" />
+          <has_text text="-2135165209" />
           <has_text text="0.5246766" />
           <has_text text="0.0103341" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
           <has_text text="0.4927151212" />
-          <has_text text="5.86655640" />
+          <has_text text="284608538" />
           <has_text text="0.2111623" />
           <has_text text="0.0488654" />
         </assert_contents>
@@ -367,7 +367,7 @@
           <has_text text="flower_yes" />
           <has_text text="other" />
           <has_text text="0.3499550705" />
-          <has_text text="0.03526926" />
+          <has_text text="11.609255" />
           <has_text text="0.43664386" />
           <has_text text="0.587701897" />
           <has_text text="0.026082688" />
@@ -418,13 +418,13 @@
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
           <has_text text="0.61594030" />
-          <has_text text="37.76875778" />
+          <has_text text="3489481837.9" />
           <has_text text="0.54672558" />
           <has_text text="0.3920409" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
           <has_text text="-0.89716403" />
-          <has_text text="-6.337903" />
+          <has_text text="-585563327.7" />
           <has_text text="0.270297" />
           <has_text text="0.037661" />
         </assert_contents>
@@ -452,10 +452,15 @@
           <has_text text="vip4o" />
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
-          <has_text text="-0.331230562" />
-          <has_text text="-2.47167915" />
-          <has_text text="0.0892595" />
-          <has_text text="0.0049228872" />
+          <has_text text="-0.1221966" />
+          <has_text text="-917311734" />
+          <has_text text="0.0304592" />
+          <has_text text="0.104748883" />
+          <has_text text="-0.002736415" />
+          <has_text text="-0.0113968" />
+          <has_text text="0.387723" />
+          <has_text text="-0.3812168081" />
+          <has_text text="0.154611878" />
         </assert_contents>
       </output>
     </test>
@@ -482,6 +487,17 @@
           <!-- k1 rejected by levCSV, leaving only k_3 and k-4 -->
           <not_has_text text="k1" />
           <not_has_text text="other" />
+          <!-- first matched line -->
+          <has_text text="M200.005T296" />
+          <has_text text="-0.1829149760" />
+          <has_text text="-115723402" />
+          <has_text text="0.0892595" />
+          <has_text text="0.00492288" />
+          <has_text text="-0.00801895" />
+          <has_text text="0.0005356178" />
+          <has_text text="0.1848186" />
+          <has_text text="-0.428802311" />
+          <has_text text="0.0882045811" />
         </assert_contents>
       </output>
     </test>

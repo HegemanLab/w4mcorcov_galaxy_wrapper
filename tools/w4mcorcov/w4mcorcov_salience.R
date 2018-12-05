@@ -26,10 +26,23 @@ w4msalience <- function(
   if ( length(sample_class) != n_samples ) {
     strF(data_matrix)
     strF(sample_class)
-    failure_action(sprintf("w4msalience:  The data_matrix has %d samples but sample_class has %d", n_samples, length(sample_class)))
+    failure_action(
+      sprintf(
+        "w4msalience:  The data_matrix has %d samples but sample_class has %d"
+      , n_samples
+      , length(sample_class)
+      )
+    )
     return (NULL)
   }
   # end sanity checks
+
+  salientDistance <- function(v) {
+    if (length(v) < 2)
+      return (0)
+    v <- sort(unname(v), decreasing = TRUE)
+    return (v[1] - v[2])
+  }
 
   # "For each feature, 'select sample_class, median(intensity) from feature group by sample_class'."
   # The first column(s) of the result of aggregate has the classifier value(s) specified in the 'by' list.
@@ -46,6 +59,13 @@ w4msalience <- function(
     , FUN = "max"
     )
 
+  # "For each feature, 'select sample_class, max(intensity) from feature group by sample_class'."
+  salientDistanceOfFeatureBySampleClassLevel <- aggregate(
+      x = as.data.frame(t_data_matrix)
+    , by = list(sample_class)
+    , FUN = salientDistance
+    )
+
   # "For each feature, 'select sample_class, rcv(intensity) from feature group by sample_class'."
   #   cv is less robust; deviation from normality degrades performance
   #     cv(x) == sd(x) / mean(x)
@@ -56,10 +76,24 @@ w4msalience <- function(
     , by = list(sample_class)
     , FUN = "mad"
   )
+  # "robust coefficient of variation", i.e., 
+  #    mad(feature-intensity for class-level max_level) / median(feature-intensity for class-level max_level)
   rcvOfFeatureBySampleClassLevel <- as.matrix(
-    madOfFeatureBySampleClassLevel[,2:n_features_plus_1] / medianOfFeatureBySampleClassLevel[,2:n_features_plus_1]
+    madOfFeatureBySampleClassLevel[ , 2:n_features_plus_1] /
+      medianOfFeatureBySampleClassLevel[,2:n_features_plus_1]
   )
-  rcvOfFeatureBySampleClassLevel[is.nan(rcvOfFeatureBySampleClassLevel)] <- max(9999,max(rcvOfFeatureBySampleClassLevel, na.rm = TRUE)) 
+  rcvOfFeatureBySampleClassLevel[is.nan(rcvOfFeatureBySampleClassLevel)] <-
+    max(9999,max(rcvOfFeatureBySampleClassLevel, na.rm = TRUE))
+
+  # "relative salient distance", i.e., 
+  #    distance(between two highest class-level max_levels) / mad(feature-intensity for class-level max_level)
+  relativeSalientDistanceOfFeatureBySampleClassLevel <- as.matrix(
+    salientDistanceOfFeatureBySampleClassLevel[,2:n_features_plus_1] /
+      madOfFeatureBySampleClassLevel[,2:n_features_plus_1]
+  )
+  relativeSalientDistanceOfFeatureBySampleClassLevel[
+    is.infinite(relativeSalientDistanceOfFeatureBySampleClassLevel)
+  ] <- 9999
 
   # "For each feature, 'select max(max_feature_intensity) from feature'."
   maxApplyMaxOfFeatureBySampleClassLevel <- sapply(
@@ -89,14 +123,40 @@ w4msalience <- function(
   , max_median = sapply(
         X = 1:n_features
       , FUN = function(i) {
-          maxOfFeatureBySampleClassLevel[maxApplyMaxOfFeatureBySampleClassLevel[i], 1 + i]
+          maxOfFeatureBySampleClassLevel[
+            maxApplyMaxOfFeatureBySampleClassLevel[i]
+          , 1 + i
+          ]
+        }
+    )
+    # the distance between the maximum intensities for the feature at the two highest levels
+  , salient_distance = sapply(
+        X = 1:n_features
+      , FUN = function(i) {
+          salientDistanceOfFeatureBySampleClassLevel[
+            maxApplyMaxOfFeatureBySampleClassLevel[i]
+          , i + 1
+          ]
+        }
+    )
+    # the distance between the maximum intensities for the feature at the two highest levels
+  , relative_salient_distance = sapply(
+        X = 1:n_features
+      , FUN = function(i) {
+          relativeSalientDistanceOfFeatureBySampleClassLevel[
+            maxApplyMaxOfFeatureBySampleClassLevel[i]
+          , i
+          ]
         }
     )
     # the coefficient of variation (expressed as a proportion) for the intensity for the feature and the level max_level
   , max_rcv = sapply(
         X = 1:n_features
       , FUN = function(i) {
-          rcvOfFeatureBySampleClassLevel[maxApplyMaxOfFeatureBySampleClassLevel[i], i]
+          rcvOfFeatureBySampleClassLevel[
+            maxApplyMaxOfFeatureBySampleClassLevel[i]
+          , i
+          ]
         }
     )
     # the mean of the medians of intensity for all class-levels for the feature
@@ -107,9 +167,14 @@ w4msalience <- function(
   # raw salience is the ratio of the most-prominent level to the mean of all levels for the feature
   salience_df$salience <- sapply(
       X = 1:nrow(salience_df)
-    , FUN = function(i) with(salience_df[i,], if (mean_median > 0) { max_median / mean_median } else { 0 } )
+    , FUN = function(i) {
+        with(
+          salience_df[i,]
+        , if (mean_median > 0) max_median / mean_median else 0
+        )
+      }
     )
-  # "robust coefficient of variation, i.e., mad(feature-intensity for class-level max_level) / median(feature-intensity for class-level max_level)
+  # "robust coefficient of variation"
   salience_df$salient_rcv <- salience_df$max_rcv
 
   return (salience_df)

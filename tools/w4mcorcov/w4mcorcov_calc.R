@@ -467,15 +467,20 @@ corcov_calc <- function(
   , failure_action = failure_action
   )
   salience_tsv_action({
-    my_df <- data.frame(
-      featureID    = salience_df$feature
-    , salientLevel = salience_df$max_level
-    , salientRCV   = salience_df$salient_rcv
-    , salience     = salience_df$salience
-    , mz           = mz_lookup(salience_df$feature)
-    , rt           = rt_lookup(salience_df$feature)
-    )
-    my_df[order(-my_df$salience),]
+    with (
+      salience_df
+    , {
+      my_df <<- data.frame(
+        featureID       = feature
+      , salientLevel    = max_level
+      , salientRCV      = salient_rcv
+      , relativeSalientDistance = relative_salient_distance
+      , salience        = salience
+      , mz              = mz_lookup(feature)
+      , rt              = rt_lookup(feature)
+      )
+    })
+    my_df[order(-my_df$relativeSalientDistance),]
   })
 
   # transform wildcards to regexen

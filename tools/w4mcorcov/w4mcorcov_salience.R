@@ -19,9 +19,12 @@ w4msalience <- function(
     failure_action("w4msalience:  Expected data_matrix to be a matrix (or data.frame) of numeric")
     return (NULL)
   }
+
+  feature_names <- colnames(t_data_matrix)
+  level_names   <- rownames(t_data_matrix)
+
   n_features <- ncol(t_data_matrix)
   n_features_plus_1 <- 1 + n_features
-  features   <- colnames(t_data_matrix)
   n_samples  <- nrow(t_data_matrix)
   if ( length(sample_class) != n_samples ) {
     strF(data_matrix)
@@ -71,23 +74,60 @@ w4msalience <- function(
   rcvOfFeatureBySampleClassLevel[is.nan(rcvOfFeatureBySampleClassLevel)] <-
     max(9999,max(rcvOfFeatureBySampleClassLevel, na.rm = TRUE))
 
-  relative_salient_distance <- sapply(
-    X = 1:n_features
+  # Note that `apply(X=array(1:10), MARGIN = 1, FUN = function(x) return(c(x,x^2)))`
+  #   produces a matrix with two rows and ten columns
+
+  # print("assigning my_list")
+  my_list <- apply(
+    X = array(1:n_features)
+  , MARGIN = 1
   , FUN = function(x) {
       my_df <- data.frame(
-        max = maxOfFeatureBySampleClassLevel[ , 1 + x, drop = TRUE]
-      , median = medianOfFeatureBySampleClassLevel[ , 1 + x, drop = TRUE]
-      , mad = madOfFeatureBySampleClassLevel[ , 1 + x, drop = TRUE]
+        median = medianOfFeatureBySampleClassLevel[ , 1 + x]
+      , mad = madOfFeatureBySampleClassLevel[ , 1 + x]
       )
-      my_df <- my_df[ order(my_df$max, decreasing = TRUE), ][  1:2, ]
-      result <-
-        ( my_df$median[1] - my_df$median[2] ) /
-        sqrt( my_df$mad[1] * my_df$mad[2] )
-      if (is.infinite(result) || is.nan(result))
-        result <- 0
-      return(result)
+      my_df$salient_level <- medianOfFeatureBySampleClassLevel[ , 1]
+      my_df <- my_df[ order(my_df$median, decreasing = TRUE), ]
+      my_dist_df <- my_df[  1:2, ]
+      rcv_result <- my_dist_df$mad[1] / my_dist_df$median[1]
+      dist_result <-
+        ( my_dist_df$median[1] - my_dist_df$median[2] ) /
+        sqrt( my_dist_df$mad[1] * my_dist_df$mad[2] )
+      if (is.infinite(dist_result) || is.nan(dist_result))
+        dist_result <- 0
+      if (x < 4) print("head(my_df, n = 6)")
+      if (x < 4) print(head(my_df, n = 6))
+      if (x < 4) print("dist_result")
+      if (x < 4) print(dist_result)
+      my_median <- median(my_df$median)
+      if (x < 4) print("my_median")
+      if (x < 4) print(my_median)
+      salience_result <- if (my_median > 0) my_df$median[1] / my_median else 0
+      if (x < 4) print("salience_result")
+      if (x < 4) print(salience_result)
+      return (
+        data.frame(
+          dist_result = dist_result
+        , max_median = my_df$median[1]
+        , salience_result = salience_result
+        , salient_level = my_df$salient_level[1]
+        , rcv_result = rcv_result
+        )
+      )
     }
   )
+  weird_matrix  <- sapply(X = 1:n_features, FUN = function(i) my_list[[i]])
+  weird_df <- as.data.frame(t(weird_matrix))
+
+  print("head(weird_df)")
+  print(head(weird_df))
+
+  relative_salient_distance <- unlist(weird_df$dist_result)
+  salience <- unlist(weird_df$salience_result)
+  salient_level <- unlist(weird_df$salient_level)
+  max_median <- unlist(weird_df$max_median)
+  rcv_result <- unlist(weird_df$rcv_result)
+
 
 
   # "For each feature, 'select max(max_feature_intensity) from feature'."
@@ -111,7 +151,7 @@ w4msalience <- function(
   #   is for one particular class-level relative to the intensity across all class-levels.
   salience_df <- data.frame(
     # the feature name
-    feature = features
+    feature = feature_names
     # the name (or factor-level) of the class-level with the highest median intensity for the feature
   , max_level = medianOfFeatureBySampleClassLevel[maxApplyMaxOfFeatureBySampleClassLevel,1]
     # the median intensity for the feature and the level max_level
@@ -151,8 +191,18 @@ w4msalience <- function(
         )
       }
     )
+
   # "robust coefficient of variation"
   salience_df$salient_rcv <- salience_df$max_rcv
+
+  print(data.frame(
+    salience = salience
+  , max_median = max_median
+  , distance = relative_salient_distance
+  # , old_over_new = salience_df$max_median / max_median
+  , rcv = rcv_result
+  , salient_level = salient_level
+  ))
 
   return (salience_df)
 }

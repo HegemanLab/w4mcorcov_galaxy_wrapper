@@ -75,10 +75,11 @@ w4msalience <- function(
     X = 1:n_features
   , FUN = function(x) {
       my_df <- data.frame(
-        median = medianOfFeatureBySampleClassLevel[ , 1 + x, drop = TRUE]
+        max = maxOfFeatureBySampleClassLevel[ , 1 + x, drop = TRUE]
+      , median = medianOfFeatureBySampleClassLevel[ , 1 + x, drop = TRUE]
       , mad = madOfFeatureBySampleClassLevel[ , 1 + x, drop = TRUE]
       )
-      my_df <- my_df[ order(my_df$median, decreasing = TRUE), ][  1:2, ]
+      my_df <- my_df[ order(my_df$max, decreasing = TRUE), ][  1:2, ]
       result <-
         ( my_df$median[1] - my_df$median[2] ) /
         sqrt( my_df$mad[1] * my_df$mad[2] )

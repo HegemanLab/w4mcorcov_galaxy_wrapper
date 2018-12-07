@@ -4,7 +4,7 @@
         <xml name="paramPairSigFeatOnly">
             <param name="pairSigFeatOnly" type="boolean" checked="true" truevalue="TRUE" falsevalue="FALSE"
                 label="Retain only pairwise-significant features"
-                help="When this option is set to 'Yes', analysis will be performed including only features that differ significantly for the pair of levels being contrasted; when set to 'No', any feature that varies significantly across all levels will be included (i.e., exclude any feature that is not significantly different across all levels).  See examples below." />
+                help="When this option is set to 'Yes', analysis will be performed including only features scored by the univariate test as differing significantly for the pair of levels being contrasted; when set to 'No', any feature that varies significantly across all levels will be included (i.e., exclude only features not scored by the univariate test as significantly varying when all levels are considered).  See examples below." />
         </xml>
         <xml name="cplots">
             <param name="cplot_y" label="C-plot Y-axis" type="select" help="Choose the Y-axis for C-plots.">
@@ -17,11 +17,15 @@
             <param name="cplot_o" type="boolean" checked="true" truevalue="TRUE" falsevalue="FALSE"
                 label="Produce orthogonal C-plot"
                 help="When this option is set to 'Yes', correlation will be plotted against vip4 for orthogonal loadings." />
+            <param name="fdr_features" type="text" value="ALL"
+                label="How many features for p-value calculation?"
+                help="Specify how many features should be used to perform family-wise error rate adjustment of p-values for covariance and correlation.  If features were eliminated from the data matrix based on significance criteria prior to running this tool, you would want to include them in the count here to avoid underestimating the p-value.  Specify 'ALL' to signify that all features that could impact p-value calculation are included in the data matrix."/>
         </xml>
     </macros>
     <requirements>
         <requirement type="package">r-base</requirement>
         <requirement type="package">r-batch</requirement>
+        <requirement type="package">r-sqldf</requirement>
         <requirement type="package" version="1.10.0">bioconductor-ropls</requirement>
     </requirements>
     <command detect_errors="aggressive"><![CDATA[
@@ -40,15 +44,16 @@
         levCSV '$levCSV'
         matchingC '$matchingC'
         labelFeatures '$labelFeatures'
-        fdr_features '$fdr_features'
-        #if str( $xplots.expPlot ) == 'none':
+        #if str( $advanced.advancedFeatures ) == 'none':
+            fdr_features 'ALL'
             cplot_p 'FALSE'
             cplot_o 'FALSE'
             cplot_y 'correlation'
-        #else if str( $xplots.expPlot ) == 'cplot':
-            cplot_p '$xplots.cplot_p'
-            cplot_o '$xplots.cplot_o'
-            cplot_y '$xplots.cplot_y'
+        #else if str( $advanced.advancedFeatures ) == 'advanced':
+            fdr_features '$advanced.fdr_features'
+            cplot_p '$advanced.cplot_p'
+            cplot_o '$advanced.cplot_o'
+            cplot_y '$advanced.cplot_y'
         #end if
         contrast_detail '$contrast_detail'
         contrast_corcov '$contrast_corcov'
@@ -96,7 +101,7 @@
             </when>
         </conditional>
         <param name="levCSV" type="text" value="*" label="Levels of interest" 
-            help="Comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; levels must be non-numeric; may include wild cards or regular expressions.  Note that extra space characters will affect results - 'a,b' is correct, but 'a , b' is not and may fail or give different results.">
+            help="Comma-separated level-names (or comma-separated regular expressions to match level-names) to consider in analysis; must match at least two levels; levels must be non-numeric; may include wild cards or regular expressions.  Note that extra space characters will affect results - when 'a,b' is correct, 'a, b' is not equivalent and likely will fail or give different results.">
             <sanitizer>
                 <valid initial="string.letters">
                     <add preset="string.digits"/>
@@ -131,16 +136,15 @@
         <param name="labelFeatures" type="text" value="3"
             label="How many features having extreme loadings should be labelled on cov-vs.-cor plot?"
             help="Specify the number of features at each of the loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features or '0' to label no features; this choice has no effect on the OPLS-DA loadings plot."/>
-        <param name="fdr_features" type="text" value="ALL"
-            label="How many features for p-value calculation?"
-            help="Specify how many features should be used to perform family-wise error rate adjustment of p-values for covariance and correlation.  If features were eliminated from the data matrix based on significance criteria prior to running this tool, you may want to include them i the count here to avoid underestimating the p-value.  Specify 'ALL' to signify that all features that could impact p-value calculation are included in the data matrix."/>
-        <conditional name="xplots">
-            <param name="expPlot" label="Extra plots to include" type="select" help="Choosing 'none' hides further choices.">
-                <option value="none">Do not include additonal extra plots.</option>
-                <option value="cplot">Include C-plots (predictor-loading vs. 'vip4p' and orthogonal-loading versus 'vip4o')</option>
+        <conditional name="advanced">
+            <param name="advancedFeatures" type="select" 
+                label="Advanced (C-plots and customized p-value adjustment)"
+                help="Choose 'Do not include ...' to hides further choices.">
+                <option value="advanced">Include C-plots and customize p-value adjustment.</option>
+                <option value="none">Do not include additonal C-plots or customize p-value adjustment.</option>
             </param>
             <when value="none" />
-            <when value="cplot">
+            <when value="advanced">
                 <expand macro="cplots" />
             </when>
         </conditional>
@@ -184,6 +188,7 @@
       <param name="facC" value="k10"/>
       <param name="pairSigFeatOnly" value="FALSE"/>
       <param name="labelFeatures" value="3"/>
+      <param name="fdr_features" value="250"/>
       <param name="levCSV" value="k[12],k[3-4]"/>
       <param name="matchingC" value="regex"/>
       <output name="contrast_corcov">
@@ -203,12 +208,23 @@
           <has_text text="-2111932280.94" />
           <has_text text="0.4914638" />
           <has_text text="0.01302117" />
+          <has_text text="-0.049216260" />
+          <has_text text="-0.00152098716" />
+          <has_text text="2.0603074801" />
+          <has_text text="-0.60020597" />
+          <has_text text="-0.3623876130" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
           <has_text text="0.504885262" />
           <has_text text="293403792" />
           <has_text text="0.207196379" />
           <has_text text="0.04438632" />
+          <has_text text="0.020749097" />
+          <has_text text="0.005184709" />
+          <has_text text="1.47082346" />
+          <has_text text="2.24325407" />
+          <has_text text="0.38157919" />
+          <has_text text="0.610536188" />
         </assert_contents>
       </output>
       <output name="contrast_salience">
@@ -221,10 +237,12 @@
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
           <has_text text="0.659554" />
+          <has_text text="1.3953535061" />
           <has_text text="8.81866595" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
           <has_text text="0.0578578" />
+          <has_text text="0.54153611" />
           <has_text text="2.27527985" />
           <!-- third matched line -->
           <has_text text="M211.0607T263" />
@@ -242,6 +260,7 @@
       <param name="facC" value="k10"/>
       <param name="pairSigFeatOnly" value="TRUE"/>
       <param name="labelFeatures" value="3"/>
+      <param name="fdr_features" value="ALL"/>
       <param name="levCSV" value="k[12],k[3-4]"/>
       <param name="matchingC" value="regex"/>
       <output name="contrast_corcov">
@@ -273,10 +292,12 @@
           <!-- first matched line -->
           <has_text text="M349.2383T700" />
           <has_text text="0.659554" />
+          <has_text text="1.3953535061" />
           <has_text text="8.81866595" />
           <!-- second matched line -->
           <has_text text="M207.9308T206" />
           <has_text text="0.0578578" />
+          <has_text text="0.54153611" />
           <has_text text="2.27527985" />
           <!-- third matched line -->
           <has_text text="M211.0607T263" />
@@ -293,6 +314,7 @@
       <param name="tesC" value="none"/>
       <param name="facC" value="k10"/>
       <param name="labelFeatures" value="3"/>
+      <param name="fdr_features" value="ALL"/>
       <param name="levCSV" value="k[12],k[3-4]"/>
       <param name="matchingC" value="regex"/>
       <output name="contrast_corcov">
@@ -350,6 +372,7 @@
       <param name="tesC" value="none"/>
       <param name="facC" value="tissue_flowering"/>
       <param name="labelFeatures" value="3"/>
+      <param name="fdr_features" value="ALL"/>
       <param name="levCSV" value="*"/>
       <param name="matchingC" value="wildcard"/>
       <output name="contrast_corcov">
@@ -403,6 +426,7 @@
       <param name="tesC" value="none"/>
       <param name="facC" value="k._10"/>
       <param name="labelFeatures" value="3"/>
+      <param name="fdr_features" value="ALL"/>
       <param name="levCSV" value="k1,k.2"/>
       <param name="matchingC" value="none"/>
       <output name="contrast_corcov">
@@ -438,6 +462,7 @@
       <param name="tesC" value="none"/>
       <param name="facC" value="k._10"/>
       <param name="labelFeatures" value="3"/>
+      <param name="fdr_features" value="ALL"/>
       <param name="levCSV" value="k_3,k-4"/>
       <param name="matchingC" value="none"/>
       <output name="contrast_corcov">
@@ -472,6 +497,7 @@
       <param name="tesC" value="none"/>
       <param name="facC" value="k._10"/>
       <param name="labelFeatures" value="3"/>
+      <param name="fdr_features" value="ALL"/>
       <param name="levCSV" value="k_3,k-4"/>
       <param name="matchingC" value="none"/>
       <output name="contrast_corcov">
@@ -551,9 +577,7 @@ It must be stressed that there may be no *single* definitive computational appro
 
 In this spirit, this tool reports the S-PLOT covariance and correlation (Wiklund *op. cit.*) and VIP metrics, and it introduces an informal "salience" metric to flag features that may merit attention without dimensional reduction; future versions may add selectivity ratio.
 
-For a more systematic approach to biomarker identification, please consider the W4M 'biosigner' tool (Rinuardo *et al.* 2016), which applies three different identification metrics to the selection process.
-
-Regardless of how any potential biomarker is identified, further validation analysis (e.g., independent confirmatory experiments) is needed before it is recommended for general application.
+For a more systematic approach to biomarker identification, please consider the W4M 'biosigner' tool (Rinuardo *et al.* 2016), which applies three different identification metrics to the selection process.  Regardless of how any potential biomarker is identified, further validation analysis (e.g., independent confirmatory experiments) is needed before it can be recommended for general application.
 
 
 W4M Workflow Position
@@ -630,19 +654,35 @@ Parameters
   | Specify the number of features at each of the loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features; this choice has no effect on the OPLS-DA loadings plot.
   |
 
+[IN] (Advanced) C-plot Y-axis
+  | Choose whether C-plots should plot the correlation or the covariance *vs.* VIP.
+  |
+
+[IN] (Advanced) Produce predictor C-plot
+  | Choose whether a C-plot should be produced for the projections parallel to the predictor.
+  |
+
+[IN] (Advanced) Produce orthogonal C-plot
+  | Choose whether a C-plot should be produced for the projections orthogonal to the predictor.
+  |
+
+[IN] (Advanced) How many features for p-value calculation?
+  | You will need to use this option when statistical criteria have previously been applied to remove features in the data matrix.  This is important for adjusting the p-values for correlation of the scores with each feature; this adjustment is necessary to avoid underestimation of the p-values.  If this is applicable, specify the sum of the number of features removed and the number of features in the data matrix.
+  |
+
 [OUT] Contrast-detail output PDF
   | File containing several plots for each two-projection OPLS-DA analysis.
 
 - (first row, left) **correlation-versus-covariance plot** of OPLS-DA results
 
     - This is a work-alike for the S-PLOT, computed using formula in Supplement to Wiklund, (*op. cit.*);
-    - point-color becomes saturated as the "variable importance in projection to the predictive components" (VIP\ :subscript:`4,p` from Galindo-Prieto *et al.* 2014) ranges from 0.83 and 1.21 (Mehmood *et al.* 2012), for use to identify features for consideration as biomarkers;
-    - plot symbols are diamonds when the adjusted p-value of correlation is greater than 0.05, circles when it is less than 0.01, and triangles when it between these limits.
+    - point-color becomes saturated as the "variable importance in projection to the predictive components" (VIP\ :subscript:`4,p` from Galindo-Prieto *op. cit.*) ranges from 0.83 and 1.21 (Mehmood *et al.* 2012), for use to identify features for consideration as biomarkers;
+    - plot symbols are diamonds when the p-value of the correlation, adjusted for family-wise error rate (Yekutieli *et al.*, 2001), is greater than 0.05, circles when it is less than 0.01, and triangles when it between these limits.
 - (second row, left) **model-overview plot** for the two projections; grey bars are the correlation coefficient for the fitted data; black bars indicate performance in cross-validation tests (Th]]>&#233;<![CDATA[venot, 2017)
 - (first row, right) OPLS-DA **scores-plot** for the two projections (Th]]>&#233;<![CDATA[venot *et al.*, 2015)
-- (second row, right) **correlation-versus-covariance plot** of OPLS-DA results **orthogonal to the predictor** (see section "S-Plot of Orthogonal Component" in Wiklund, *op. cit.*, pp. 120-121; this characterizes features with the greatest variation independent of the predictor).
-- (third row, left, when "**predictor C-plot**" is chosen under "Extra plots to include") plot of the covariance or correlation vs. the VIP for the projection *parallel to the predictor*, for use to identify features for consideration as biomarkers.
-- (third row, right, when "**orthogonal C-plot**" is chosen under "Extra plots to include") plotof the covariance or correlation vs. the VIP for the projection *orthogonal to the predictor*, for use to identify features varying considerably without regard to the predictor.
+- (second row, right) **correlation-versus-covariance plot** of OPLS-DA results **orthogonal to the predictor** (see section "S-Plot of Orthogonal Component" in Wiklund, *op. cit.*, pp. 120-121; this characterizes *features with the greatest variation independent of the predictor*).
+- (third row, left, when "**predictor C-plot**" is chosen under "Advanced") plot of the covariance or correlation vs. the VIP\ :subscript:`4,p` (Galindo-Prieto *op. cit.*), to assist in identifying features for consideration as biomarkers.
+- (third row, right, when "**orthogonal C-plot**" is chosen under "Advanced") plot of the covariance or correlation vs. the VIP\ :subscript:`4,o` (*ibid.*), to assist in identifying features varying considerably without regard to the predictor.
 
 [OUT] Contrast Correlation-Covarinace data TABULAR
   | A tab-separated values file of metadata for each feature for each contrast in which it was included.
@@ -659,9 +699,9 @@ Parameters
 - **loadp** - variable loading for the predictive projection (Wiklund *op. cit.*)
 - **loado** - variable loading for the orthogonal projection (*ibid.*)
 - **cor_p_val_raw** - p-value for Fisher-transformed correlation (Fisher, 1921; Snedecor, 1980; see also https://en.wikipedia.org/wiki/Fisher_transformation), with no family-wise error-rate correction.
-- **cor_p_value** - p-value for Fisher-transformed correlation, adjusted for family-wise error rate (Yekutieli *et al.*, 2001).  Caveat: any previous selection for features that vary notably by factor level may result in too little adjustment.
-- **cor_ci_lower** - lower limit of 95% confidence interval for correlation (see e.g. https://en.wikipedia.org/wiki/Fisher_transformation)
-- **cor_ci_upper** - upper limit of 95% confidence interval for correlation (*ibid.*)
+- **cor_p_value** - p-value for Fisher-transformed correlation, adjusted for family-wise error rate (Yekutieli *et al.*, 2001).
+- **cor_ci_lower** - lower limit of 95% confidence interval for correlation (see e.g. https://en.wikipedia.org/wiki/Fisher_transformation), based on adjusted p-value
+- **cor_ci_upper** - upper limit of 95% confidence interval for correlation, based on adjusted p-value
 - **mz** - *m/z* ratio for feature, copied from input variableMetadata
 - **rt** - retention time for feature, copied from input variableMetadata
 - **level1Level2Sig** - (Only present when a test other than "none" is chosen) '1' when feature varies significantly across all classes (i.e., not pair-wise); '0' otherwise
@@ -672,6 +712,7 @@ Parameters
 - **featureID** - feature identifier
 - **salientLevel** - salient level, i.e., for the feature, the class-level having the greatest median intensity
 - **salientRCV** - salient robust coefficient of variation, i.e., for the feature, the mean absolute deviation of the intensity for the salient level divided by the median intensity for the salient level
+- **relativeSalientDistance** - relative salient distance, i.e., for the feature, the distance between the two highest class-level medians divided by the square root of the mean absolute deviations of those two class-level's intensities
 - **salience** - salience, i.e., for the feature, the median of the class-level having the greatest intensity divided by the mean of the medians for all class-levels
 
 Wild card patterns to match level-names
@@ -758,6 +799,8 @@ Working examples
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Number of features having extreme loadings | ALL                                                                                                                                    |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+  | How many features for p-value calculation? | 250                                                                                                                                    |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Output primary table                       | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/tools/w4mcorcov/test-data/expected_contrast_corcov.tsv    |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+
   | Output salience table                      | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/tools/w4mcorcov/test-data/expected_contrast_salience.tsv  |
@@ -782,6 +825,8 @@ Working examples
   +--------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------+
   | Number of features having extreme loadings | 5                                                                                                                                          |
   +--------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------+
+  | How many features for p-value calculation? | ALL                                                                                                                                        |
+  +--------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------+
   | Output primary table                       | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/tools/w4mcorcov/test-data/expected_contrast_corcov_all.tsv    |
   +--------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------+
   | Output salience table                      | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/tools/w4mcorcov/test-data/expected_contrast_salience_all.tsv  |
@@ -804,6 +849,8 @@ Working examples
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
   | Number of features having extreme loadings | 0                                                                                                                                            |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
+  | How many features for p-value calculation? | ALL                                                                                                                                          |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
   | Output primary table                       | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/tools/w4mcorcov/test-data/expected_contrast_corcov_global.tsv   |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
   | Output salience table                      | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/tools/w4mcorcov/test-data/expected_contrast_salience_global.tsv |
@@ -825,6 +872,8 @@ Working examples
   | Level-name matching                        | use regular expressions for matching level-names                                                                                             |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
   | Number of features having extreme loadings | 3                                                                                                                                            |
+  +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
+  | How many features for p-value calculation? | ALL                                                                                                                                          |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
   | Output primary table                       | https://raw.githubusercontent.com/HegemanLab/w4mcorcov_galaxy_wrapper/master/tools/w4mcorcov/test-data/expected_contrast_corcov_lohi.tsv     |
   +--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+

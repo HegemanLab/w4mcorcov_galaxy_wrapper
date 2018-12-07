@@ -7,7 +7,7 @@
 #   - conda config --add channels defaults
 #   - conda config --add channels bioconda
 #   - conda config --add channels conda-forge
-#   - conda create -n ropls r-base r-batch bioconductor-ropls=1.10.0
+#   - conda create -n ropls r-base r-batch bioconductor-ropls=1.10.0 bioconductor-biobase
 #   - conda activate ropls
 #
 # To deactivate the roopls environment, use

@@ -234,20 +234,10 @@
           <has_text text="salientLevel" />
           <has_text text="salientRCV" />
           <has_text text="salience" />
-          <!-- first matched line -->
-          <has_text text="M349.2383T700" />
-          <has_text text="0.659554" />
-          <has_text text="1.3953535061" />
-          <has_text text="8.81866595" />
-          <!-- second matched line -->
-          <has_text text="M207.9308T206" />
-          <has_text text="0.0578578" />
-          <has_text text="0.54153611" />
-          <has_text text="2.27527985" />
-          <!-- third matched line -->
-          <has_text text="M211.0607T263" />
-          <has_text text="9999" />
-          <has_text text="12.87766096" />
+          <!-- first three matched lines -->
+          <has_text text="M207.0654T373" /><has_text text="k4" /><has_text text="0.822733190" /><has_text text="134.087771" /><has_text text="3.9994434" /><has_text text="207.0654" /><has_text text="373" />
+          <has_text text="M222.9585T226" /><has_text text="k2" /><has_text text="0.761200229" /><has_text text="87.3672719" /><has_text text="3.9995358" /><has_text text="222.9585" /><has_text text="226" />
+          <has_text text="M235.0975T362" /><has_text text="k4" /><has_text text="0.209363850" /><has_text text="77.6255643" /><has_text text="3.99606600" /><has_text text="235.0975" /><has_text text="362" />
         </assert_contents>
       </output>
     </test>
@@ -289,20 +279,10 @@
           <has_text text="salientLevel" />
           <has_text text="salientRCV" />
           <has_text text="salience" />
-          <!-- first matched line -->
-          <has_text text="M349.2383T700" />
-          <has_text text="0.659554" />
-          <has_text text="1.3953535061" />
-          <has_text text="8.81866595" />
-          <!-- second matched line -->
-          <has_text text="M207.9308T206" />
-          <has_text text="0.0578578" />
-          <has_text text="0.54153611" />
-          <has_text text="2.27527985" />
-          <!-- third matched line -->
-          <has_text text="M211.0607T263" />
-          <has_text text="9999" />
-          <has_text text="12.87766096" />
+          <!-- first three matched lines -->
+          <has_text text="M207.0654T373" /><has_text text="k4" /><has_text text="0.822733190" /><has_text text="134.087771" /><has_text text="3.9994434" /><has_text text="207.0654" /><has_text text="373" />
+          <has_text text="M222.9585T226" /><has_text text="k2" /><has_text text="0.761200229" /><has_text text="87.3672719" /><has_text text="3.9995358" /><has_text text="222.9585" /><has_text text="226" />
+          <has_text text="M235.0975T362" /><has_text text="k4" /><has_text text="0.209363850" /><has_text text="77.6255643" /><has_text text="3.99606600" /><has_text text="235.0975" /><has_text text="362" />
         </assert_contents>
       </output>
     </test>
@@ -341,7 +321,6 @@
           <has_text text="0.0488654" />
         </assert_contents>
       </output>
-      <!-- test #4 -->
       <output name="contrast_salience">
         <assert_contents>
           <!-- column-labels line -->
@@ -349,18 +328,10 @@
           <has_text text="salientLevel" />
           <has_text text="salientRCV" />
           <has_text text="salience" />
-          <!-- first matched line -->
-          <has_text text="M349.2383T700" />
-          <has_text text="0.659554" />
-          <has_text text="8.81866595" />
-          <!-- second matched line -->
-          <has_text text="M207.9308T206" />
-          <has_text text="0.0578578" />
-          <has_text text="2.27527985" />
-          <!-- third matched line -->
-          <has_text text="M211.0607T263" />
-          <has_text text="9999" />
-          <has_text text="12.87766096" />
+          <!-- first three matched lines -->
+          <has_text text="M207.0654T373" /><has_text text="k4" /><has_text text="0.822733190" /><has_text text="134.087771" /><has_text text="3.9994434" /><has_text text="207.0654" /><has_text text="373" />
+          <has_text text="M222.9585T226" /><has_text text="k2" /><has_text text="0.761200229" /><has_text text="87.3672719" /><has_text text="3.9995358" /><has_text text="222.9585" /><has_text text="226" />
+          <has_text text="M235.0975T362" /><has_text text="k4" /><has_text text="0.209363850" /><has_text text="77.6255643" /><has_text text="3.99606600" /><has_text text="235.0975" /><has_text text="362" />
         </assert_contents>
       </output>
     </test>
@@ -409,12 +380,9 @@
           <has_text text="mz" />
           <has_text text="rt" />
           <!-- first matched line -->
-          <has_text text="PM518T369" />
-          <has_text text="flower_yes" />
-          <has_text text="0.58655260" />
-          <has_text text="4.414469" />
-          <has_text text="518.1656" />
-          <has_text text="368.59817" />
+          <has_text text="NM517T428" /><has_text text="flower_yes" /><has_text text="0.02765631" /><has_text text="7.8343993" /><has_text text="1.27813793" /><has_text text="517.121714" /><has_text text="428.306854248" />
+          <has_text text="NM517T426_1" /><has_text text="0.0290065" /><has_text text="7.7151305" /><has_text text="1.2758886" /><has_text text="517.09367125" /><has_text text="426.233886719" />
+          <has_text text="NM516T284_2" /><has_text text="0.022883902" /><has_text text="7.6379724" /><has_text text="1.25603610" /><has_text text="516.082005177" /><has_text text="283.569198608" />
         </assert_contents>
       </output>
     </test>
@@ -714,6 +682,8 @@ Parameters
 - **salientRCV** - salient robust coefficient of variation, i.e., for the feature, the mean absolute deviation of the intensity for the salient level divided by the median intensity for the salient level
 - **relativeSalientDistance** - relative salient distance, i.e., for the feature, the distance between the two highest class-level medians divided by the square root of the mean absolute deviations of those two class-level's intensities
 - **salience** - salience, i.e., for the feature, the median of the class-level having the greatest intensity divided by the mean of the medians for all class-levels
+- **mz** - *m/z* ratio for feature, copied from input variableMetadata
+- **rt** - retention time for feature, copied from input variableMetadata
 
 Wild card patterns to match level-names
 ---------------------------------------

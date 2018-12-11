@@ -624,7 +624,7 @@ Parameters
   |
 
 [IN] (Advanced) C-plot Y-axis
-  | Choose whether C-plots should plot the correlation or the covariance *vs.* VIP.
+  | Choose whether C-plots should plot the correlation (the default) or the covariance *vs.* VIP.
   |
 
 [IN] (Advanced) Produce predictor C-plot
@@ -649,9 +649,9 @@ Parameters
     - plot symbols are diamonds when the p-value of the correlation, adjusted for family-wise error rate (Yekutieli *et al.*, 2001), is greater than 0.05, circles when it is less than 0.01, and triangles when between 0.01 and 0.05.
 - (second row, left) **model-overview plot** for the two projections; grey bars are the correlation coefficient for the fitted data; black bars indicate performance in cross-validation tests (Th]]>&#233;<![CDATA[venot, 2017)
 - (first row, right) OPLS-DA **scores-plot** for the two projections (Th]]>&#233;<![CDATA[venot *et al.*, 2015)
-- (second row, right) **correlation-versus-covariance plot** of OPLS-DA results **orthogonal to the predictor** (see section "S-Plot of Orthogonal Component" in Wiklund, *op. cit.*, pp. 120-121; this characterizes *features with the greatest variation independent of the predictor*).
-- (third row, left, when "**predictor C-plot**" is chosen under "Advanced") plot of the covariance or correlation vs. the VIP\ :subscript:`4,p` (Galindo-Prieto *op. cit.*), to assist in identifying features for consideration as biomarkers.
-- (third row, right, when "**orthogonal C-plot**" is chosen under "Advanced") plot of the covariance or correlation vs. the VIP\ :subscript:`4,o` (*ibid.*), to assist in identifying features varying considerably without regard to the predictor.
+- (second row, right) **correlation-versus-covariance plot** of OPLS-DA results **orthogonal to the predictor** (see section "S-Plot of Orthogonal Component" in Wiklund, *op. cit.*, pp. 120-121; this characterizes variation of features that is *independent of the predictor*).
+- (third row, left, when "**predictor C-plot**" is chosen under "Advanced") plot of the correlation (or covariance) vs. the VIP\ :subscript:`4,p` (Galindo-Prieto *op. cit.*), to assist in identifying features for consideration as biomarkers.
+- (third row, right, when "**orthogonal C-plot**" is chosen under "Advanced") plot of the correlation (or covariance) vs. the VIP\ :subscript:`4,o` (*ibid.*), to assist in identifying features varying considerably without regard to the predictor.
 
 [OUT] Contrast Correlation-Covarinace data TABULAR
   | A tab-separated values file of metadata for each feature for each contrast in which it was included.

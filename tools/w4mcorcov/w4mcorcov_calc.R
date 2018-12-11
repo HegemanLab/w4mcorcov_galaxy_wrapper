@@ -460,7 +460,7 @@ corcov_calc <- function(
   names(rt)      <- vrbl_metadata$variableMetadata
   rt_lookup      <- function(feature) unname(rt[feature])
 
-  # calculate salience_df as data.frame(feature, max_level, max_median, salient_rcv, mean_median, salience, salient_rcv)
+  # calculate salience_df as data.frame(feature, max_level, max_median, salience_rcv, mean_median, salience, salience_rcv)
   salience_df <- calc_env$salience_df <- w4msalience(
     data_matrix    = data_matrix
   , sample_class   = smpl_metadata[,facC]
@@ -473,7 +473,7 @@ corcov_calc <- function(
       my_df <<- data.frame(
         featureID       = feature
       , salientLevel    = max_level
-      , salientRCV      = salient_rcv
+      , salienceRCV     = salience_rcv
       , relativeSalientDistance = relative_salient_distance
       , salience        = salience
       , mz              = mz_lookup(feature)

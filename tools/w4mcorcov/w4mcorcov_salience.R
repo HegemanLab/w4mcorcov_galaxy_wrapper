@@ -114,7 +114,7 @@ w4msalience <- function(
       # the distance between the maximum intensities for the feature at the two highest levels
     , relative_salient_distance = relative_salient_distance
       # the coefficient of variation (expressed as a proportion) for the intensity for the feature and the level max_level
-    , salient_rcv               = rcv_result
+    , salience_rcv              = rcv_result
       # the mean of the medians of intensity for all class-levels for the feature
     , mean_median               = mean_median
       # raw salience is the ratio of the most-prominent level to the mean of all levels for the feature

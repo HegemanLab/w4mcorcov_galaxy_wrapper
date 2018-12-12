@@ -1,4 +1,4 @@
-﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.16">
+﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.17">
     <description>OPLS-DA Contrasts of Univariate Results</description>
     <macros>
         <xml name="paramPairSigFeatOnly">
@@ -25,7 +25,6 @@
     <requirements>
         <requirement type="package">r-base</requirement>
         <requirement type="package">r-batch</requirement>
-        <requirement type="package">r-sqldf</requirement>
         <requirement type="package" version="1.10.0">bioconductor-ropls</requirement>
     </requirements>
     <command detect_errors="aggressive"><![CDATA[

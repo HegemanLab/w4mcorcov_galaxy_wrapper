@@ -26,6 +26,14 @@ The original OPLS-DA® S-PLOT® which this tool emulates is described in:
 
 # Release notes
 
+0.98.17
+
+- Add enhancement `Salience needs more info about spread` [https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/9](https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/9)
+    - Add distance between salient treatment and runner-up, relative to mean absolute deviation.
+    - Base the definition of salience on medians rather than maxima.
+- Add enhancement `Calculate significance for correlation` [https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/12](https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/12)
+- Internal - Use R stats::cov and stats::cor to calculate covariance and correlation, respectively, ignoring missing values
+
 0.98.16
 
 - Fix defect `correlation calculation is incorrect` [https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/11](https://github.com/HegemanLab/w4mcorcov_galaxy_wrapper/issues/11)

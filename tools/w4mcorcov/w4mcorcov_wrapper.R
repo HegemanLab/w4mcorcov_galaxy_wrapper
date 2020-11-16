@@ -108,6 +108,7 @@ my_env$pairSigFeatOnly    <- as.logical(argVc["pairSigFeatOnly"])
 my_env$levCSV             <- as.character(argVc["levCSV"])
 my_env$matchingC          <- as.character(argVc["matchingC"])
 my_env$labelFeatures      <- as.character(argVc["labelFeatures"]) # number of features to label at each extreme of the loadings or 'ALL'
+my_env$min_crossval_i     <- as.character(argVc["min_crossval_i"]) # Minumum number of samples for OPLS-DA cross-validation
 my_env$fdr_features       <- as.character(argVc["fdr_features"]) # number of features to consider when adjusting p-value, or 'ALL'
 my_env$cplot_o            <- as.logical(argVc["cplot_o"]) # TRUE if orthogonal C-plot is requested
 my_env$cplot_p            <- as.logical(argVc["cplot_p"]) # TRUE if parallel C-plot is requested
@@ -128,6 +129,24 @@ if ( is.na(label_features) ) {
 if ( !labelfeatures_check ) {
   my_log("invalid argument: labelFeatures")
   print(label_features)
+  quit(save = "no", status = 10, runLast = TRUE)
+}
+
+min_crossval_i <- my_env$min_crossval_i
+crossval_check <- TRUE
+if ( is.na(min_crossval_i) ) {
+  crossval_check <- FALSE
+} else if ( is.null(min_crossval_i) ) {
+  crossval_check <- FALSE
+} else {
+  if ( is.na(as.numeric(min_crossval_i)) )
+    crossval_check <- FALSE
+  else if ( as.numeric(min_crossval_i) < 0 )
+    crossval_check <- FALSE
+}
+if ( !crossval_check ) {
+  my_log("invalid argument: min_crossval_i")
+  print(min_crossval_i)
   quit(save = "no", status = 10, runLast = TRUE)
 }
 

@@ -443,6 +443,7 @@ corcov_calc <- function(
   # matchingC is one of { "none", "wildcard", "regex" }
   matchingC <- calc_env$matchingC
   labelFeatures <- calc_env$labelFeatures
+  minCrossvalI <- calc_env$min_crossval_i
 
   # arg/env checking
   if (!(facC %in% names(smpl_metadata))) {
@@ -600,7 +601,7 @@ corcov_calc <- function(
                           }
         , x_show_labels = labelFeatures
         , x_progress    = progress_action
-        , x_crossval_i  = min(7, length(chosen_samples))
+        , x_crossval_i  = min(minCrossvalI, length(chosen_samples))
         , x_env         = calc_env
         )
         if ( is.null(my_cor_cov) ) {
@@ -674,7 +675,7 @@ corcov_calc <- function(
                               }
             , x_show_labels = labelFeatures
             , x_progress    = progress_action
-            , x_crossval_i  = min(7, length(chosen_samples))
+            , x_crossval_i  = min(minCrossvalI, length(chosen_samples))
             , x_env         = calc_env
             )
             if ( is.null(my_cor_cov) ) {
@@ -753,7 +754,7 @@ corcov_calc <- function(
                 , x_prefix      = "Features"
                 , x_show_labels = labelFeatures
                 , x_progress    = progress_action
-                , x_crossval_i  = min(7, length(chosen_samples))
+                , x_crossval_i  = min(minCrossvalI, length(chosen_samples))
                 , x_env         = calc_env
                 )
                 if ( is.null(my_cor_cov) ) {
@@ -806,7 +807,7 @@ corcov_calc <- function(
               , x_prefix      = "Features"
               , x_show_labels = labelFeatures
               , x_progress    = progress_action
-              , x_crossval_i  = min(7, length(chosen_samples))
+              , x_crossval_i  = min(minCrossvalI, length(chosen_samples))
               , x_env         = calc_env
               )
               if ( is.null(my_cor_cov) ) {

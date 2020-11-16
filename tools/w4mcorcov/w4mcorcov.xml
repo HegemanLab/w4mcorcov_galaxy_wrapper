@@ -57,6 +57,7 @@
         contrast_detail '$contrast_detail'
         contrast_corcov '$contrast_corcov'
         contrast_salience '$contrast_salience'
+        min_crossval_i '$min_crossval_i'
     ]]></command>
     <inputs>
         <param name="dataMatrix_in" format="tabular" label="Data matrix file" type="data"
@@ -135,6 +136,9 @@
         <param name="labelFeatures" type="text" value="3"
             label="How many features having extreme loadings should be labelled on cov-vs.-cor plot?"
             help="Specify the number of features at each of the loading-extremes that should be labelled (with the name of the feature) on the covariance-vs.-correlation plot; specify 'ALL' to label all features or '0' to label no features; this choice has no effect on the OPLS-DA loadings plot."/>
+        <param name="min_crossval_i" type="text" value="7"
+            label="Minumum number of samples for OPLS-DA cross-validation."
+            help="What is the minimum number of samples to be used by the ropls package for cross-validation of OPLS-DA predictions?  This should be not more than half the number of your samples."/>
         <conditional name="advanced">
             <param name="advancedFeatures" type="select" 
                 label="Advanced (C-plots and customized p-value adjustment)"

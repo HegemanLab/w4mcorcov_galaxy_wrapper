@@ -4,7 +4,7 @@
 #   - w4mcorcov_lib.R
 #   - w4mcorcov_input.R
 #   - w4mcorcov_calc.R
-
+options(warn=1)
 ## constants
 ##----------
 

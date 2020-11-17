@@ -22,8 +22,8 @@ do_detail_plot <- function(
       , algoC  = x_algorithm
       , predI  = 1
       , orthoI = if (ncol(x_dataMatrix) > 1) 1 else 0
-      , printL = FALSE
-      , plotL  = FALSE
+      , fig.pdfC = 'none'
+      , info.txtC  = 'none'
       , crossvalI = x_crossval_i
       , scaleC = "pareto" # data centered and pareto scaled here only. This line fixes issue #2.
       )
@@ -443,7 +443,7 @@ corcov_calc <- function(
   # matchingC is one of { "none", "wildcard", "regex" }
   matchingC <- calc_env$matchingC
   labelFeatures <- calc_env$labelFeatures
-  minCrossvalI <- calc_env$min_crossval_i
+  minCrossvalI <- as.integer(calc_env$min_crossval_i)
 
   # arg/env checking
   if (!(facC %in% names(smpl_metadata))) {

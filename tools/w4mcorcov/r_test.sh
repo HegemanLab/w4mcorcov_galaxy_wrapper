@@ -32,6 +32,8 @@ facC=k10
 pairSigFeatOnly=TRUE
 # Number of features having extreme loadings
 labelFeatures=ALL
+# minimum number of samples for cross-validation of OPLS-DA
+min_crossval_i=7
 # Number of features for family-wise error-rate adjustment of p-values
 fdr_features=250
 # comma-separated level-names (or comma-less regular expressions to match level-names) to consider in analysis; must match at least two levels; may include wild cards or regular expressions
@@ -79,6 +81,7 @@ bash -c " cd $__tool_directory__; \
   contrast_corcov '${OUTPUT}_${contrast_corcov}' \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
+  min_crossval_i '$min_crossval_i' \
   fdr_features '$fdr_features' \
   cplot_p '$cplot_p' \
   cplot_o '$cplot_o' \
@@ -119,6 +122,7 @@ bash -c " cd $__tool_directory__; \
   contrast_corcov '${OUTPUT}_${contrast_corcov}' \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
+  min_crossval_i '$min_crossval_i' \
   fdr_features '$fdr_features' \
   cplot_p '$cplot_p' \
   cplot_o '$cplot_o' \
@@ -158,6 +162,7 @@ bash -c " cd $__tool_directory__; \
   contrast_corcov '${OUTPUT}_${contrast_corcov}' \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
+  min_crossval_i '$min_crossval_i' \
   fdr_features '$fdr_features' \
   cplot_p '$cplot_p' \
   cplot_o '$cplot_o' \
@@ -195,6 +200,7 @@ bash -c " cd $__tool_directory__; \
   contrast_corcov '${OUTPUT}_${contrast_corcov}' \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
+  min_crossval_i '$min_crossval_i' \
   fdr_features '$fdr_features' \
   cplot_p '$cplot_p' \
   cplot_o '$cplot_o' \
@@ -241,6 +247,7 @@ bash -c " cd $__tool_directory__; \
   contrast_corcov '${OUTPUT}_${contrast_corcov}' \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
+  min_crossval_i '$min_crossval_i' \
   fdr_features '$fdr_features' \
   cplot_p '$cplot_p' \
   cplot_o '$cplot_o' \
@@ -288,6 +295,7 @@ bash -c " cd $__tool_directory__; \
   contrast_corcov '${OUTPUT}_${contrast_corcov}' \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
+  min_crossval_i '$min_crossval_i' \
   fdr_features '$fdr_features' \
   cplot_p '$cplot_p' \
   cplot_o '$cplot_o' \
@@ -335,6 +343,7 @@ bash -c " cd $__tool_directory__; \
   contrast_corcov '${OUTPUT}_${contrast_corcov}' \
   contrast_salience '${OUTPUT}_${contrast_salience}' \
   labelFeatures '$labelFeatures' \
+  min_crossval_i '$min_crossval_i' \
   fdr_features '$fdr_features' \
   cplot_p '$cplot_p' \
   cplot_o '$cplot_o' \

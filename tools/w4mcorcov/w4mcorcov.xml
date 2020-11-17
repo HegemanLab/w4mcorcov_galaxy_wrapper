@@ -1,4 +1,4 @@
-﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.17">
+﻿<tool id="w4mcorcov" name="OPLS-DA_Contrasts" version="0.98.18">
     <description>OPLS-DA Contrasts of Univariate Results</description>
     <macros>
         <xml name="paramPairSigFeatOnly">
@@ -25,7 +25,7 @@
     <requirements>
         <requirement type="package">r-base</requirement>
         <requirement type="package">r-batch</requirement>
-        <requirement type="package" version="1.10.0">bioconductor-ropls</requirement>
+        <requirement type="package" version="1.22.0">bioconductor-ropls</requirement>
     </requirements>
     <command detect_errors="aggressive"><![CDATA[
     Rscript '$__tool_directory__/w4mcorcov_wrapper.R'
@@ -183,7 +183,121 @@
     <data name="contrast_salience" format="tabular" label="${tool.name}_${variableMetadata_in.name}_salience" />
   </outputs>
   <tests>
-    <!-- test #1 -->
+    <!-- test #1 - issue 14 -->
+    <test>
+      <param name="dataMatrix_in" value="issue14_input_dataMatrix.tsv"/>
+      <param name="sampleMetadata_in" value="issue14_input_sampleMetadata.tsv"/>
+      <param name="variableMetadata_in" value="issue14_input_variableMetadata.tsv"/>
+      <param name="tesC" value="none"/>
+      <param name="facC" value="tissue_flowering"/>
+      <param name="labelFeatures" value="3"/>
+      <param name="min_crossval_i" value="4"/>
+      <param name="fdr_features" value="ALL"/>
+      <param name="levCSV" value="*"/>
+      <param name="matchingC" value="wildcard"/>
+      <output name="contrast_corcov">
+        <assert_contents>
+          <!-- column-labels line -->
+          <has_text text="featureID" />
+          <has_text text="factorLevel1" />
+          <has_text text="factorLevel2" />
+          <has_text text="correlation" />
+          <has_text text="covariance" />
+          <has_text text="vip4p" />
+          <has_text text="vip4o" />
+          <!-- a matched line -->
+          <has_text text="NM516T283_1" />
+          <has_text text="flower_yes" />
+          <has_text text="leaf_no" />
+          <has_text text="-0.98475578586" />
+          <has_text text="-58.1219648" />
+          <has_text text="2.0103501" />
+          <has_text text="2.872672881" />
+          <has_text text="-0.1208407903" />
+          <has_text text="-0.2032249" />
+          <has_text text="-0.9857575" />
+          <has_text text="-0.983684189899" />
+          <has_text text="516.080116" />
+          <has_text text="282.50076" />
+        </assert_contents>
+      </output>
+    </test>
+    <!-- test #2 - issue 6 -->
+    <test>
+      <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
+      <param name="sampleMetadata_in" value="issue6_input_sampleMetadata.tsv"/>
+      <param name="variableMetadata_in" value="input_variableMetadata.tsv"/>
+      <param name="tesC" value="none"/>
+      <param name="facC" value="k._10"/>
+      <param name="labelFeatures" value="3"/>
+      <param name="min_crossval_i" value="7"/>
+      <param name="fdr_features" value="ALL"/>
+      <param name="levCSV" value="k_3,k-4"/>
+      <param name="matchingC" value="none"/>
+      <output name="contrast_corcov">
+        <assert_contents>
+          <!-- column-labels line -->
+          <has_text text="featureID" />
+          <has_text text="factorLevel1" />
+          <has_text text="factorLevel2" />
+          <has_text text="correlation" />
+          <has_text text="covariance" />
+          <has_text text="vip4p" />
+          <has_text text="vip4o" />
+          <!-- first matched line -->
+          <has_text text="M349.2383T700" />
+          <has_text text="-0.1221966" />
+          <has_text text="-917311734" />
+          <has_text text="0.0304592" />
+          <has_text text="0.104748883" />
+          <has_text text="-0.002736415" />
+          <has_text text="-0.0113968" />
+          <has_text text="0.387723" />
+          <has_text text="-0.3812168081" />
+          <has_text text="0.154611878" />
+        </assert_contents>
+      </output>
+    </test>
+    <!-- test #3 - issue 8 -->
+    <test>
+      <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
+      <param name="sampleMetadata_in" value="issue8_input_sampleMetadata.tsv"/>
+      <param name="variableMetadata_in" value="input_variableMetadata.tsv"/>
+      <param name="tesC" value="none"/>
+      <param name="facC" value="k._10"/>
+      <param name="labelFeatures" value="3"/>
+      <param name="min_crossval_i" value="7"/>
+      <param name="fdr_features" value="ALL"/>
+      <param name="levCSV" value="k_3,k-4"/>
+      <param name="matchingC" value="none"/>
+      <output name="contrast_corcov">
+        <assert_contents>
+          <!-- column-labels line -->
+          <has_text text="featureID" />
+          <has_text text="factorLevel1" />
+          <has_text text="factorLevel2" />
+          <has_text text="correlation" />
+          <has_text text="covariance" />
+          <has_text text="vip4p" />
+          <has_text text="vip4o" />
+          <!-- k1 rejected by levCSV, leaving only k_3 and k-4 -->
+          <not_has_text text="k1" />
+          <not_has_text text="other" />
+          <!-- first matched line -->
+          <has_text text="M200.005T296" />
+          <has_text text="-0.1829149760" />
+          <has_text text="-115723402" />
+          <has_text text="0.0892595" />
+          <has_text text="0.00492288" />
+          <has_text text="-0.00801895" />
+          <has_text text="0.0005356178" />
+          <has_text text="0.1848186" />
+          <has_text text="-0.428802311" />
+          <has_text text="0.0882045811" />
+        </assert_contents>
+      </output>
+    </test>
+    <!-- test #4 -->
     <test>
       <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
       <param name="sampleMetadata_in" value="input_sampleMetadata.tsv"/>
@@ -192,6 +306,7 @@
       <param name="facC" value="k10"/>
       <param name="pairSigFeatOnly" value="FALSE"/>
       <param name="labelFeatures" value="3"/>
+      <param name="min_crossval_i" value="7"/>
       <param name="fdr_features" value="250"/>
       <param name="levCSV" value="k[12],k[3-4]"/>
       <param name="matchingC" value="regex"/>
@@ -245,7 +360,7 @@
         </assert_contents>
       </output>
     </test>
-    <!-- test #2 -->
+    <!-- test #5 -->
     <test>
       <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
       <param name="sampleMetadata_in" value="input_sampleMetadata.tsv"/>
@@ -254,6 +369,7 @@
       <param name="facC" value="k10"/>
       <param name="pairSigFeatOnly" value="TRUE"/>
       <param name="labelFeatures" value="3"/>
+      <param name="min_crossval_i" value="7"/>
       <param name="fdr_features" value="ALL"/>
       <param name="levCSV" value="k[12],k[3-4]"/>
       <param name="matchingC" value="regex"/>
@@ -290,7 +406,7 @@
         </assert_contents>
       </output>
     </test>
-    <!-- test #3 -->
+    <!-- test #6 -->
     <test>
       <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
       <param name="sampleMetadata_in" value="input_sampleMetadata.tsv"/>
@@ -298,6 +414,7 @@
       <param name="tesC" value="none"/>
       <param name="facC" value="k10"/>
       <param name="labelFeatures" value="3"/>
+      <param name="min_crossval_i" value="7"/>
       <param name="fdr_features" value="ALL"/>
       <param name="levCSV" value="k[12],k[3-4]"/>
       <param name="matchingC" value="regex"/>
@@ -339,7 +456,7 @@
         </assert_contents>
       </output>
     </test>
-    <!-- test #4 -->
+    <!-- test #7 -->
     <test>
       <param name="dataMatrix_in" value="issue1_input_dataMatrix.tsv"/>
       <param name="sampleMetadata_in" value="issue1_input_sampleMetadata.tsv"/>
@@ -347,6 +464,7 @@
       <param name="tesC" value="none"/>
       <param name="facC" value="tissue_flowering"/>
       <param name="labelFeatures" value="3"/>
+      <param name="min_crossval_i" value="7"/>
       <param name="fdr_features" value="ALL"/>
       <param name="levCSV" value="*"/>
       <param name="matchingC" value="wildcard"/>
@@ -390,7 +508,7 @@
         </assert_contents>
       </output>
     </test>
-    <!-- test #5 -->
+    <!-- test #8 -->
     <test>
       <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
       <param name="sampleMetadata_in" value="issue6_input_sampleMetadata.tsv"/>
@@ -398,6 +516,7 @@
       <param name="tesC" value="none"/>
       <param name="facC" value="k._10"/>
       <param name="labelFeatures" value="3"/>
+      <param name="min_crossval_i" value="7"/>
       <param name="fdr_features" value="ALL"/>
       <param name="levCSV" value="k1,k.2"/>
       <param name="matchingC" value="none"/>
@@ -423,79 +542,6 @@
           <has_text text="-585563327.7" />
           <has_text text="0.270297" />
           <has_text text="0.037661" />
-        </assert_contents>
-      </output>
-    </test>
-    <!-- test #6 - issue 6 -->
-    <test>
-      <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
-      <param name="sampleMetadata_in" value="issue6_input_sampleMetadata.tsv"/>
-      <param name="variableMetadata_in" value="input_variableMetadata.tsv"/>
-      <param name="tesC" value="none"/>
-      <param name="facC" value="k._10"/>
-      <param name="labelFeatures" value="3"/>
-      <param name="fdr_features" value="ALL"/>
-      <param name="levCSV" value="k_3,k-4"/>
-      <param name="matchingC" value="none"/>
-      <output name="contrast_corcov">
-        <assert_contents>
-          <!-- column-labels line -->
-          <has_text text="featureID" />
-          <has_text text="factorLevel1" />
-          <has_text text="factorLevel2" />
-          <has_text text="correlation" />
-          <has_text text="covariance" />
-          <has_text text="vip4p" />
-          <has_text text="vip4o" />
-          <!-- first matched line -->
-          <has_text text="M349.2383T700" />
-          <has_text text="-0.1221966" />
-          <has_text text="-917311734" />
-          <has_text text="0.0304592" />
-          <has_text text="0.104748883" />
-          <has_text text="-0.002736415" />
-          <has_text text="-0.0113968" />
-          <has_text text="0.387723" />
-          <has_text text="-0.3812168081" />
-          <has_text text="0.154611878" />
-        </assert_contents>
-      </output>
-    </test>
-    <!-- test #7 - issue 8 -->
-    <test>
-      <param name="dataMatrix_in" value="input_dataMatrix.tsv"/>
-      <param name="sampleMetadata_in" value="issue8_input_sampleMetadata.tsv"/>
-      <param name="variableMetadata_in" value="input_variableMetadata.tsv"/>
-      <param name="tesC" value="none"/>
-      <param name="facC" value="k._10"/>
-      <param name="labelFeatures" value="3"/>
-      <param name="fdr_features" value="ALL"/>
-      <param name="levCSV" value="k_3,k-4"/>
-      <param name="matchingC" value="none"/>
-      <output name="contrast_corcov">
-        <assert_contents>
-          <!-- column-labels line -->
-          <has_text text="featureID" />
-          <has_text text="factorLevel1" />
-          <has_text text="factorLevel2" />
-          <has_text text="correlation" />
-          <has_text text="covariance" />
-          <has_text text="vip4p" />
-          <has_text text="vip4o" />
-          <!-- k1 rejected by levCSV, leaving only k_3 and k-4 -->
-          <not_has_text text="k1" />
-          <not_has_text text="other" />
-          <!-- first matched line -->
-          <has_text text="M200.005T296" />
-          <has_text text="-0.1829149760" />
-          <has_text text="-115723402" />
-          <has_text text="0.0892595" />
-          <has_text text="0.00492288" />
-          <has_text text="-0.00801895" />
-          <has_text text="0.0005356178" />
-          <has_text text="0.1848186" />
-          <has_text text="-0.428802311" />
-          <has_text text="0.0882045811" />
         </assert_contents>
       </output>
     </test>
